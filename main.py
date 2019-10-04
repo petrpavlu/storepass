@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 import storepass.model
+import storepass.plainview
 import storepass.storage
-import storepass.view
 
 import argparse
 import logging
@@ -85,8 +85,8 @@ def main():
         sys.exit(1)
 
     if args.command == 'list':
-        view = storepass.view.PlainView(model)
-        view.output()
+        view = storepass.plainview.PlainView()
+        model.visit_all(view)
     else:
         # TODO Implement.
         assert 0 and "Unimplemented command!"
