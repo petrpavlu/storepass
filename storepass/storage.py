@@ -12,8 +12,9 @@ class ReadException(Exception):
     pass
 
 class StorageProxy:
-    TYPE_FOLDER = 0
-    TYPE_GENERIC = 1
+    TYPE_ROOT = 0
+    TYPE_FOLDER = 1
+    TYPE_GENERIC = 2
 
     def __init__(self, elem):
         if elem.tag == 'revelationdata' or elem.get('type') == 'folder':

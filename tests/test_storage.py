@@ -1,8 +1,39 @@
+# Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
+# SPDX-License-Identifier: MIT
+
+import storepass.storage
+import support
+
+import os.path
+import shutil
+import tempfile
 import unittest
 
 class TestStorage(unittest.TestCase):
-    def test_upper(self):
-        self.assertEqual('foo'.upper(), 'FOO')
+    def setUp(self):
+        self.testdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.testdir)
+
+    def test_generic_entry(self):
+        dbname = os.path.join(self.testdir, 'pass.db')
+        support.write_password_db(dbname, '''\
+<?xml version="1.0" encoding="utf-8"?>
+<revelationdata version="0.4.14" dataversion="1">
+        <entry type="generic">
+                <name>E1 name</name>
+                <description>E1 description</description>
+                <updated>1546300800</updated>
+                <notes>E1 notes</notes>
+                <field id="generic-hostname">E1 hostname</field>
+                <field id="generic-username">E1 username</field>
+                <field id="generic-password">E1 password</field>
+        </entry>
+</revelationdata>''')
+        storage = storepass.storage.Reader(dbname)
+        root = storage.get_root_node()
+        self.assertEqual(root.type, root.TYPE_ROOT)
 
 if __name__ == '__main__':
     unittest.main()
