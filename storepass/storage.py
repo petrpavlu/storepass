@@ -10,42 +10,9 @@ from Crypto.Cipher import AES
 class ReadException(Exception):
     pass
 
-class StorageProxy:
-    TYPE_ROOT = 0
-    TYPE_FOLDER = 1
-    TYPE_GENERIC = 2
-
-    def __init__(self, elem):
-        if elem.tag == 'revelationdata' or elem.get('type') == 'folder':
-            self._type = self.TYPE_FOLDER
-        else:
-            self._type = self.TYPE_GENERIC
-        self._attrs = []
-        self._children = []
-
-        # Convert the XML element into a proxy.
-        # TODO Validate the XML does not contain unrecognized values.
-        for e in list(elem):
-            if e.tag == 'entry':
-                self._children.append(StorageProxy(e))
-            else:
-                self._attrs.append((e.tag, e.text))
-
-    @property
-    def type(self):
-        return self._type
-
-    @property
-    def attributes(self):
-        return self._attrs
-
-    @property
-    def children(self):
-        return self._children
-
-class Reader:
+class PlainReader:
     def __init__(self, filename, password_proxy):
-        self._root_elem = None
+        self._data = None
 
         # Read and decode the input file.
         try:
@@ -105,12 +72,11 @@ class Reader:
         if compressed_data[-padlen:] != padlen * padlen.to_bytes(1, 'little'):
             raise ReadException("Decompressed data have incorrect padding")
 
-        data = zlib.decompress(compressed_data[0:-padlen])
-        # TODO Remove.
-        print(data.decode('utf-8'))
+        # TODO Check for errors.
+        decompressed_data = zlib.decompress(compressed_data[0:-padlen])
 
-        # TODO Implement proper error checking.
-        self._root_elem = ET.fromstring(data)
+        # TODO Check for errors.
+        self._data = decompressed_data.decode('utf-8')
 
     def _parse_header(self, header):
         assert len(header) == 12
@@ -125,6 +91,53 @@ class Reader:
         # Ignore app version at header[6:9].
         if header[9:] != b'\x00\x00\x00':
             raise ReadException("Non-zero header padding at bytes [9:12)")
+
+    @property
+    def data(self):
+        return self._data
+
+class StorageProxy:
+    TYPE_ROOT = 0
+    TYPE_FOLDER = 1
+    TYPE_GENERIC = 2
+
+    def __init__(self, elem):
+        # TODO Sink the checking into the Reader and make this a dummy proxy.
+        if elem.tag == 'revelationdata':
+            self._type = self.TYPE_ROOT
+        elif elem.get('type') == 'folder':
+            self._type = self.TYPE_FOLDER
+        else:
+            self._type = self.TYPE_GENERIC
+        self._attrs = []
+        self._children = []
+
+        # Convert the XML element into a proxy.
+        # TODO Validate the XML does not contain unrecognized values.
+        for e in list(elem):
+            if e.tag == 'entry':
+                self._children.append(StorageProxy(e))
+            else:
+                self._attrs.append((e.tag, e.text))
+
+    @property
+    def type(self):
+        return self._type
+
+    @property
+    def attributes(self):
+        return self._attrs
+
+    @property
+    def children(self):
+        return self._children
+
+class TreeReader(PlainReader):
+    def __init__(self, filename, password_proxy):
+        super().__init__(filename, password_proxy)
+
+        # TODO Implement proper error checking.
+        self._root_elem = ET.fromstring(self.data)
 
     def get_root_node(self):
         return StorageProxy(self._root_elem)

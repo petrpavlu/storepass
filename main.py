@@ -57,6 +57,8 @@ def main():
         'edit', description="edit an existing password entry")
     list_parser = subparsers.add_parser(
         'list', description="list password entries")
+    dump_parser = subparsers.add_parser(
+        'dump', description="dump raw database content")
 
     args = parser.parse_args()
 
@@ -70,20 +72,33 @@ def main():
     # Handle the specified command.
     if args.command is None:
         parser.error("no command specified")
-        sys.exit(1)
+        return 1
 
     logger.debug(f"processing command '{args.command}' on file '{args.file}'")
+
+    # Load the password database.
+    if args.command == 'dump':
+        reader_class = storepass.storage.PlainReader
+    else:
+        reader_class = storepass.storage.TreeReader
+
+    try:
+        storage = reader_class(args.file, getpass.getpass)
+    except storepass.storage.ReadException as e:
+        logger.error(f"failed to load password database '{args.file}': {e}")
+        return 1
+
+    # Handle the dump command which does not require any high-level
+    # representation.
+    if args.command == 'dump':
+        print(storage.data, end="")
+        return 0
 
     # Create data representation.
     model = storepass.model.Model()
 
-    # Load the password database.
-    try:
-        storage = storepass.storage.Reader(args.file, getpass.getpass)
-        model.load(storage)
-    except storepass.storage.ReadException as e:
-        logger.error(f"failed to load password database '{args.file}': {e}")
-        sys.exit(1)
+    # TODO Error handling.
+    model.load(storage)
 
     if args.command == 'list':
         view = storepass.plainview.PlainView()
@@ -92,5 +107,7 @@ def main():
         # TODO Implement.
         assert 0 and "Unimplemented command!"
 
+    return 0
+
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

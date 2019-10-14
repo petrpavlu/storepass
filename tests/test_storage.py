@@ -33,7 +33,7 @@ class TestStorage(unittest.TestCase):
                 <field id="generic-password">E1 password</field>
         </entry>
 </revelationdata>''')
-        storage = storepass.storage.Reader(dbname, DEFAULT_PASSWORD)
+        storage = storepass.storage.TreeReader(dbname, DEFAULT_PASSWORD)
         root = storage.get_root_node()
         self.assertEqual(root.type, root.TYPE_ROOT)
 
