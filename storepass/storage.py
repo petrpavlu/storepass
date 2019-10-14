@@ -1,7 +1,6 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-import getpass
 import hashlib
 import xml.etree.ElementTree as ET
 import zlib
@@ -45,7 +44,7 @@ class StorageProxy:
         return self._children
 
 class Reader:
-    def __init__(self, filename):
+    def __init__(self, filename, password_proxy):
         self._root_elem = None
 
         # Read and decode the input file.
@@ -56,9 +55,9 @@ class Reader:
         else:
             with fi:
                 raw_content = fi.read()
-                self._decode_raw_content(raw_content)
+                self._decode_raw_content(raw_content, password_proxy)
 
-    def _decode_raw_content(self, raw_content):
+    def _decode_raw_content(self, raw_content, password_proxy):
         # Split the content.
         if len(raw_content) < 12:
             raise ReadException("File header is incomplete")
@@ -79,11 +78,13 @@ class Reader:
         self._parse_header(header)
 
         # Query the password for the file.
-        # TODO Turn into an upcall.
-        pass_ = getpass.getpass()
+        if callable(password_proxy):
+            password = password_proxy()
+        else:
+            password = password_proxy
 
         # Calculate the PBKDF2 derived key.
-        key = hashlib.pbkdf2_hmac('sha1', pass_.encode('utf-8'), salt, 12000,
+        key = hashlib.pbkdf2_hmac('sha1', password.encode('utf-8'), salt, 12000,
                                   dklen=32)
 
         # Decrypt the data.

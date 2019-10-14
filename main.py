@@ -8,6 +8,7 @@ import storepass.plainview
 import storepass.storage
 
 import argparse
+import getpass
 import logging
 import os
 import sys
@@ -78,7 +79,7 @@ def main():
 
     # Load the password database.
     try:
-        storage = storepass.storage.Reader(args.file)
+        storage = storepass.storage.Reader(args.file, getpass.getpass)
         model.load(storage)
     except storepass.storage.ReadException as e:
         logger.error(f"failed to load password database '{args.file}': {e}")

@@ -7,9 +7,7 @@ import zlib
 
 from Crypto.Cipher import AES
 
-DEFAULT_PASSWORD = 'qwerty'
-
-def write_password_db(dbfile, xml, password=DEFAULT_PASSWORD):
+def write_password_db(dbfile, password, xml):
     # Compress the data.
     encoded_data = xml.encode('utf-8')
     compressed_data = zlib.compress(encoded_data)
