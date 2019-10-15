@@ -1,2 +1,4 @@
 *.swp
+/dist/
+/storepass.egg-info/
 __pycache__/

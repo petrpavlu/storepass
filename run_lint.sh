@@ -1,3 +1,3 @@
 #!/bin/sh
 
-pylint main.py storepass tests/*
+pylint storepass.py storepass tests/*.py setup.py
