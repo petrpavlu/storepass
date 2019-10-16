@@ -4,6 +4,6 @@
 # SPDX-License-Identifier: MIT
 
 import sys
-import storepass.cli
+import storepass.cli.__main__
 
-sys.exit(storepass.cli.main())
+sys.exit(storepass.cli.__main__.main())
