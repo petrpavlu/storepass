@@ -18,6 +18,16 @@ class TestStorage(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.testdir)
 
+    def test_plain_reader(self):
+        """Check that the plain reader can output raw database content."""
+
+        dbname = os.path.join(self.testdir, 'pass.db')
+        support.write_password_db(dbname, DEFAULT_PASSWORD, '''\
+RAW CONTENT''')
+        storage = storepass.storage.PlainReader(dbname, DEFAULT_PASSWORD)
+        self.assertEqual(storage.data, '''\
+RAW CONTENT''')
+
     def test_generic_entry(self):
         dbname = os.path.join(self.testdir, 'pass.db')
         support.write_password_db(dbname, DEFAULT_PASSWORD, '''\
