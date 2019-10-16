@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import storepass.storage
-import support
+from . import support
 
 import os.path
 import shutil
@@ -36,6 +36,3 @@ class TestStorage(unittest.TestCase):
         storage = storepass.storage.TreeReader(dbname, DEFAULT_PASSWORD)
         root = storage.get_root_node()
         self.assertEqual(root.type, root.TYPE_ROOT)
-
-if __name__ == '__main__':
-    unittest.main()
