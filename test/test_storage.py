@@ -24,8 +24,9 @@ class TestStorage(unittest.TestCase):
         dbname = os.path.join(self.testdir, 'pass.db')
         support.write_password_db(dbname, DEFAULT_PASSWORD, '''\
 RAW CONTENT''')
-        storage = storepass.storage.PlainReader(dbname, DEFAULT_PASSWORD)
-        self.assertEqual(storage.data, '''\
+        storage = storepass.storage.Storage(dbname, DEFAULT_PASSWORD)
+        data = storage.read_plain()
+        self.assertEqual(data, '''\
 RAW CONTENT''')
 
     def test_generic_entry(self):
@@ -43,6 +44,6 @@ RAW CONTENT''')
                 <field id="generic-password">E1 password</field>
         </entry>
 </revelationdata>''')
-        storage = storepass.storage.TreeReader(dbname, DEFAULT_PASSWORD)
-        root = storage.get_root_node()
+        storage = storepass.storage.Storage(dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
         self.assertEqual(root.type, root.TYPE_ROOT)

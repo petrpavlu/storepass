@@ -52,14 +52,15 @@ class Model:
         self._root = None
 
     def load(self, storage):
-        storage_node = storage.get_root_node()
+        storage_node = storage.read_tree()
         self._root = self._load_storage_node(storage_node)
 
     def _load_storage_node(self, storage_node):
         attributes = storage_node.attributes
         print(attributes)
 
-        if storage_node.type == storage_node.TYPE_FOLDER:
+        if storage_node.type in \
+            (storage_node.TYPE_ROOT, storage_node.TYPE_FOLDER):
             new_node = Folder('TODO', 'TODO', 'TODO', 'TODO')
             for storage_child in storage_node.children:
                 new_node.append(self._load_storage_node(storage_child))

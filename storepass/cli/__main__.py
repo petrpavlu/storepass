@@ -74,29 +74,34 @@ def main():
 
     logger.debug(f"processing command '{args.command}' on file '{args.file}'")
 
-    # Load the password database.
-    if args.command == 'dump':
-        reader_class = storepass.storage.PlainReader
-    else:
-        reader_class = storepass.storage.TreeReader
-
-    try:
-        storage = reader_class(args.file, getpass.getpass)
-    except storepass.storage.ReadException as e:
-        logger.error(f"failed to load password database '{args.file}': {e}")
-        return 1
+    # Create a storage object.
+    storage = storepass.storage.Storage(args.file, getpass.getpass)
 
     # Handle the dump command which does not require any high-level
     # representation.
     if args.command == 'dump':
-        print(storage.data, end="")
+        # Load the database content.
+        try:
+            plain_data = storage.read_plain()
+        except storepass.storage.ReadException as e:
+            logger.error(f"failed to load password database '{args.file}': {e}")
+            return 1
+
+        # Print the content.
+        end = "" if len(plain_data) > 0 and plain_data[-1] == "\n" else "\n"
+        print(plain_data, end=end)
+
         return 0
 
-    # Create data representation.
+    # Create a data representation object.
     model = storepass.model.Model()
 
-    # TODO Error handling.
-    model.load(storage)
+    try:
+        model.load(storage)
+    except storepass.storage.ReadException as e:
+        # TODO Sink into Model.load()?
+        logger.error(f"failed to load password database '{args.file}': {e}")
+        return 1
 
     if args.command == 'list':
         view = storepass.plainview.PlainView()
