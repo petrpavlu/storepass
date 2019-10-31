@@ -1,6 +1,7 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import storepass.model
 import storepass.storage
 from . import support
 
@@ -46,4 +47,4 @@ RAW CONTENT''')
 </revelationdata>''')
         storage = storepass.storage.Storage(dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
-        self.assertEqual(root.type, root.TYPE_ROOT)
+        self.assertTrue(isinstance(root, storepass.model.Root))

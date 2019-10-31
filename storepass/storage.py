@@ -7,30 +7,10 @@ import zlib
 
 from Crypto.Cipher import AES
 
+import storepass.model
+
 class ReadException(Exception):
     pass
-
-class StorageProxy:
-    TYPE_ROOT = 0
-    TYPE_FOLDER = 1
-    TYPE_GENERIC = 2
-
-    def __init__(self, type_, attrs, children):
-        self._type = type_
-        self._attrs = attrs
-        self._children = children
-
-    @property
-    def type(self):
-        return self._type
-
-    @property
-    def attributes(self):
-        return self._attrs
-
-    @property
-    def children(self):
-        return self._children
 
 class Storage:
     """Password database file reader/writer."""
@@ -149,7 +129,7 @@ class Storage:
         # TODO Validate that the element has no unrecognized attributes.
 
         children = self._parse_subelements(iter(list(xml_elem)))
-        return StorageProxy(StorageProxy.TYPE_ROOT, [], children)
+        return storepass.model.Root(children)
 
     def _parse_subelements(self, xml_elem_iter):
         """Parse sub-elements of a folder-like element."""
@@ -182,17 +162,31 @@ class Storage:
 
         xml_subelem_iter = iter(list(xml_elem))
 
-        attrs = []
+        name = None
+        description = None
+        updated = None
+        notes = None
+
         for xml_subelem in xml_subelem_iter:
             if xml_subelem.tag == 'entry':
                 break
 
-            # TODO Improve the parsing and checking.
-            attrs.append((xml_subelem.tag, xml_subelem.text))
+            if xml_subelem.tag == 'name':
+                name = xml_subelem.text
+            elif xml_subelem.tag == 'description':
+                description = xml_subelem.text
+            elif xml_subelem.tag == 'updated':
+                updated = xml_subelem.text
+            elif xml_subelem.tag == 'notes':
+                notes = xml_subelem.text
+            else:
+                raise ReadException(
+                    f"Unrecognized property element '{xml_subelem.tag}'")
 
         children = self._parse_subelements(xml_subelem_iter)
 
-        return StorageProxy(StorageProxy.TYPE_FOLDER, attrs, children)
+        return storepass.model.Folder(name, description, updated, notes,
+            children)
 
     def _parse_generic(self, xml_elem):
         """Parse a <entry type='generic'> element."""
@@ -200,8 +194,39 @@ class Storage:
         assert xml_elem.tag == 'entry'
         assert xml_elem.get('type') == 'generic'
 
-        attrs = []
-        for xml_subelem in list(xml_elem):
-            attrs.append((xml_subelem.tag, xml_subelem.text))
+        name = None
+        description = None
+        updated = None
+        notes = None
+        hostname = None
+        username = None
+        password = None
 
-        return StorageProxy(StorageProxy.TYPE_GENERIC, attrs, [])
+        for xml_subelem in list(xml_elem):
+            if xml_subelem.tag == 'name':
+                name = xml_subelem.text
+            elif xml_subelem.tag == 'description':
+                description = xml_subelem.text
+            elif xml_subelem.tag == 'updated':
+                updated = xml_subelem.text
+            elif xml_subelem.tag == 'notes':
+                notes = xml_subelem.text
+            elif xml_subelem.tag == 'field':
+                # TODO More checking.
+                id_ = xml_subelem.get('id')
+                if id_ == 'generic-hostname':
+                    hostname = xml_subelem.text
+                elif id_ == 'generic-username':
+                    username = xml_subelem.text
+                elif id_ == 'generic-password':
+                    password = xml_subelem.text
+                else:
+                    # TODO Handle None type.
+                    raise ReadException(
+                        f"Unrecognized generic id attribute '{id_}'")
+            else:
+                raise ReadException(
+                    f"Unrecognized property element '{xml_subelem.tag}'")
+
+        return storepass.model.Generic(name, description, updated, notes,
+           username, password)

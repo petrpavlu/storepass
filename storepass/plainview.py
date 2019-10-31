@@ -6,20 +6,25 @@ class PlainView:
         self._parent_chain = []
 
     def _backtrace_parent(self, parent):
+        assert parent is not None
+        assert len(self._parent_chain) > 0
+
         while self._parent_chain[-1] != parent:
             del self._parent_chain[-1]
 
-    def visit_folder(self, parent, folder):
-        if parent is None:
-            assert len(self._parent_chain) == 0
-        else:
-            self._backtrace_parent(parent)
+    def visit_root(self, parent, root):
+        assert parent is None
+        assert len(self._parent_chain) == 0
 
-        print("  " * len(self._parent_chain) + f"+ {folder.name}")
+        self._parent_chain.append(root)
+
+    def visit_folder(self, parent, folder):
+        self._backtrace_parent(parent)
+
+        print("  " * (len(self._parent_chain) - 1) + f"+ {folder.name}")
         self._parent_chain.append(folder)
 
     def visit_generic(self, parent, generic):
-        assert len(self._parent_chain) > 0
         self._backtrace_parent(parent)
 
-        print("  " * len(self._parent_chain) + f"- {generic.name}: {generic.name}, {generic.password}")
+        print("  " * (len(self._parent_chain) - 1) + f"- {generic.name}: {generic.name}, {generic.password}")
