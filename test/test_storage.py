@@ -153,7 +153,60 @@ RAW CONTENT''')
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.storage.ReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception), "Invalid magic number")
+        self.assertEqual(str(cm.exception),
+            "Invalid magic number, expected b'rvl\\x00' but found "
+            "b'\\xff\\xff\\xff\\xff'")
+
+    def test_header_version(self):
+        """
+        Check that a file with an unsupported version number in its header is
+        correctly rejected.
+        """
+
+        support.write_file(self.dbname,
+            b'rvl\x00\xff\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
+            b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
+            b'\x20\x21\x22\x23')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Unsupported data version, expected b'2' but found b'\\xff'")
+
+    def test_header_padding(self):
+        """
+        Check that a file with wrong padding at bytes [5:6) in its header is
+        correctly rejected.
+        """
+
+        support.write_file(self.dbname,
+            b'rvl\x00\x02\xff\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
+            b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
+            b'\x20\x21\x22\x23')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Non-zero header padding at bytes [5:6), found b'\\xff'")
+
+    def test_header_padding2(self):
+        """
+        Check that a file with wrong padding at bytes [9:12) in its header is
+        correctly rejected.
+        """
+
+        support.write_file(self.dbname,
+            b'rvl\x00\x02\x00\x06\x07\x08\xff\xff\xff\x0c\x0d\x0e\x0f'
+            b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
+            b'\x20\x21\x22\x23')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Non-zero header padding at bytes [9:12), found b'\\xff\\xff\\xff'")
 
     def test_generic_entry(self):
         """Check parsing of a single generic entry."""
