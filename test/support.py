@@ -7,7 +7,11 @@ import zlib
 
 from Crypto.Cipher import AES
 
-def write_password_db(dbfile, password, xml):
+def write_file(filename, bytes_):
+    with open(filename, 'wb') as fh:
+        fh.write(bytes_)
+
+def write_password_db(filename, password, xml):
     # Compress the data.
     encoded_data = xml.encode('utf-8')
     compressed_data = zlib.compress(encoded_data)
@@ -33,5 +37,4 @@ def write_password_db(dbfile, password, xml):
     # Prepare final output and write it out.
     output_data = b'rvl\x00\x02\x00\x00\x00\x00\x00\x00\x00' + \
         salt + init_vector + encrypted_data
-    with open(dbfile, 'wb') as fo:
-        fo.write(output_data)
+    write_file(filename, output_data)

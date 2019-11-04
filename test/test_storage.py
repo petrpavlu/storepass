@@ -16,23 +16,149 @@ class TestStorage(unittest.TestCase):
     def setUp(self):
         self.testdir = tempfile.mkdtemp()
 
+        # Set default database name.
+        self.dbname = os.path.join(self.testdir, 'pass.db')
+
     def tearDown(self):
         shutil.rmtree(self.testdir)
 
     def test_plain_reader(self):
         """Check that the plain reader can output raw database content."""
 
-        dbname = os.path.join(self.testdir, 'pass.db')
-        support.write_password_db(dbname, DEFAULT_PASSWORD, '''\
+        support.write_password_db(self.dbname, DEFAULT_PASSWORD, '''\
 RAW CONTENT''')
-        storage = storepass.storage.Storage(dbname, DEFAULT_PASSWORD)
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         data = storage.read_plain()
         self.assertEqual(data, '''\
 RAW CONTENT''')
 
+    def test_header_size_min(self):
+        """
+        Check that a file with an incomplete header is correctly rejected
+        (minimum corner case).
+        """
+
+        support.write_file(self.dbname, b'')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception), "File header is incomplete")
+
+    def test_header_size_max(self):
+        """
+        Check that a file with an incomplete header is correctly rejected
+        (maximum corner case).
+        """
+
+        support.write_file(self.dbname,
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception), "File header is incomplete")
+
+    def test_salt_size_min(self):
+        """
+        Check that a file with an incomplete salt data is correctly rejected
+        (minimum corner case).
+        """
+
+        support.write_file(self.dbname,
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception), "Salt record is incomplete")
+
+    def test_salt_size_max(self):
+        """
+        Check that a file with an incomplete salt data is correctly rejected
+        (maximum corner case).
+        """
+
+        support.write_file(self.dbname,
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
+            b'\x10\x11\x12')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception), "Salt record is incomplete")
+
+    def test_init_size_min(self):
+        """
+        Check that a file with an incomplete initialization vector is correctly
+        rejected (minimum corner case).
+        """
+
+        support.write_file(self.dbname,
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
+            b'\x10\x11\x12\x13')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Initialization vector is incomplete")
+
+    def test_init_size_max(self):
+        """
+        Check that a file with an incomplete initialization vector is correctly
+        rejected (maximum corner case).
+        """
+
+        support.write_file(self.dbname,
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
+            b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
+            b'\x20\x21\x22')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Initialization vector is incomplete")
+
+    def test_encrypted_alignment(self):
+        """
+        Check that a file with a misaligned encrypted data is correctly
+        rejected.
+        """
+
+        support.write_file(self.dbname,
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
+            b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
+            b'\x20\x21\x22\x23\x24')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Size of the data record is not 16-byte aligned")
+
+    def test_header_magic(self):
+        """
+        Check that a file with an invalid magic number in its header is
+        correctly rejected.
+        """
+
+        support.write_file(self.dbname,
+            b'\xff\xff\xff\xff\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
+            b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
+            b'\x20\x21\x22\x23')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception), "Invalid magic number")
+
     def test_generic_entry(self):
-        dbname = os.path.join(self.testdir, 'pass.db')
-        support.write_password_db(dbname, DEFAULT_PASSWORD, '''\
+        """Check parsing of a single generic entry."""
+
+        support.write_password_db(self.dbname, DEFAULT_PASSWORD, '''\
 <?xml version="1.0" encoding="utf-8"?>
 <revelationdata version="0.4.14" dataversion="1">
         <entry type="generic">
@@ -40,11 +166,24 @@ RAW CONTENT''')
                 <description>E1 description</description>
                 <updated>1546300800</updated>
                 <notes>E1 notes</notes>
-                <field id="generic-hostname">E1 hostname</field>
                 <field id="generic-username">E1 username</field>
                 <field id="generic-password">E1 password</field>
+                <field id="generic-hostname">E1 hostname</field>
         </entry>
 </revelationdata>''')
-        storage = storepass.storage.Storage(dbname, DEFAULT_PASSWORD)
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
+
         self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        c0 = root.children[0]
+        self.assertIs(type(c0), storepass.model.Generic)
+        self.assertEqual(c0.name, "E1 name")
+        self.assertEqual(c0.description, "E1 description")
+        self.assertEqual(c0.updated, "1546300800")
+        self.assertEqual(c0.notes, "E1 notes")
+        self.assertEqual(c0.username, "E1 username")
+        self.assertEqual(c0.password, "E1 password")
+        self.assertEqual(c0.hostname, "E1 hostname")

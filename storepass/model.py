@@ -5,6 +5,10 @@ class Root:
     def __init__(self, children):
         self._children = children
 
+    @property
+    def children(self):
+        return self._children
+
     def __str__(self, indent=""):
         for child in self._children:
             res += child.__str__(indent) + "\n"
