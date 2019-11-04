@@ -27,4 +27,4 @@ class PlainView:
     def visit_generic(self, parent, generic):
         self._backtrace_parent(parent)
 
-        print("  " * (len(self._parent_chain) - 1) + f"- {generic.name}: {generic.name}, {generic.password}")
+        print("  " * (len(self._parent_chain) - 1) + f"- {generic.name}: {generic.username}, {generic.password}")
