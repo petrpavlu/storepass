@@ -198,9 +198,9 @@ class Storage:
         description = None
         updated = None
         notes = None
-        hostname = None
         username = None
         password = None
+        hostname = None
 
         for xml_subelem in list(xml_elem):
             if xml_subelem.tag == 'name':
@@ -214,12 +214,12 @@ class Storage:
             elif xml_subelem.tag == 'field':
                 # TODO More checking.
                 id_ = xml_subelem.get('id')
-                if id_ == 'generic-hostname':
-                    hostname = xml_subelem.text
-                elif id_ == 'generic-username':
+                if id_ == 'generic-username':
                     username = xml_subelem.text
                 elif id_ == 'generic-password':
                     password = xml_subelem.text
+                elif id_ == 'generic-hostname':
+                    hostname = xml_subelem.text
                 else:
                     # TODO Handle None type.
                     raise ReadException(
@@ -229,4 +229,4 @@ class Storage:
                     f"Unrecognized property element '{xml_subelem.tag}'")
 
         return storepass.model.Generic(name, description, updated, notes,
-           username, password)
+           username, password, hostname)
