@@ -38,19 +38,26 @@ class Storage:
 
         # Split the content.
         if len(raw_content) < 12:
-            raise ReadException("File header is incomplete")
+            raise ReadException(
+                f"File header is incomplete, expected '12' bytes but found "
+                f"'{len(raw_content)}'")
         header = raw_content[:12]
         if len(raw_content) < 20:
-            raise ReadException("Salt record is incomplete")
+            raise ReadException(
+                f"Salt record is incomplete, expected '8' bytes but found "
+                f"'{len(raw_content)-12}'")
         salt = raw_content[12:20]
         if len(raw_content) < 36:
-            raise ReadException("Initialization vector is incomplete")
+            raise ReadException(
+                f"Initialization vector is incomplete, expected '16' bytes but "
+                f"found '{len(raw_content)-20}'")
         init_vector = raw_content[20:36]
 
         encrypted_data = raw_content[36:]
         if len(encrypted_data) % 16 != 0:
             raise ReadException(
-                "Size of the data record is not 16-byte aligned")
+                f"Data record with size of '{len(encrypted_data)}' bytes is "
+                f"not 16-byte aligned")
 
         # Parse and validate the header.
         self._parse_header(header)
@@ -69,9 +76,11 @@ class Storage:
         crypto_obj = AES.new(key, AES.MODE_CBC, init_vector)
         decrypted_data = crypto_obj.decrypt(encrypted_data)
 
-        # TODO Check the size is big enough?
         hash256 = decrypted_data[0:32]
         compressed_data = decrypted_data[32:]
+
+        if len(compressed_data) == 0:
+            raise ReadException("Compressed data have zero size")
 
         # Verify the hash of decrypted data.
         if hashlib.sha256(compressed_data).digest() != hash256:
@@ -79,15 +88,26 @@ class Storage:
 
         # Decompress the data.
         padlen = compressed_data[-1]
-        # TODO Check bounds?
-        if compressed_data[-padlen:] != padlen * padlen.to_bytes(1, 'little'):
-            raise ReadException("Decompressed data have incorrect padding")
+        if padlen > 15:
+            raise ReadException(
+                f"Compressed data have incorrect padding, length '{padlen}' is "
+                f"bigger than '15' bytes")
+        actual_padding = compressed_data[-padlen:]
+        expected_padding = padlen * padlen.to_bytes(1, 'little')
+        if actual_padding != expected_padding:
+            raise ReadException(
+                f"Compressed data have incorrect padding, expected "
+                f"{expected_padding} but found {actual_padding}")
 
-        # TODO Check for errors.
-        decompressed_data = zlib.decompress(compressed_data[0:-padlen])
+        try:
+            decompressed_data = zlib.decompress(compressed_data[0:-padlen])
+        except Exception as e:
+            raise ReadException(e) from e
 
-        # TODO Check for errors.
-        return decompressed_data.decode('utf-8')
+        try:
+            return decompressed_data.decode('utf-8')
+        except Exception as e:
+            raise ReadException(f"Error decoding payload: {e}") from e
 
     def _parse_header(self, header):
         """Verify validity of a password database header."""

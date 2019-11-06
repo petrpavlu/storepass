@@ -11,18 +11,26 @@ def write_file(filename, bytes_):
     with open(filename, 'wb') as fh:
         fh.write(bytes_)
 
-def write_password_db(filename, password, xml):
-    # Compress the data.
-    encoded_data = xml.encode('utf-8')
-    compressed_data = zlib.compress(encoded_data)
+def write_password_db(filename, password, xml, compress=True):
+    # Encode the data if needed.
+    if isinstance(xml, bytes):
+        encoded_data = xml
+    else:
+        encoded_data = xml.encode('utf-8')
 
-    # Pad the result to the 16-byte boundary.
-    padlen = 16 - len(compressed_data) % 16
-    padded_data = compressed_data + bytes([padlen] * padlen)
+    # Compress the data if requested.
+    if compress:
+        compressed_unpadded_data = zlib.compress(encoded_data)
+
+        # Pad the result to the 16-byte boundary.
+        padlen = 16 - len(compressed_unpadded_data) % 16
+        compressed_data = compressed_unpadded_data + bytes([padlen] * padlen)
+    else:
+        compressed_data = encoded_data
 
     # Add a hash for integrity check.
-    hash256 = hashlib.sha256(padded_data).digest()
-    decrypted_data = hash256 + padded_data
+    hash256 = hashlib.sha256(compressed_data).digest()
+    decrypted_data = hash256 + compressed_data
 
     # Calculate the PBKDF2 derived key.
     salt = os.urandom(8)

@@ -25,17 +25,15 @@ class TestStorage(unittest.TestCase):
     def test_plain_reader(self):
         """Check that the plain reader can output raw database content."""
 
-        support.write_password_db(self.dbname, DEFAULT_PASSWORD, '''\
-RAW CONTENT''')
+        support.write_password_db(self.dbname, DEFAULT_PASSWORD, 'RAW CONTENT')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         data = storage.read_plain()
-        self.assertEqual(data, '''\
-RAW CONTENT''')
+        self.assertEqual(data, 'RAW CONTENT')
 
     def test_header_size_min(self):
         """
-        Check that a file with an incomplete header is correctly rejected
+        Check that a file with an incomplete header is sensibly rejected
         (minimum corner case).
         """
 
@@ -44,11 +42,12 @@ RAW CONTENT''')
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.storage.ReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception), "File header is incomplete")
+        self.assertEqual(str(cm.exception),
+            "File header is incomplete, expected '12' bytes but found '0'")
 
     def test_header_size_max(self):
         """
-        Check that a file with an incomplete header is correctly rejected
+        Check that a file with an incomplete header is sensibly rejected
         (maximum corner case).
         """
 
@@ -58,25 +57,27 @@ RAW CONTENT''')
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.storage.ReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception), "File header is incomplete")
+        self.assertEqual(str(cm.exception),
+            "File header is incomplete, expected '12' bytes but found '11'")
 
     def test_salt_size_min(self):
         """
-        Check that a file with an incomplete salt data is correctly rejected
+        Check that a file with an incomplete salt data is sensibly rejected
         (minimum corner case).
         """
 
         support.write_file(self.dbname,
-            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c')
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.storage.ReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception), "Salt record is incomplete")
+        self.assertEqual(str(cm.exception),
+            "Salt record is incomplete, expected '8' bytes but found '0'")
 
     def test_salt_size_max(self):
         """
-        Check that a file with an incomplete salt data is correctly rejected
+        Check that a file with an incomplete salt data is sensibly rejected
         (maximum corner case).
         """
 
@@ -87,11 +88,12 @@ RAW CONTENT''')
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.storage.ReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception), "Salt record is incomplete")
+        self.assertEqual(str(cm.exception),
+            "Salt record is incomplete, expected '8' bytes but found '7'")
 
     def test_init_size_min(self):
         """
-        Check that a file with an incomplete initialization vector is correctly
+        Check that a file with an incomplete initialization vector is sensibly
         rejected (minimum corner case).
         """
 
@@ -103,11 +105,12 @@ RAW CONTENT''')
         with self.assertRaises(storepass.storage.ReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
-            "Initialization vector is incomplete")
+            "Initialization vector is incomplete, expected '16' bytes but "
+            "found '0'")
 
     def test_init_size_max(self):
         """
-        Check that a file with an incomplete initialization vector is correctly
+        Check that a file with an incomplete initialization vector is sensibly
         rejected (maximum corner case).
         """
 
@@ -120,12 +123,12 @@ RAW CONTENT''')
         with self.assertRaises(storepass.storage.ReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
-            "Initialization vector is incomplete")
+            "Initialization vector is incomplete, expected '16' bytes but "
+            "found '15'")
 
     def test_encrypted_alignment(self):
         """
-        Check that a file with a misaligned encrypted data is correctly
-        rejected.
+        Check that a file with a misaligned encrypted data is sensibly rejected.
         """
 
         support.write_file(self.dbname,
@@ -137,12 +140,12 @@ RAW CONTENT''')
         with self.assertRaises(storepass.storage.ReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
-            "Size of the data record is not 16-byte aligned")
+            "Data record with size of '1' bytes is not 16-byte aligned")
 
     def test_header_magic(self):
         """
-        Check that a file with an invalid magic number in its header is
-        correctly rejected.
+        Check that a file with an invalid magic number in its header is sensibly
+        rejected.
         """
 
         support.write_file(self.dbname,
@@ -160,7 +163,7 @@ RAW CONTENT''')
     def test_header_version(self):
         """
         Check that a file with an unsupported version number in its header is
-        correctly rejected.
+        sensibly rejected.
         """
 
         support.write_file(self.dbname,
@@ -177,7 +180,7 @@ RAW CONTENT''')
     def test_header_padding(self):
         """
         Check that a file with wrong padding at bytes [5:6) in its header is
-        correctly rejected.
+        sensibly rejected.
         """
 
         support.write_file(self.dbname,
@@ -194,7 +197,7 @@ RAW CONTENT''')
     def test_header_padding2(self):
         """
         Check that a file with wrong padding at bytes [9:12) in its header is
-        correctly rejected.
+        sensibly rejected.
         """
 
         support.write_file(self.dbname,
@@ -207,6 +210,96 @@ RAW CONTENT''')
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Non-zero header padding at bytes [9:12), found b'\\xff\\xff\\xff'")
+
+    def test_password(self):
+        """
+        Check that using a wrong password to read a database is sensibly
+        reported.
+        """
+
+        support.write_password_db(self.dbname, 'a', 'RAW CONTENT')
+
+        storage = storepass.storage.Storage(self.dbname, 'b')
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            storage.read_plain()
+        self.assertEqual(str(cm.exception), "Incorrect password")
+
+    def test_no_compressed_data(self):
+        """
+        Check that a file with compressed data of zero size is sensibly
+        rejected.
+        """
+
+        support.write_password_db(self.dbname, DEFAULT_PASSWORD, '',
+            compress=False)
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            data = storage.read_plain()
+        self.assertEqual(str(cm.exception), "Compressed data have zero size")
+
+    def test_wrong_padding_length(self):
+        """
+        Check that a file with a wrong padding of compressed data (incorrect
+        length) is sensibly rejected.
+        """
+
+        support.write_password_db(self.dbname, DEFAULT_PASSWORD,
+            '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x10',
+            compress=False)
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            data = storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Compressed data have incorrect padding, length '16' is bigger "
+            "than '15' bytes")
+
+    def test_wrong_padding_bytes(self):
+        """
+        Check that a file with a wrong padding of compressed data (incorrect
+        bytes) is sensibly rejected.
+        """
+
+        support.write_password_db(self.dbname, DEFAULT_PASSWORD,
+            '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x02',
+            compress=False)
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            data = storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Compressed data have incorrect padding, expected b'\\x02\\x02' "
+            "but found b'\\x0e\\x02'")
+
+    def test_wrong_compression(self):
+        """
+        Check that a file with wrongly compressed data is sensibly rejected.
+        """
+
+        support.write_password_db(self.dbname, DEFAULT_PASSWORD,
+            '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x01',
+            compress=False)
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            data = storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Error -3 while decompressing data: incorrect header check")
+
+    def test_wrong_utf8(self):
+        """
+        Check that a file with wrongly encoded data is sensibly rejected.
+        """
+
+        support.write_password_db(self.dbname, DEFAULT_PASSWORD, b'\xff')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.storage.ReadException) as cm:
+            data = storage.read_plain()
+        self.assertEqual(str(cm.exception),
+            "Error decoding payload: 'utf-8' codec can't decode byte 0xff in "
+            "position 0: invalid start byte")
 
     def test_generic_entry(self):
         """Check parsing of a single generic entry."""
