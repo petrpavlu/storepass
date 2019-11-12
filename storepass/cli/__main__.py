@@ -32,6 +32,27 @@ logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+def process_dump_command(args, storage):
+    """
+    Handle the dump command which is used to print the raw XML content of a
+    password database.
+    """
+
+    assert args.command == 'dump'
+
+    # Load the database content.
+    try:
+        plain_data = storage.read_plain()
+    except storepass.storage.ReadException as e:
+        logger.error(f"failed to load password database '{args.file}': {e}")
+        return 1
+
+    # Print the content.
+    end = "" if len(plain_data) > 0 and plain_data[-1] == "\n" else "\n"
+    print(plain_data, end=end)
+
+    return 0
+
 def main():
     """Main entry function."""
 
@@ -77,21 +98,10 @@ def main():
     # Create a storage object.
     storage = storepass.storage.Storage(args.file, getpass.getpass)
 
-    # Handle the dump command which does not require any high-level
+    # Handle the dump command early because it does not require any high-level
     # representation.
     if args.command == 'dump':
-        # Load the database content.
-        try:
-            plain_data = storage.read_plain()
-        except storepass.storage.ReadException as e:
-            logger.error(f"failed to load password database '{args.file}': {e}")
-            return 1
-
-        # Print the content.
-        end = "" if len(plain_data) > 0 and plain_data[-1] == "\n" else "\n"
-        print(plain_data, end=end)
-
-        return 0
+        return process_dump_command(args, storage)
 
     # Create a data representation object.
     model = storepass.model.Model()
