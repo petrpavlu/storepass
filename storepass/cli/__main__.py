@@ -99,6 +99,18 @@ def process_show_command(args, model):
     detail_view = view.DetailView()
     entry.visit(detail_view, None)
 
+def process_add_command(args, model):
+    assert args.command == 'add'
+    assert 0 and "Unimplemented command 'add'!"
+
+def process_delete_command(args, model):
+    assert args.command == 'delete'
+    assert 0 and "Unimplemented command 'delete'!"
+
+def process_edit_command(args, model):
+    assert args.command == 'edit'
+    assert 0 and "Unimplemented command 'edit'!"
+
 def process_dump_command(args, storage):
     """
     Handle the dump command which is used to print the raw XML content of a
@@ -125,7 +137,6 @@ def main():
 
     # Parse the command-line arguments.
     parser = argparse.ArgumentParser()
-    parser.set_defaults(func=None)
     parser.add_argument(
         '-f', '--file', metavar='PASSDB',
         default=os.path.join(os.path.expanduser('~'), '.storepass.db'),
@@ -135,6 +146,8 @@ def main():
 
     # Add sub-commands.
     subparsers = parser.add_subparsers(dest='command')
+    list_parser = subparsers.add_parser(
+        'list', description="list password entries")
     show_parser = subparsers.add_parser(
         'show', description="show a password entry and its details")
     # TODO Share the option with other commands.
@@ -143,11 +156,9 @@ def main():
     add_parser = subparsers.add_parser(
         'add', description="add a new password entry")
     remove_parser = subparsers.add_parser(
-        'remove', description="remove a password entry")
+        'delete', description="delete a password entry")
     edit_parser = subparsers.add_parser(
         'edit', description="edit an existing password entry")
-    list_parser = subparsers.add_parser(
-        'list', description="list password entries")
     dump_parser = subparsers.add_parser(
         'dump', description="dump raw database content")
 
@@ -185,12 +196,18 @@ def main():
         logger.error(f"failed to load password database '{args.file}': {e}")
         return 1
 
+    # Handle individual commands.
     if args.command == 'list':
         return process_list_command(args, model)
     elif args.command == 'show':
         return process_show_command(args, model)
+    elif args.command == 'add':
+        return process_add_command(args, model)
+    elif args.command == 'delete':
+        return process_delete_command(args, model)
+    elif args.command == 'edit':
+        return process_edit_command(args, model)
     else:
-        # TODO Implement.
         assert 0 and "Unimplemented command!"
 
     return 0
