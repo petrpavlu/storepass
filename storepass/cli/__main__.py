@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: MIT
 
 import storepass.model
-import storepass.plainview
 import storepass.storage
+from storepass.cli import view
 
 import argparse
 import getpass
@@ -31,6 +31,18 @@ logging.addLevelName(logging.DEBUG, "debug")
 logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+def process_list_command(args, model):
+    """
+    Handle the list command which is used to print short information about all
+    stored password entries.
+    """
+
+    assert args.command == 'list'
+
+    plain_view = view.ListView()
+    model.visit_all(plain_view)
+    return 0
 
 def process_dump_command(args, storage):
     """
@@ -114,8 +126,7 @@ def main():
         return 1
 
     if args.command == 'list':
-        view = storepass.plainview.PlainView()
-        model.visit_all(view)
+        return process_list_command(args, model)
     else:
         # TODO Implement.
         assert 0 and "Unimplemented command!"
