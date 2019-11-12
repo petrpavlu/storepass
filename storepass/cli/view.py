@@ -46,3 +46,26 @@ class ListView:
         description = f": {generic.description}" \
             if generic.description is not None else ""
         print(f"{indent}- {generic.name}{hostname}{description}")
+
+class DetailView:
+    def _print_common_info(self, entry):
+        if entry.description is not None:
+            print(f"  - Description: {entry.description}")
+        if entry.updated is not None:
+            print(f"  - Last modified: {entry.updated}")
+        if entry.notes is not None:
+            print(f"  - Notes: {entry.notes}")
+
+    def visit_folder(self, parent, folder):
+        print(f"+ {folder.name} (folder)")
+        self._print_common_info(folder)
+
+    def visit_generic(self, parent, generic):
+        print(f"+ {generic.name} (password entry)")
+        if generic.username is not None:
+            print(f"  - Username: {generic.username}")
+        if generic.password is not None:
+            print(f"  - Password: {generic.password}")
+        if generic.hostname is not None:
+            print(f"  - Hostname: {generic.hostname}")
+        self._print_common_info(generic)

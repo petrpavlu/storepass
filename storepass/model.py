@@ -37,6 +37,10 @@ class Folder(Entry):
         super().__init__(name, description, updated, notes)
         self._children = children
 
+    @property
+    def children(self):
+        return self._children
+
     def __str__(self, indent=""):
         parent = super().inline_str()
         res = indent + f"Folder({parent}):"
@@ -70,6 +74,21 @@ class Model:
 
     def load(self, storage):
         self._root = storage.read_tree()
+
+    def get_entry(self, path_spec):
+        entry = self._root
+        for element in path_spec:
+            if not isinstance(entry, Root) and not isinstance(entry, Folder):
+                return None
+
+            for i in entry.children:
+                if i.name == element:
+                    entry = i
+                    break
+            else:
+                return None
+
+        return entry
 
     def visit_all(self, view):
         if self._root is not None:
