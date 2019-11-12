@@ -73,6 +73,8 @@ class Model:
         self._root = None
 
     def load(self, storage):
+        """Initialize the model using the specified storage object."""
+
         self._root = storage.read_tree()
 
     def get_entry(self, path_spec):
@@ -91,5 +93,10 @@ class Model:
         return entry
 
     def visit_all(self, view):
+        """
+        Iterate over all password entries and pass them individually to the
+        specified view visitor.
+        """
+
         if self._root is not None:
             self._root.visit(view, None)

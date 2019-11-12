@@ -133,7 +133,10 @@ def process_dump_command(args, storage):
     return 0
 
 def main():
-    """Main entry function."""
+    """
+    Main entry function. Returns 0 if the operation was successful and a
+    non-zero value otherwise.
+    """
 
     # Parse the command-line arguments.
     parser = argparse.ArgumentParser()
