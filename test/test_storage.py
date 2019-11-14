@@ -23,7 +23,7 @@ class TestStorage(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.testdir)
 
-    def test_plain_reader(self):
+    def test_read_plain(self):
         """Check that the plain reader can output raw database content."""
 
         helpers.write_password_db(self.dbname, DEFAULT_PASSWORD, 'RAW CONTENT')
@@ -32,7 +32,7 @@ class TestStorage(unittest.TestCase):
         data = storage.read_plain()
         self.assertEqual(data, 'RAW CONTENT')
 
-    def test_header_size_min(self):
+    def test_read_header_size_min(self):
         """
         Check that a file with an incomplete header is sensibly rejected
         (minimum corner case).
@@ -46,7 +46,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(str(cm.exception),
             "File header is incomplete, expected '12' bytes but found '0'")
 
-    def test_header_size_max(self):
+    def test_read_header_size_max(self):
         """
         Check that a file with an incomplete header is sensibly rejected
         (maximum corner case).
@@ -61,7 +61,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(str(cm.exception),
             "File header is incomplete, expected '12' bytes but found '11'")
 
-    def test_salt_size_min(self):
+    def test_read_salt_size_min(self):
         """
         Check that a file with an incomplete salt data is sensibly rejected
         (minimum corner case).
@@ -76,7 +76,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(str(cm.exception),
             "Salt record is incomplete, expected '8' bytes but found '0'")
 
-    def test_salt_size_max(self):
+    def test_read_salt_size_max(self):
         """
         Check that a file with an incomplete salt data is sensibly rejected
         (maximum corner case).
@@ -92,7 +92,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(str(cm.exception),
             "Salt record is incomplete, expected '8' bytes but found '7'")
 
-    def test_init_size_min(self):
+    def test_read_init_size_min(self):
         """
         Check that a file with an incomplete initialization vector is sensibly
         rejected (minimum corner case).
@@ -109,7 +109,7 @@ class TestStorage(unittest.TestCase):
             "Initialization vector is incomplete, expected '16' bytes but "
             "found '0'")
 
-    def test_init_size_max(self):
+    def test_read_init_size_max(self):
         """
         Check that a file with an incomplete initialization vector is sensibly
         rejected (maximum corner case).
@@ -127,7 +127,7 @@ class TestStorage(unittest.TestCase):
             "Initialization vector is incomplete, expected '16' bytes but "
             "found '15'")
 
-    def test_encrypted_alignment(self):
+    def test_read_encrypted_alignment(self):
         """
         Check that a file with a misaligned encrypted data is sensibly rejected.
         """
@@ -143,7 +143,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(str(cm.exception),
             "Data record with size of '1' bytes is not 16-byte aligned")
 
-    def test_header_magic(self):
+    def test_read_header_magic(self):
         """
         Check that a file with an invalid magic number in its header is sensibly
         rejected.
@@ -161,7 +161,7 @@ class TestStorage(unittest.TestCase):
             "Invalid magic number, expected b'rvl\\x00' but found "
             "b'\\xff\\xff\\xff\\xff'")
 
-    def test_header_version(self):
+    def test_read_header_version(self):
         """
         Check that a file with an unsupported version number in its header is
         sensibly rejected.
@@ -178,7 +178,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(str(cm.exception),
             "Unsupported data version, expected b'2' but found b'\\xff'")
 
-    def test_header_padding(self):
+    def test_read_header_padding(self):
         """
         Check that a file with wrong padding at bytes [5:6) in its header is
         sensibly rejected.
@@ -195,7 +195,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(str(cm.exception),
             "Non-zero header padding at bytes [5:6), found b'\\xff'")
 
-    def test_header_padding2(self):
+    def test_read_header_padding2(self):
         """
         Check that a file with wrong padding at bytes [9:12) in its header is
         sensibly rejected.
@@ -212,7 +212,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(str(cm.exception),
             "Non-zero header padding at bytes [9:12), found b'\\xff\\xff\\xff'")
 
-    def test_password(self):
+    def test_read_password(self):
         """
         Check that using a wrong password to read a database is sensibly
         reported.
@@ -225,7 +225,7 @@ class TestStorage(unittest.TestCase):
             storage.read_plain()
         self.assertEqual(str(cm.exception), "Incorrect password")
 
-    def test_no_compressed_data(self):
+    def test_read_no_compressed_data(self):
         """
         Check that a file with compressed data of zero size is sensibly
         rejected.
@@ -239,7 +239,7 @@ class TestStorage(unittest.TestCase):
             data = storage.read_plain()
         self.assertEqual(str(cm.exception), "Compressed data have zero size")
 
-    def test_wrong_padding_length(self):
+    def test_read_wrong_padding_length(self):
         """
         Check that a file with a wrong padding of compressed data (incorrect
         length) is sensibly rejected.
@@ -256,7 +256,7 @@ class TestStorage(unittest.TestCase):
             "Compressed data have incorrect padding, length '16' is bigger "
             "than '15' bytes")
 
-    def test_wrong_padding_bytes(self):
+    def test_read_wrong_padding_bytes(self):
         """
         Check that a file with a wrong padding of compressed data (incorrect
         bytes) is sensibly rejected.
@@ -273,7 +273,7 @@ class TestStorage(unittest.TestCase):
             "Compressed data have incorrect padding, expected b'\\x02\\x02' "
             "but found b'\\x0e\\x02'")
 
-    def test_wrong_compression(self):
+    def test_read_wrong_compression(self):
         """
         Check that a file with wrongly compressed data is sensibly rejected.
         """
@@ -288,7 +288,7 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(str(cm.exception),
             "Error -3 while decompressing data: incorrect header check")
 
-    def test_wrong_utf8(self):
+    def test_read_wrong_utf8(self):
         """
         Check that a file with wrongly encoded data is sensibly rejected.
         """
@@ -302,7 +302,7 @@ class TestStorage(unittest.TestCase):
             "Error decoding payload: 'utf-8' codec can't decode byte 0xff in "
             "position 0: invalid start byte")
 
-    def test_generic_entry(self):
+    def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
 
         helpers.write_password_db(self.dbname, DEFAULT_PASSWORD, '''\
