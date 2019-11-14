@@ -1,6 +1,7 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import storepass.exc
 import storepass.model
 import storepass.storage
 from . import support
@@ -40,7 +41,7 @@ class TestStorage(unittest.TestCase):
         support.write_file(self.dbname, b'')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "File header is incomplete, expected '12' bytes but found '0'")
@@ -55,7 +56,7 @@ class TestStorage(unittest.TestCase):
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "File header is incomplete, expected '12' bytes but found '11'")
@@ -70,7 +71,7 @@ class TestStorage(unittest.TestCase):
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Salt record is incomplete, expected '8' bytes but found '0'")
@@ -86,7 +87,7 @@ class TestStorage(unittest.TestCase):
             b'\x10\x11\x12')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Salt record is incomplete, expected '8' bytes but found '7'")
@@ -102,7 +103,7 @@ class TestStorage(unittest.TestCase):
             b'\x10\x11\x12\x13')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Initialization vector is incomplete, expected '16' bytes but "
@@ -120,7 +121,7 @@ class TestStorage(unittest.TestCase):
             b'\x20\x21\x22')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Initialization vector is incomplete, expected '16' bytes but "
@@ -137,7 +138,7 @@ class TestStorage(unittest.TestCase):
             b'\x20\x21\x22\x23\x24')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Data record with size of '1' bytes is not 16-byte aligned")
@@ -154,7 +155,7 @@ class TestStorage(unittest.TestCase):
             b'\x20\x21\x22\x23')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Invalid magic number, expected b'rvl\\x00' but found "
@@ -172,7 +173,7 @@ class TestStorage(unittest.TestCase):
             b'\x20\x21\x22\x23')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Unsupported data version, expected b'2' but found b'\\xff'")
@@ -189,7 +190,7 @@ class TestStorage(unittest.TestCase):
             b'\x20\x21\x22\x23')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Non-zero header padding at bytes [5:6), found b'\\xff'")
@@ -206,7 +207,7 @@ class TestStorage(unittest.TestCase):
             b'\x20\x21\x22\x23')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Non-zero header padding at bytes [9:12), found b'\\xff\\xff\\xff'")
@@ -220,7 +221,7 @@ class TestStorage(unittest.TestCase):
         support.write_password_db(self.dbname, 'a', 'RAW CONTENT')
 
         storage = storepass.storage.Storage(self.dbname, 'b')
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertEqual(str(cm.exception), "Incorrect password")
 
@@ -234,7 +235,7 @@ class TestStorage(unittest.TestCase):
             compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             data = storage.read_plain()
         self.assertEqual(str(cm.exception), "Compressed data have zero size")
 
@@ -249,7 +250,7 @@ class TestStorage(unittest.TestCase):
             compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             data = storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Compressed data have incorrect padding, length '16' is bigger "
@@ -266,7 +267,7 @@ class TestStorage(unittest.TestCase):
             compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             data = storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Compressed data have incorrect padding, expected b'\\x02\\x02' "
@@ -282,7 +283,7 @@ class TestStorage(unittest.TestCase):
             compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             data = storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Error -3 while decompressing data: incorrect header check")
@@ -295,7 +296,7 @@ class TestStorage(unittest.TestCase):
         support.write_password_db(self.dbname, DEFAULT_PASSWORD, b'\xff')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.storage.ReadException) as cm:
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
             data = storage.read_plain()
         self.assertEqual(str(cm.exception),
             "Error decoding payload: 'utf-8' codec can't decode byte 0xff in "

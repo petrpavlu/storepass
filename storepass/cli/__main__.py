@@ -1,6 +1,7 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import storepass.exc
 import storepass.model
 import storepass.storage
 from storepass.cli import view
@@ -122,7 +123,7 @@ def process_dump_command(args, storage):
     # Load the database content.
     try:
         plain_data = storage.read_plain()
-    except storepass.storage.ReadException as e:
+    except storepass.exc.StorageReadException as e:
         logger.error(f"failed to load password database '{args.file}': {e}")
         return 1
 
@@ -194,8 +195,7 @@ def main():
 
     try:
         model.load(storage)
-    except storepass.storage.ReadException as e:
-        # TODO Sink into Model.load()?
+    except storepass.exc.StorageReadException as e:
         logger.error(f"failed to load password database '{args.file}': {e}")
         return 1
 
