@@ -40,8 +40,16 @@ class Storage:
             raise ReadException(
                 f"Non-zero header padding at bytes [9:12), found {header[9:]}")
 
-    def _decode_raw_content(self, raw_content):
-        """Decode a password database content."""
+    def read_plain(self):
+        """
+        Read and decrypt the password database. Return its plain XML content.
+        """
+
+        try:
+            with open(self._filename, 'rb') as fh:
+                raw_content = fh.read()
+        except Exception as e:
+            raise ReadException(e) from e
 
         # Split the content.
         if len(raw_content) < 12:
@@ -115,20 +123,6 @@ class Storage:
             return decompressed_data.decode('utf-8')
         except Exception as e:
             raise ReadException(f"Error decoding payload: {e}") from e
-
-    def read_plain(self):
-        """
-        Read and decode the password database. Return its plain XML content.
-        """
-
-        try:
-            fi = open(self._filename, 'rb')
-        except Exception as e:
-            raise ReadException(e) from e
-        else:
-            with fi:
-                raw_content = fi.read()
-                return self._decode_raw_content(raw_content)
 
     def _parse_root(self, xml_elem):
         """Parse the root <revelationdata> element."""
