@@ -19,19 +19,26 @@ class Storage:
         self._filename = filename
         self._password_proxy = password_proxy
 
-    def read_plain(self):
-        """
-        Read and decode the password database. Return its plain XML content.
-        """
+    def _parse_header(self, header):
+        """Verify validity of a password database header."""
 
-        try:
-            fi = open(self._filename, 'rb')
-        except Exception as e:
-            raise ReadException(e) from e
-        else:
-            with fi:
-                raw_content = fi.read()
-                return self._decode_raw_content(raw_content)
+        assert len(header) == 12
+
+        if header[:4] != b'rvl\x00':
+            raise ReadException(
+                f"Invalid magic number, expected b'rvl\\x00' but found "
+                f"{header[0:4]}")
+        if header[4:5] != b'\x02':
+            raise ReadException(
+                f"Unsupported data version, expected b'2' but found "
+                f"{header[4:5]}")
+        if header[5:6] != b'\x00':
+            raise ReadException(
+                f"Non-zero header padding at bytes [5:6), found {header[5:6]}")
+        # Ignore app version at header[6:9].
+        if header[9:] != b'\x00\x00\x00':
+            raise ReadException(
+                f"Non-zero header padding at bytes [9:12), found {header[9:]}")
 
     def _decode_raw_content(self, raw_content):
         """Decode a password database content."""
@@ -109,39 +116,19 @@ class Storage:
         except Exception as e:
             raise ReadException(f"Error decoding payload: {e}") from e
 
-    def _parse_header(self, header):
-        """Verify validity of a password database header."""
-
-        assert len(header) == 12
-
-        if header[:4] != b'rvl\x00':
-            raise ReadException(
-                f"Invalid magic number, expected b'rvl\\x00' but found "
-                f"{header[0:4]}")
-        if header[4:5] != b'\x02':
-            raise ReadException(
-                f"Unsupported data version, expected b'2' but found "
-                f"{header[4:5]}")
-        if header[5:6] != b'\x00':
-            raise ReadException(
-                f"Non-zero header padding at bytes [5:6), found {header[5:6]}")
-        # Ignore app version at header[6:9].
-        if header[9:] != b'\x00\x00\x00':
-            raise ReadException(
-                f"Non-zero header padding at bytes [9:12), found {header[9:]}")
-
-    def read_tree(self):
+    def read_plain(self):
         """
-        Read and decode the password database. Return its normalized tree
-        structure.
+        Read and decode the password database. Return its plain XML content.
         """
 
-        xml_data = self.read_plain()
-
-        # TODO Implement proper error checking.
-        root_elem = ET.fromstring(xml_data)
-
-        return self._parse_root(root_elem)
+        try:
+            fi = open(self._filename, 'rb')
+        except Exception as e:
+            raise ReadException(e) from e
+        else:
+            with fi:
+                raw_content = fi.read()
+                return self._decode_raw_content(raw_content)
 
     def _parse_root(self, xml_elem):
         """Parse the root <revelationdata> element."""
@@ -255,3 +242,16 @@ class Storage:
 
         return storepass.model.Generic(name, description, updated, notes,
            username, password, hostname)
+
+    def read_tree(self):
+        """
+        Read and decode the password database. Return its normalized tree
+        structure.
+        """
+
+        xml_data = self.read_plain()
+
+        # TODO Implement proper error checking.
+        root_elem = ET.fromstring(xml_data)
+
+        return self._parse_root(root_elem)
