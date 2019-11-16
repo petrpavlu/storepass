@@ -10,6 +10,132 @@ from Crypto.Cipher import AES
 import storepass.exc
 import storepass.model
 
+class _XMLToModelConvertor:
+    """XML to internal data model convertor."""
+
+    def __init__(self):
+        # Pass as the convertor is stateless.
+        pass
+
+    def process(self, xml_data):
+        # TODO Implement proper error checking.
+        root_elem = ET.fromstring(xml_data)
+
+        return self._parse_root(root_elem)
+
+    def _parse_root(self, xml_elem):
+        """Parse the root <revelationdata> element."""
+
+        if xml_elem.tag != 'revelationdata':
+            raise storepass.exc.StorageReadException(
+                f"Invalid root element '{xml_elem.tag}', expected " \
+                f"'revelationdata'")
+
+        # TODO Validate that the element has no unrecognized attributes.
+
+        children = self._parse_subelements(iter(list(xml_elem)))
+        return storepass.model.Root(children)
+
+    def _parse_subelements(self, xml_elem_iter):
+        """Parse sub-elements of a folder-like element."""
+
+        children = []
+        for xml_elem in xml_elem_iter:
+            if xml_elem.tag != 'entry':
+                raise storepass.exc.StorageReadException(
+                    f"Unrecognized element '{xml_elem.tag}', expected 'entry'")
+
+            type_ = xml_elem.get('type')
+            if type_ == 'folder':
+                folder = self._parse_folder(xml_elem)
+                children.append(folder)
+            elif type_ == 'generic':
+                generic = self._parse_generic(xml_elem)
+                children.append(generic)
+            else:
+                # TODO type_ can be None?
+                raise storepass.exc.StorageReadException(
+                    f"Unrecognized type attribute '{type_}', expected 'folder' or 'generic'")
+
+        return children
+
+    def _parse_folder(self, xml_elem):
+        """Parse a <entry type='folder'> element."""
+
+        assert xml_elem.tag == 'entry'
+        assert xml_elem.get('type') == 'folder'
+
+        xml_subelem_iter = iter(list(xml_elem))
+
+        name = None
+        description = None
+        updated = None
+        notes = None
+
+        for xml_subelem in xml_subelem_iter:
+            if xml_subelem.tag == 'entry':
+                break
+
+            if xml_subelem.tag == 'name':
+                name = xml_subelem.text
+            elif xml_subelem.tag == 'description':
+                description = xml_subelem.text
+            elif xml_subelem.tag == 'updated':
+                updated = xml_subelem.text
+            elif xml_subelem.tag == 'notes':
+                notes = xml_subelem.text
+            else:
+                raise storepass.exc.StorageReadException(
+                    f"Unrecognized property element '{xml_subelem.tag}'")
+
+        children = self._parse_subelements(xml_subelem_iter)
+
+        return storepass.model.Folder(name, description, updated, notes,
+            children)
+
+    def _parse_generic(self, xml_elem):
+        """Parse a <entry type='generic'> element."""
+
+        assert xml_elem.tag == 'entry'
+        assert xml_elem.get('type') == 'generic'
+
+        name = None
+        description = None
+        updated = None
+        notes = None
+        username = None
+        password = None
+        hostname = None
+
+        for xml_subelem in list(xml_elem):
+            if xml_subelem.tag == 'name':
+                name = xml_subelem.text
+            elif xml_subelem.tag == 'description':
+                description = xml_subelem.text
+            elif xml_subelem.tag == 'updated':
+                updated = xml_subelem.text
+            elif xml_subelem.tag == 'notes':
+                notes = xml_subelem.text
+            elif xml_subelem.tag == 'field':
+                # TODO More checking.
+                id_ = xml_subelem.get('id')
+                if id_ == 'generic-hostname':
+                    hostname = xml_subelem.text
+                elif id_ == 'generic-username':
+                    username = xml_subelem.text
+                elif id_ == 'generic-password':
+                    password = xml_subelem.text
+                else:
+                    # TODO Handle None type.
+                    raise storepass.exc.StorageReadException(
+                        f"Unrecognized generic id attribute '{id_}'")
+            else:
+                raise storepass.exc.StorageReadException(
+                    f"Unrecognized property element '{xml_subelem.tag}'")
+
+        return storepass.model.Generic(name, description, updated, notes,
+           hostname, username, password)
+
 class _ModelToXMLConvertor:
     """Internal data model to XML convertor."""
 
@@ -28,9 +154,19 @@ class _ModelToXMLConvertor:
             xml_subelement.tail = indent
         xml_element.tail = indent
 
-    def get_output(self):
-        """Obtain a resulting XML document."""
+    def process(self, root):
+        """
+        Process a password tree structure and return its XML representation (as
+        a string).
+        """
 
+        self._xml_root = None
+        self._parent_chain = []
+
+        # Visit all nodes and create their ElementTree representation.
+        root.accept(self)
+
+        # Convert ElementTree representation to a XML document.
         self._indent_xml(self._xml_root)
         data = ET.tostring(self._xml_root, encoding='unicode')
 
@@ -240,119 +376,6 @@ class Storage:
             raise storepass.exc.StorageReadException(
                 f"Error decoding payload: {e}") from e
 
-    def _parse_root(self, xml_elem):
-        """Parse the root <revelationdata> element."""
-
-        if xml_elem.tag != 'revelationdata':
-            raise storepass.exc.StorageReadException(
-                f"Invalid root element '{xml_elem.tag}', expected " \
-                f"'revelationdata'")
-
-        # TODO Validate that the element has no unrecognized attributes.
-
-        children = self._parse_subelements(iter(list(xml_elem)))
-        return storepass.model.Root(children)
-
-    def _parse_subelements(self, xml_elem_iter):
-        """Parse sub-elements of a folder-like element."""
-
-        children = []
-        for xml_elem in xml_elem_iter:
-            if xml_elem.tag != 'entry':
-                raise storepass.exc.StorageReadException(
-                    f"Unrecognized element '{xml_elem.tag}', expected 'entry'")
-
-            type_ = xml_elem.get('type')
-            if type_ == 'folder':
-                folder = self._parse_folder(xml_elem)
-                children.append(folder)
-            elif type_ == 'generic':
-                generic = self._parse_generic(xml_elem)
-                children.append(generic)
-            else:
-                # TODO type_ can be None?
-                raise storepass.exc.StorageReadException(
-                    f"Unrecognized type attribute '{type_}', expected 'folder' or 'generic'")
-
-        return children
-
-    def _parse_folder(self, xml_elem):
-        """Parse a <entry type='folder'> element."""
-
-        assert xml_elem.tag == 'entry'
-        assert xml_elem.get('type') == 'folder'
-
-        xml_subelem_iter = iter(list(xml_elem))
-
-        name = None
-        description = None
-        updated = None
-        notes = None
-
-        for xml_subelem in xml_subelem_iter:
-            if xml_subelem.tag == 'entry':
-                break
-
-            if xml_subelem.tag == 'name':
-                name = xml_subelem.text
-            elif xml_subelem.tag == 'description':
-                description = xml_subelem.text
-            elif xml_subelem.tag == 'updated':
-                updated = xml_subelem.text
-            elif xml_subelem.tag == 'notes':
-                notes = xml_subelem.text
-            else:
-                raise storepass.exc.StorageReadException(
-                    f"Unrecognized property element '{xml_subelem.tag}'")
-
-        children = self._parse_subelements(xml_subelem_iter)
-
-        return storepass.model.Folder(name, description, updated, notes,
-            children)
-
-    def _parse_generic(self, xml_elem):
-        """Parse a <entry type='generic'> element."""
-
-        assert xml_elem.tag == 'entry'
-        assert xml_elem.get('type') == 'generic'
-
-        name = None
-        description = None
-        updated = None
-        notes = None
-        username = None
-        password = None
-        hostname = None
-
-        for xml_subelem in list(xml_elem):
-            if xml_subelem.tag == 'name':
-                name = xml_subelem.text
-            elif xml_subelem.tag == 'description':
-                description = xml_subelem.text
-            elif xml_subelem.tag == 'updated':
-                updated = xml_subelem.text
-            elif xml_subelem.tag == 'notes':
-                notes = xml_subelem.text
-            elif xml_subelem.tag == 'field':
-                # TODO More checking.
-                id_ = xml_subelem.get('id')
-                if id_ == 'generic-hostname':
-                    hostname = xml_subelem.text
-                elif id_ == 'generic-username':
-                    username = xml_subelem.text
-                elif id_ == 'generic-password':
-                    password = xml_subelem.text
-                else:
-                    # TODO Handle None type.
-                    raise storepass.exc.StorageReadException(
-                        f"Unrecognized generic id attribute '{id_}'")
-            else:
-                raise storepass.exc.StorageReadException(
-                    f"Unrecognized property element '{xml_subelem.tag}'")
-
-        return storepass.model.Generic(name, description, updated, notes,
-           hostname, username, password)
-
     def read_tree(self):
         """
         Read and decrypt the password database. Return its normalized tree
@@ -363,10 +386,8 @@ class Storage:
         # ElementTree can handle decoding according to the XML specification.
         xml_data = self.read_plain(raw_bytes=False)
 
-        # TODO Implement proper error checking.
-        root_elem = ET.fromstring(xml_data)
-
-        return self._parse_root(root_elem)
+        xml_to_model = _XMLToModelConvertor()
+        return xml_to_model.process(xml_data)
 
     def write_plain(self, xml):
         """
@@ -418,7 +439,5 @@ class Storage:
         """
 
         model_to_xml = _ModelToXMLConvertor()
-        root.accept(model_to_xml)
-
-        xml = model_to_xml.get_output()
-        self.write_plain(xml)
+        xml_data = model_to_xml.process(root)
+        self.write_plain(xml_data)
