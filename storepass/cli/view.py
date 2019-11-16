@@ -62,10 +62,10 @@ class DetailView:
 
     def visit_generic(self, parent, generic):
         print(f"+ {generic.name} (password entry)")
+        if generic.hostname is not None:
+            print(f"  - Hostname: {generic.hostname}")
         if generic.username is not None:
             print(f"  - Username: {generic.username}")
         if generic.password is not None:
             print(f"  - Password: {generic.password}")
-        if generic.hostname is not None:
-            print(f"  - Hostname: {generic.hostname}")
         self._print_common_info(generic)

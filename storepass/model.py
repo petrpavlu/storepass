@@ -54,16 +54,16 @@ class Folder(Entry):
             child.visit(view, self)
 
 class Generic(Entry):
-    def __init__(self, name, description, updated, notes, username, password, \
-        hostname):
+    def __init__(self, name, description, updated, notes, hostname, username, \
+        password):
         super().__init__(name, description, updated, notes)
+        self.hostname = hostname
         self.username = username
         self.password = password
-        self.hostname = hostname
 
     def __str__(self, indent=""):
         parent = super().inline_str()
-        return indent + f"Generic({parent}, username={self.username}, password={self.password}, hostname={self.hostname})"
+        return indent + f"Generic({parent}, hostname={self.hostname}, username={self.username}, password={self.password})"
 
     def visit(self, view, parent):
         view.visit_generic(parent, self)

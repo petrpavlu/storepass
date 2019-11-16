@@ -322,9 +322,9 @@ class TestStorage(unittest.TestCase):
                 <description>E1 description</description>
                 <updated>1546300800</updated>
                 <notes>E1 notes</notes>
+                <field id="generic-hostname">E1 hostname</field>
                 <field id="generic-username">E1 username</field>
                 <field id="generic-password">E1 password</field>
-                <field id="generic-hostname">E1 hostname</field>
         </entry>
 </revelationdata>''')
 
@@ -340,9 +340,9 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(c0.description, "E1 description")
         self.assertEqual(c0.updated, "1546300800")
         self.assertEqual(c0.notes, "E1 notes")
+        self.assertEqual(c0.hostname, "E1 hostname")
         self.assertEqual(c0.username, "E1 username")
         self.assertEqual(c0.password, "E1 password")
-        self.assertEqual(c0.hostname, "E1 hostname")
 
     def test_write_plain(self):
         """Check that the plain writer can save raw database content."""
