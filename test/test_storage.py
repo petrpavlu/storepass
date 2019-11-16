@@ -33,6 +33,14 @@ class TestStorage(unittest.TestCase):
         data = storage.read_plain()
         self.assertEqual(data, 'RAW CONTENT')
 
+    def test_read_invalid_file(self):
+        """Check that an unreadable file is sensibly rejected."""
+
+        storage = storepass.storage.Storage(os.getcwd(), DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            storage.read_plain()
+        self.assertRegex(str(cm.exception), "\[Errno 21\] Is a directory:")
+
     def test_read_header_size_min(self):
         """
         Check that a file with an incomplete header is sensibly rejected
@@ -344,3 +352,11 @@ class TestStorage(unittest.TestCase):
 
         data = helpers.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
         self.assertEqual(data, 'RAW CONTENT')
+
+    def test_write_invalid_file(self):
+        """Check that an unwritable file is sensibly rejected."""
+
+        storage = storepass.storage.Storage(os.getcwd(), DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageWriteException) as cm:
+            storage.write_plain('')
+        self.assertRegex(str(cm.exception), "\[Errno 21\] Is a directory:")
