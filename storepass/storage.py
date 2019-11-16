@@ -10,6 +10,113 @@ from Crypto.Cipher import AES
 import storepass.exc
 import storepass.model
 
+class _ModelToXMLConvertor:
+    """Internal data model to XML convertor."""
+
+    def __init__(self):
+        self._xml_root = None
+        self._parent_chain = []
+
+    def _indent_xml(self, xml_element, level=0):
+        """Indent elements of a given ElementTree for pretty-print."""
+
+        indent = '\n' + '\t' * level
+        if len(xml_element) > 0:
+            xml_element.text = indent + '\t'
+            for xml_subelement in xml_element:
+                self._indent_xml(xml_subelement, level+1)
+            xml_subelement.tail = indent
+        xml_element.tail = indent
+
+    def get_output(self):
+        """Obtain a resulting XML document."""
+
+        self._indent_xml(self._xml_root)
+        data = ET.tostring(self._xml_root, encoding='unicode')
+
+        # Add XML declaration if it is missing.
+        # TODO Use xml_declaration=True in Python 3.8.
+        if data[:6] != '<?xml ':
+            data = '<?xml version="1.0" encoding="utf-8"?>\n' + data
+
+        return data
+
+    def _backtrace_parent(self, parent):
+        """
+        Pop elements from the parent chain up to the current's node parent.
+        """
+
+        assert parent is not None
+        assert len(self._parent_chain) > 0
+
+        while self._parent_chain[-1][0] != parent:
+            del self._parent_chain[-1]
+        return self._parent_chain[-1][1]
+
+    def visit_root(self, parent, root):
+        """Create XML representation for the data root."""
+
+        assert parent is None
+        assert len(self._parent_chain) == 0
+
+        self._xml_root = ET.Element('revelationdata')
+        self._xml_root.set('dataversion', '1')
+
+        self._parent_chain.append((root, self._xml_root))
+
+    def _add_entry_properties(self, entry, xml_entry):
+        """Create XML representation for common password entry properties."""
+
+        xml_name = ET.SubElement(xml_entry, 'name')
+        xml_name.text = entry.name
+
+        if entry.description is not None:
+            xml_description = ET.SubElement(xml_entry, 'description')
+            xml_description.text = entry.description
+
+        if entry.updated is not None:
+            xml_updated = ET.SubElement(xml_entry, 'updated')
+            xml_updated.text = entry.updated
+
+        if entry.notes is not None:
+           xml_notes = ET.SubElement(xml_entry, 'notes')
+           xml_notes.text = entry.notes
+
+    def visit_folder(self, parent, folder):
+        """Create XML representation for a password folder."""
+
+        xml_parent = self._backtrace_parent(parent)
+
+        xml_folder = ET.SubElement(xml_parent, 'entry')
+        xml_folder.set('type', 'folder')
+        self._add_entry_properties(folder, xml_folder)
+
+        self._parent_chain.append((folder, xml_folder))
+
+    def visit_generic(self, parent, generic):
+        """Create XML representation for a generic password record."""
+
+        xml_parent = self._backtrace_parent(parent)
+
+        xml_generic = ET.SubElement(xml_parent, 'entry')
+        xml_generic.set('type', 'generic')
+        self._add_entry_properties(generic, xml_generic)
+
+        if generic.hostname is not None:
+            xml_hostname = ET.SubElement(xml_generic, 'field')
+            xml_hostname.set('id', 'generic-hostname')
+            xml_hostname.text = generic.hostname
+
+        if generic.username is not None:
+            xml_username = ET.SubElement(xml_generic, 'field')
+            xml_username.set('id', 'generic-username')
+            xml_username.text = generic.username
+
+        if generic.password is not None:
+            xml_password = ET.SubElement(xml_generic, 'field')
+            xml_password.set('id', 'generic-password')
+            xml_password.text = generic.password
+
 class Storage:
     """Password database file reader/writer."""
 
@@ -303,3 +410,15 @@ class Storage:
                 fh.write(raw_content)
         except Exception as e:
             raise storepass.exc.StorageWriteException(e) from e
+
+    def write_tree(self, root):
+        """
+        Convert a password tree structure into a XML representation, encrypt it
+        and save into the password database.
+        """
+
+        model_to_xml = _ModelToXMLConvertor()
+        root.visit(model_to_xml)
+
+        xml = model_to_xml.get_output()
+        self.write_plain(xml)

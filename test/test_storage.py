@@ -361,3 +361,30 @@ class TestStorage(unittest.TestCase):
         with self.assertRaises(storepass.exc.StorageWriteException) as cm:
             storage.write_plain('')
         self.assertRegex(str(cm.exception), "\[Errno 21\] Is a directory:")
+
+    def test_write_generic_entry(self):
+        """Check output of a single generic entry."""
+
+        generic = storepass.model.Generic("E1 name", "E1 description", \
+            "1546300800", "E1 notes", "E1 hostname", "E1 username", \
+            "E1 password")
+        root = storepass.model.Root([generic])
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        storage.write_tree(root)
+
+        data = helpers.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
+        self.assertEqual(data, '''\
+<?xml version="1.0" encoding="utf-8"?>
+<revelationdata dataversion="1">
+\t<entry type="generic">
+\t\t<name>E1 name</name>
+\t\t<description>E1 description</description>
+\t\t<updated>1546300800</updated>
+\t\t<notes>E1 notes</notes>
+\t\t<field id="generic-hostname">E1 hostname</field>
+\t\t<field id="generic-username">E1 username</field>
+\t\t<field id="generic-password">E1 password</field>
+\t</entry>
+</revelationdata>
+''')
