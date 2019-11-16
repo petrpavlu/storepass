@@ -44,9 +44,12 @@ class Storage:
             raise storepass.exc.StorageReadException(
                 f"Non-zero header padding at bytes [9:12), found {header[9:]}")
 
-    def read_plain(self):
+    def read_plain(self, raw_bytes=False):
         """
         Read and decrypt the password database. Return its plain XML content.
+
+        If raw_bytes is True, a bytes object is returned, otherwise the data is
+        decoded as UTF-8 and a Unicode string returned.
         """
 
         try:
@@ -119,6 +122,11 @@ class Storage:
         except Exception as e:
             raise storepass.exc.StorageReadException(e) from e
 
+        # Return the raw bytes if requested.
+        if raw_bytes:
+            return decompressed_data
+
+        # Decode the data as UTF-8.
         try:
             return decompressed_data.decode('utf-8')
         except Exception as e:
@@ -244,7 +252,9 @@ class Storage:
         structure.
         """
 
-        xml_data = self.read_plain()
+        # Read and decrypt the file. Request the data to be returned as bytes so
+        # ElementTree can handle decoding according to the XML specification.
+        xml_data = self.read_plain(raw_bytes=False)
 
         # TODO Implement proper error checking.
         root_elem = ET.fromstring(xml_data)
