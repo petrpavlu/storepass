@@ -14,10 +14,10 @@ class Root:
             res += child.__str__(indent) + "\n"
         return res
 
-    def visit(self, view, parent):
-        view.visit_root(parent, self)
+    def visit(self, visitor):
+        visitor.visit_root(None, self)
         for child in self._children:
-            child.visit(view, self)
+            child.visit(visitor, self)
 
 class Entry:
     def __init__(self, name, description, updated, notes):
@@ -48,10 +48,10 @@ class Folder(Entry):
             res += "\n" + child.__str__(indent + "  ")
         return res
 
-    def visit(self, view, parent):
-        view.visit_folder(parent, self)
+    def visit(self, visitor, parent):
+        visitor.visit_folder(parent, self)
         for child in self._children:
-            child.visit(view, self)
+            child.visit(visitor, self)
 
 class Generic(Entry):
     def __init__(self, name, description, updated, notes, hostname, username, \
@@ -65,8 +65,8 @@ class Generic(Entry):
         parent = super().inline_str()
         return indent + f"Generic({parent}, hostname={self.hostname}, username={self.username}, password={self.password})"
 
-    def visit(self, view, parent):
-        view.visit_generic(parent, self)
+    def visit(self, visitor, parent):
+        visitor.visit_generic(parent, self)
 
 class Model:
     def __init__(self):
@@ -92,11 +92,11 @@ class Model:
 
         return entry
 
-    def visit_all(self, view):
+    def visit_all(self, visitor):
         """
         Iterate over all password entries and pass them individually to the
-        specified view visitor.
+        specified visitor.
         """
 
         if self._root is not None:
-            self._root.visit(view, None)
+            self._root.visit(visitor)
