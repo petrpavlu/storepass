@@ -1,6 +1,8 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""Test helper functions."""
+
 import hashlib
 import os
 import zlib
@@ -8,10 +10,14 @@ import zlib
 from Crypto.Cipher import AES
 
 def write_file(filename, bytes_):
+    """Write raw content (bytes) into a specified file."""
+
     with open(filename, 'wb') as fh:
         fh.write(bytes_)
 
 def write_password_db(filename, password, xml, compress=True):
+    """Write a password database file."""
+
     # Encode the data if needed.
     if isinstance(xml, bytes):
         encoded_data = xml
