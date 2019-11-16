@@ -14,10 +14,10 @@ class Root:
             res += child.__str__(indent) + "\n"
         return res
 
-    def visit(self, visitor):
+    def accept(self, visitor):
         visitor.visit_root(None, self)
         for child in self._children:
-            child.visit(visitor, self)
+            child.accept(visitor, self)
 
 class Entry:
     def __init__(self, name, description, updated, notes):
@@ -48,10 +48,10 @@ class Folder(Entry):
             res += "\n" + child.__str__(indent + "  ")
         return res
 
-    def visit(self, visitor, parent):
+    def accept(self, visitor, parent):
         visitor.visit_folder(parent, self)
         for child in self._children:
-            child.visit(visitor, self)
+            child.accept(visitor, self)
 
 class Generic(Entry):
     def __init__(self, name, description, updated, notes, hostname, username, \
@@ -65,7 +65,7 @@ class Generic(Entry):
         parent = super().inline_str()
         return indent + f"Generic({parent}, hostname={self.hostname}, username={self.username}, password={self.password})"
 
-    def visit(self, visitor, parent):
+    def accept(self, visitor, parent):
         visitor.visit_generic(parent, self)
 
 class Model:
@@ -99,4 +99,4 @@ class Model:
         """
 
         if self._root is not None:
-            self._root.visit(visitor)
+            self._root.accept(visitor)

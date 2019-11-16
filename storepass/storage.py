@@ -418,7 +418,7 @@ class Storage:
         """
 
         model_to_xml = _ModelToXMLConvertor()
-        root.visit(model_to_xml)
+        root.accept(model_to_xml)
 
         xml = model_to_xml.get_output()
         self.write_plain(xml)
