@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import hashlib
+import os
 import xml.etree.ElementTree as ET
 import zlib
 from Crypto.Cipher import AES
@@ -15,6 +16,12 @@ class Storage:
     def __init__(self, filename, password_proxy):
         self._filename = filename
         self._password_proxy = password_proxy
+
+    def get_password(self):
+        if callable(self._password_proxy):
+            return self._password_proxy()
+        else:
+            return self._password_proxy
 
     def _parse_header(self, header):
         """Verify validity of a password database header."""
@@ -74,13 +81,8 @@ class Storage:
         # Parse and validate the header.
         self._parse_header(header)
 
-        # Query the password for the file.
-        if callable(self._password_proxy):
-            password = self._password_proxy()
-        else:
-            password = self._password_proxy
-
         # Calculate the PBKDF2 derived key.
+        password = self.get_password()
         key = hashlib.pbkdf2_hmac('sha1', password.encode('utf-8'), salt, 12000,
                                   dklen=32)
 
@@ -238,7 +240,7 @@ class Storage:
 
     def read_tree(self):
         """
-        Read and decode the password database. Return its normalized tree
+        Read and decrypt the password database. Return its normalized tree
         structure.
         """
 
@@ -248,3 +250,46 @@ class Storage:
         root_elem = ET.fromstring(xml_data)
 
         return self._parse_root(root_elem)
+
+    def write_plain(self, xml):
+        """
+        Encrypt plain XML content and save it into the password database.
+        """
+
+        # Encode the Unicode data as UTF-8.
+        encoded_data = xml.encode('utf-8')
+
+        # Compress the data.
+        try:
+            compressed_unpadded_data = zlib.compress(encoded_data)
+        except Exception as e:
+            raise storepass.exc.StorageWriteException(e) from e
+
+        # Pad the result to the 16-byte boundary.
+        padlen = 16 - len(compressed_unpadded_data) % 16
+        compressed_data = compressed_unpadded_data + bytes([padlen] * padlen)
+
+        # Add a hash for integrity check.
+        hash256 = hashlib.sha256(compressed_data).digest()
+        decrypted_data = hash256 + compressed_data
+
+        # Calculate the PBKDF2 derived key.
+        password = self.get_password()
+        salt = os.urandom(8)
+        key = hashlib.pbkdf2_hmac('sha1', password.encode('utf-8'), salt, 12000,
+                                  dklen=32)
+
+        # Encrypt the data.
+        init_vector = os.urandom(16)
+        crypto_obj = AES.new(key, AES.MODE_CBC, init_vector)
+        encrypted_data = crypto_obj.encrypt(decrypted_data)
+
+        # Prepare final output and write it out.
+        raw_content = b'rvl\x00\x02\x00\x00\x00\x00\x00\x00\x00' + \
+            salt + init_vector + encrypted_data
+
+        try:
+            with open(self._filename, 'wb') as fh:
+                fh.write(raw_content)
+        except Exception as e:
+            raise storepass.exc.StorageWriteException(e) from e

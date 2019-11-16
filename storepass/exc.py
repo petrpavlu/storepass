@@ -12,3 +12,7 @@ class StorageException(StorePassException):
 class StorageReadException(StorageException):
     """Error reading a password database."""
     pass
+
+class StorageWriteException(StorageException):
+    """Error writing a password database."""
+    pass

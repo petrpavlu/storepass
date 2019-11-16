@@ -6,6 +6,7 @@ import storepass.model
 import storepass.storage
 from . import helpers
 
+import os
 import os.path
 import shutil
 import tempfile
@@ -334,3 +335,12 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(c0.username, "E1 username")
         self.assertEqual(c0.password, "E1 password")
         self.assertEqual(c0.hostname, "E1 hostname")
+
+    def test_write_plain(self):
+        """Check that the plain writer can save raw database content."""
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        storage.write_plain('RAW CONTENT')
+
+        data = helpers.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
+        self.assertEqual(data, 'RAW CONTENT')
