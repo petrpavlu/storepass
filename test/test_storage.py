@@ -317,16 +317,17 @@ class TestStorage(unittest.TestCase):
         helpers.write_password_db(self.dbname, DEFAULT_PASSWORD, '''\
 <?xml version="1.0" encoding="utf-8"?>
 <revelationdata version="0.4.14" dataversion="1">
-        <entry type="generic">
-                <name>E1 name</name>
-                <description>E1 description</description>
-                <updated>1546300800</updated>
-                <notes>E1 notes</notes>
-                <field id="generic-hostname">E1 hostname</field>
-                <field id="generic-username">E1 username</field>
-                <field id="generic-password">E1 password</field>
-        </entry>
-</revelationdata>''')
+\t<entry type="generic">
+\t\t<name>E1 name</name>
+\t\t<description>E1 description</description>
+\t\t<updated>1546300800</updated>
+\t\t<notes>E1 notes</notes>
+\t\t<field id="generic-hostname">E1 hostname</field>
+\t\t<field id="generic-username">E1 username</field>
+\t\t<field id="generic-password">E1 password</field>
+\t</entry>
+</revelationdata>
+''')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
