@@ -5,9 +5,23 @@
 
 import hashlib
 import os
+import os.path
+import shutil
+import tempfile
+import unittest
 import zlib
 
 from Crypto.Cipher import AES
+
+class StorePassTestCase(unittest.TestCase):
+    def setUp(self):
+        self.testdir = tempfile.mkdtemp()
+
+        # Set the default database name.
+        self.dbname = os.path.join(self.testdir, 'pass.db')
+
+    def tearDown(self):
+        shutil.rmtree(self.testdir)
 
 def write_file(filename, bytes_):
     """Write raw content (bytes) into a specified file."""

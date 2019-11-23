@@ -7,23 +7,10 @@ import storepass.storage
 from . import helpers
 
 import os
-import os.path
-import shutil
-import tempfile
-import unittest
 
 DEFAULT_PASSWORD = 'qwerty'
 
-class TestStorage(unittest.TestCase):
-    def setUp(self):
-        self.testdir = tempfile.mkdtemp()
-
-        # Set default database name.
-        self.dbname = os.path.join(self.testdir, 'pass.db')
-
-    def tearDown(self):
-        shutil.rmtree(self.testdir)
-
+class TestStorage(helpers.StorePassTestCase):
     def test_read_plain(self):
         """Check that the plain reader can output raw database content."""
 

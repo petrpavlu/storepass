@@ -2,13 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 import storepass.cli.__main__
+from . import helpers
 
 import contextlib
 import io
-import os.path
-import shutil
-import tempfile
-import unittest
 import unittest.mock
 
 DEFAULT_PASSWORD = 'qwerty'
@@ -27,16 +24,7 @@ def cli_context(args):
          unittest.mock.patch('sys.argv', args):
         yield CLIMock(getpass, out, err)
 
-class TestCLI(unittest.TestCase):
-    def setUp(self):
-        self.testdir = tempfile.mkdtemp()
-
-        # Set default database name.
-        self.dbname = os.path.join(self.testdir, 'pass.db')
-
-    def tearDown(self):
-        shutil.rmtree(self.testdir)
-
+class TestCLI(helpers.StorePassTestCase):
     def test_help(self):
         """Check the basic --help output."""
 
