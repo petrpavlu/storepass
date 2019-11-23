@@ -28,8 +28,19 @@ logging.addLevelName(logging.WARNING, "warning")
 logging.addLevelName(logging.INFO, "info")
 logging.addLevelName(logging.DEBUG, "debug")
 
+# Create a custom stderr logger. It is same as a handler that would be created
+# by the logging module by default, but references sys.stderr at the time when a
+# message is printed, which allows sys.stderr to be correctly overwritten in
+# unit tests.
+class StderrHandler(logging.Handler):
+    def emit(self, record):
+        log_entry = self.format(record)
+        print(log_entry, file=sys.stderr)
+log_handler = StderrHandler()
+
 # Initialize logging.
-logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s")
+logging.basicConfig(
+    format="%(app)s: %(levelname)s: %(message)s", handlers=[log_handler])
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -166,7 +177,10 @@ def main():
     dump_parser = subparsers.add_parser(
         'dump', description="dump raw database content")
 
-    args = parser.parse_args()
+    try:
+        args = parser.parse_args()
+    except SystemExit as e:
+        return e.code
 
     # Set desired log verbosity.
     if args.verbose is not None:
