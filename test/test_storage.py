@@ -11,6 +11,7 @@ import textwrap
 
 DEFAULT_PASSWORD = 'qwerty'
 
+
 class TestStorage(helpers.StorePassTestCase):
     def test_read_plain(self):
         """Check that the plain reader can output raw database content."""
@@ -40,7 +41,8 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "File header is incomplete, expected '12' bytes but found '0'")
 
     def test_read_header_size_max(self):
@@ -50,12 +52,13 @@ class TestStorage(helpers.StorePassTestCase):
         """
 
         helpers.write_file(self.dbname,
-            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
+                           b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "File header is incomplete, expected '12' bytes but found '11'")
 
     def test_read_salt_size_min(self):
@@ -64,13 +67,14 @@ class TestStorage(helpers.StorePassTestCase):
         (minimum corner case).
         """
 
-        helpers.write_file(self.dbname,
-            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
+        helpers.write_file(
+            self.dbname, b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Salt record is incomplete, expected '8' bytes but found '0'")
 
     def test_read_salt_size_max(self):
@@ -79,14 +83,16 @@ class TestStorage(helpers.StorePassTestCase):
         (maximum corner case).
         """
 
-        helpers.write_file(self.dbname,
+        helpers.write_file(
+            self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Salt record is incomplete, expected '8' bytes but found '7'")
 
     def test_read_init_size_min(self):
@@ -95,14 +101,16 @@ class TestStorage(helpers.StorePassTestCase):
         rejected (minimum corner case).
         """
 
-        helpers.write_file(self.dbname,
+        helpers.write_file(
+            self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Initialization vector is incomplete, expected '16' bytes but "
             "found '0'")
 
@@ -112,7 +120,8 @@ class TestStorage(helpers.StorePassTestCase):
         rejected (maximum corner case).
         """
 
-        helpers.write_file(self.dbname,
+        helpers.write_file(
+            self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
             b'\x20\x21\x22')
@@ -120,7 +129,8 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Initialization vector is incomplete, expected '16' bytes but "
             "found '15'")
 
@@ -129,7 +139,8 @@ class TestStorage(helpers.StorePassTestCase):
         Check that a file with a misaligned encrypted data is sensibly rejected.
         """
 
-        helpers.write_file(self.dbname,
+        helpers.write_file(
+            self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
             b'\x20\x21\x22\x23\x24')
@@ -137,7 +148,8 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Data record with size of '1' bytes is not 16-byte aligned")
 
     def test_read_header_magic(self):
@@ -146,7 +158,8 @@ class TestStorage(helpers.StorePassTestCase):
         rejected.
         """
 
-        helpers.write_file(self.dbname,
+        helpers.write_file(
+            self.dbname,
             b'\xff\xff\xff\xff\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
             b'\x20\x21\x22\x23')
@@ -154,7 +167,8 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Invalid magic number, expected b'rvl\\x00' but found "
             "b'\\xff\\xff\\xff\\xff'")
 
@@ -164,7 +178,8 @@ class TestStorage(helpers.StorePassTestCase):
         sensibly rejected.
         """
 
-        helpers.write_file(self.dbname,
+        helpers.write_file(
+            self.dbname,
             b'rvl\x00\xff\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
             b'\x20\x21\x22\x23')
@@ -172,7 +187,8 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Unsupported data version, expected b'2' but found b'\\xff'")
 
     def test_read_header_padding(self):
@@ -181,7 +197,8 @@ class TestStorage(helpers.StorePassTestCase):
         sensibly rejected.
         """
 
-        helpers.write_file(self.dbname,
+        helpers.write_file(
+            self.dbname,
             b'rvl\x00\x02\xff\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
             b'\x20\x21\x22\x23')
@@ -189,7 +206,8 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Non-zero header padding at bytes [5:6), found b'\\xff'")
 
     def test_read_header_padding2(self):
@@ -198,7 +216,8 @@ class TestStorage(helpers.StorePassTestCase):
         sensibly rejected.
         """
 
-        helpers.write_file(self.dbname,
+        helpers.write_file(
+            self.dbname,
             b'rvl\x00\x02\x00\x06\x07\x08\xff\xff\xff\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
             b'\x20\x21\x22\x23')
@@ -206,8 +225,10 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertEqual(str(cm.exception),
-            "Non-zero header padding at bytes [9:12), found b'\\xff\\xff\\xff'")
+        self.assertEqual(
+            str(cm.exception),
+            "Non-zero header padding at bytes [9:12), found b'\\xff\\xff\\xff'"
+        )
 
     def test_read_password(self):
         """
@@ -228,8 +249,10 @@ class TestStorage(helpers.StorePassTestCase):
         rejected.
         """
 
-        helpers.write_password_db(self.dbname, DEFAULT_PASSWORD, '',
-            compress=False)
+        helpers.write_password_db(self.dbname,
+                                  DEFAULT_PASSWORD,
+                                  '',
+                                  compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -242,14 +265,17 @@ class TestStorage(helpers.StorePassTestCase):
         length) is sensibly rejected.
         """
 
-        helpers.write_password_db(self.dbname, DEFAULT_PASSWORD,
+        helpers.write_password_db(
+            self.dbname,
+            DEFAULT_PASSWORD,
             '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x10',
             compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             data = storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Compressed data have incorrect padding, length '16' is bigger "
             "than '15' bytes")
 
@@ -259,14 +285,17 @@ class TestStorage(helpers.StorePassTestCase):
         bytes) is sensibly rejected.
         """
 
-        helpers.write_password_db(self.dbname, DEFAULT_PASSWORD,
+        helpers.write_password_db(
+            self.dbname,
+            DEFAULT_PASSWORD,
             '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x02',
             compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             data = storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Compressed data have incorrect padding, expected b'\\x02\\x02' "
             "but found b'\\x0e\\x02'")
 
@@ -275,14 +304,17 @@ class TestStorage(helpers.StorePassTestCase):
         Check that a file with wrongly compressed data is sensibly rejected.
         """
 
-        helpers.write_password_db(self.dbname, DEFAULT_PASSWORD,
+        helpers.write_password_db(
+            self.dbname,
+            DEFAULT_PASSWORD,
             '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x01',
             compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             data = storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Error -3 while decompressing data: incorrect header check")
 
     def test_read_wrong_utf8(self):
@@ -295,28 +327,30 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             data = storage.read_plain()
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(
+            str(cm.exception),
             "Error decoding payload: 'utf-8' codec can't decode byte 0xff in "
             "position 0: invalid start byte")
 
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
 
-        helpers.write_password_db(self.dbname, DEFAULT_PASSWORD,
+        helpers.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
             textwrap.dedent('''\
-            <?xml version="1.0" encoding="utf-8"?>
-            <revelationdata version="0.4.14" dataversion="1">
-            \t<entry type="generic">
-            \t\t<name>E1 name</name>
-            \t\t<description>E1 description</description>
-            \t\t<updated>1546300800</updated>
-            \t\t<notes>E1 notes</notes>
-            \t\t<field id="generic-hostname">E1 hostname</field>
-            \t\t<field id="generic-username">E1 username</field>
-            \t\t<field id="generic-password">E1 password</field>
-            \t</entry>
-            </revelationdata>
-            ''')
+                <?xml version="1.0" encoding="utf-8"?>
+                <revelationdata version="0.4.14" dataversion="1">
+                \t<entry type="generic">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
@@ -363,17 +397,19 @@ class TestStorage(helpers.StorePassTestCase):
         storage.write_tree(root)
 
         data = helpers.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
-        self.assertEqual(data, textwrap.dedent('''\
-            <?xml version="1.0" encoding="utf-8"?>
-            <revelationdata dataversion="1">
-            \t<entry type="generic">
-            \t\t<name>E1 name</name>
-            \t\t<description>E1 description</description>
-            \t\t<updated>1546300800</updated>
-            \t\t<notes>E1 notes</notes>
-            \t\t<field id="generic-hostname">E1 hostname</field>
-            \t\t<field id="generic-username">E1 username</field>
-            \t\t<field id="generic-password">E1 password</field>
-            \t</entry>
-            </revelationdata>
-            ''')
+        self.assertEqual(
+            data,
+            textwrap.dedent('''\
+                <?xml version="1.0" encoding="utf-8"?>
+                <revelationdata dataversion="1">
+                \t<entry type="generic">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
