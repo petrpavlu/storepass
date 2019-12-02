@@ -7,6 +7,7 @@ import storepass.storage
 from . import helpers
 
 import os
+import textwrap
 
 DEFAULT_PASSWORD = 'qwerty'
 
@@ -301,20 +302,21 @@ class TestStorage(helpers.StorePassTestCase):
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
 
-        helpers.write_password_db(self.dbname, DEFAULT_PASSWORD, '''\
-<?xml version="1.0" encoding="utf-8"?>
-<revelationdata version="0.4.14" dataversion="1">
-\t<entry type="generic">
-\t\t<name>E1 name</name>
-\t\t<description>E1 description</description>
-\t\t<updated>1546300800</updated>
-\t\t<notes>E1 notes</notes>
-\t\t<field id="generic-hostname">E1 hostname</field>
-\t\t<field id="generic-username">E1 username</field>
-\t\t<field id="generic-password">E1 password</field>
-\t</entry>
-</revelationdata>
-''')
+        helpers.write_password_db(self.dbname, DEFAULT_PASSWORD,
+            textwrap.dedent('''\
+            <?xml version="1.0" encoding="utf-8"?>
+            <revelationdata version="0.4.14" dataversion="1">
+            \t<entry type="generic">
+            \t\t<name>E1 name</name>
+            \t\t<description>E1 description</description>
+            \t\t<updated>1546300800</updated>
+            \t\t<notes>E1 notes</notes>
+            \t\t<field id="generic-hostname">E1 hostname</field>
+            \t\t<field id="generic-username">E1 username</field>
+            \t\t<field id="generic-password">E1 password</field>
+            \t</entry>
+            </revelationdata>
+            ''')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
@@ -361,17 +363,17 @@ class TestStorage(helpers.StorePassTestCase):
         storage.write_tree(root)
 
         data = helpers.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
-        self.assertEqual(data, '''\
-<?xml version="1.0" encoding="utf-8"?>
-<revelationdata dataversion="1">
-\t<entry type="generic">
-\t\t<name>E1 name</name>
-\t\t<description>E1 description</description>
-\t\t<updated>1546300800</updated>
-\t\t<notes>E1 notes</notes>
-\t\t<field id="generic-hostname">E1 hostname</field>
-\t\t<field id="generic-username">E1 username</field>
-\t\t<field id="generic-password">E1 password</field>
-\t</entry>
-</revelationdata>
-''')
+        self.assertEqual(data, textwrap.dedent('''\
+            <?xml version="1.0" encoding="utf-8"?>
+            <revelationdata dataversion="1">
+            \t<entry type="generic">
+            \t\t<name>E1 name</name>
+            \t\t<description>E1 description</description>
+            \t\t<updated>1546300800</updated>
+            \t\t<notes>E1 notes</notes>
+            \t\t<field id="generic-hostname">E1 hostname</field>
+            \t\t<field id="generic-username">E1 username</field>
+            \t\t<field id="generic-password">E1 password</field>
+            \t</entry>
+            </revelationdata>
+            ''')
