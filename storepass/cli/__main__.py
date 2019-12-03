@@ -79,6 +79,16 @@ def split_entry(entry):
 
     return res
 
+def process_init_command(args, model):
+    """
+    Handle the init command which is used to create an empty password database.
+    """
+
+    assert args.command == 'init'
+
+    # Keep the model empty and let the main() function write out the database.
+    return 0
+
 def process_list_command(args, model):
     """
     Handle the list command which is used to print short information about all
@@ -161,6 +171,8 @@ def main():
 
     # Add sub-commands.
     subparsers = parser.add_subparsers(dest='command')
+    init_parser = subparsers.add_parser('init',
+         description="create a new empty database")
     list_parser = subparsers.add_parser(
         'list', description="list password entries")
     show_parser = subparsers.add_parser(
@@ -214,8 +226,10 @@ def main():
         return 1
 
     # Handle individual commands.
-    if args.command == 'list':
-        return process_list_command(args, model)
+    if args.command == 'init':
+        res = process_init_command(args, model)
+    elif args.command == 'list':
+        res = process_list_command(args, model)
     elif args.command == 'show':
         return process_show_command(args, model)
     elif args.command == 'add':
