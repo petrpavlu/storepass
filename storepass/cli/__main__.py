@@ -329,11 +329,12 @@ def main():
     # Create a data representation object.
     model = storepass.model.Model()
 
-    try:
-        model.load(storage)
-    except storepass.exc.StorageReadException as e:
-        logger.error(f"failed to load password database '{args.file}': {e}")
-        return 1
+    if args.command in ('list', 'show', 'add', 'edit', 'delete'):
+        try:
+            model.load(storage)
+        except storepass.exc.StorageReadException as e:
+            logger.error(f"failed to load password database '{args.file}': {e}")
+            return 1
 
     # Handle individual commands.
     if args.command == 'init':
