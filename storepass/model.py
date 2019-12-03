@@ -1,13 +1,17 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-class Root:
+class Container:
     def __init__(self, children):
-        self._children = children
+        self._children = sorted(children, key=lambda child : child.name)
 
     @property
     def children(self):
         return self._children
+
+class Root(Container):
+    def __init__(self, children):
+        Container.__init__(self, children)
 
     def __str__(self, indent=""):
         for child in self._children:
@@ -32,14 +36,10 @@ class Entry:
     def __str__(self):
         return "Entry(" + self.inline_str() + ")"
 
-class Folder(Entry):
+class Folder(Entry, Container):
     def __init__(self, name, description, updated, notes, children):
-        super().__init__(name, description, updated, notes)
-        self._children = children
-
-    @property
-    def children(self):
-        return self._children
+        Container.__init__(self, children)
+        Entry.__init__(self, name, description, updated, notes)
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -56,7 +56,7 @@ class Folder(Entry):
 class Generic(Entry):
     def __init__(self, name, description, updated, notes, hostname, username, \
         password):
-        super().__init__(name, description, updated, notes)
+        Entry.__init__(self, name, description, updated, notes)
         self.hostname = hostname
         self.username = username
         self.password = password
@@ -80,7 +80,7 @@ class Model:
     def get_entry(self, path_spec):
         entry = self._root
         for element in path_spec:
-            if not isinstance(entry, Root) and not isinstance(entry, Folder):
+            if not isinstance(entry, Container):
                 return None
 
             for i in entry.children:
