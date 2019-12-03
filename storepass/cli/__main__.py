@@ -121,17 +121,106 @@ def process_show_command(args, model):
     detail_view = view.DetailView()
     entry.visit(detail_view, None)
 
+def _check_options_validity(type_, accepted_options, args):
+    all_valid = True
+
+    if args.hostname is not None and 'hostname' not in accepted_options:
+            logger.error(
+                f"option --hostname is not valid for entry type '{type_}'")
+            all_valid = False
+    if args.username is not None and 'username' not in accepted_options:
+            logger.error(
+                f"option --username is not valid for entry type '{type_}'")
+            all_valid = False
+    if args.password is not None and 'password' not in accepted_options:
+            logger.error(
+                f"option --password is not valid for entry type '{type_}'")
+            all_valid = False
+
+    return all_valid
+
 def process_add_command(args, model):
     assert args.command == 'add'
-    assert 0 and "Unimplemented command 'add'!"
+
+    # Create the entry specified on the command line.
+    entry_name = args.entry[0]
+    path = split_entry(entry_name)
+
+    if args.password:
+        # TODO Implement, prompt for a password.
+        password = 'TODO'
+    else:
+        password = None
+
+    if args.type == 'generic':
+        if not _check_options_validity(
+            'generic', ('hostname', 'username', 'password'), args):
+            return 1
+
+        # TODO Pass proper updated value.
+        entry = storepass.model.Generic(path[-1], args.description, None,
+            args.notes, args.hostname, args.username, password)
+
+    elif args.type == 'folder':
+        if not _check_options_validity('folder', (), args):
+            return 1
+
+        # TODO Pass proper updated value.
+        entry = storepass.model.Folder(path[-1], args.description, None,
+            args.notes)
+
+    else:
+        assert 0 and "Unhandled entry type!"
+
+    # TODO Implement error handling.
+    model.add_entry(path[:-1], entry)
+
+def process_edit_command(args, model):
+    assert args.command == 'edit'
+    assert len(args.entry) == 1
+
+    # Find the entry specified on the command line.
+    entry_name = args.entry[0]
+    path = split_entry(entry_name)
+    entry = model.get_entry(path)
+    if entry is None:
+        logger.error(f"entry '{entry_name}' not found")
+        return 1
+
+    # Process options valid for all entries.
+    if args.description is not None:
+        entry.description = args.description
+    if args.notes is not None:
+        entry.notes = args.notes
+
+    # Process password entry-specific options.
+    has_error = False
+    if args.username is not None:
+        if isinstance(entry, storepass.model.Generic):
+            entry.username = args.username
+        else:
+            logger.error(f"TODO")
+            has_error = True
+    if args.hostname is not None:
+        if isinstance(entry, storepass.model.Generic):
+            entry.hostname = args.hostname
+        else:
+            logger.error(f"TODO")
+            has_error = True
+    if args.password:
+        if isinstance(entry, storepass.model.Generic):
+            entry.password = getpass.getpass("Entry password: ")
+        else:
+            logger.error(f"TODO")
+            has_error = True
+    if has_error:
+        return 1
+
+    # TODO Implement store operation in the main function.
 
 def process_delete_command(args, model):
     assert args.command == 'delete'
     assert 0 and "Unimplemented command 'delete'!"
-
-def process_edit_command(args, model):
-    assert args.command == 'edit'
-    assert 0 and "Unimplemented command 'edit'!"
 
 def process_dump_command(args, storage):
     """
@@ -173,21 +262,42 @@ def main():
     subparsers = parser.add_subparsers(dest='command')
     init_parser = subparsers.add_parser('init',
          description="create a new empty database")
-    list_parser = subparsers.add_parser(
-        'list', description="list password entries")
-    show_parser = subparsers.add_parser(
-        'show', description="show a password entry and its details")
-    # TODO Share the option with other commands.
-    show_parser.add_argument(
-        'entry', nargs=1, metavar='ENTRY', help="password entry")
-    add_parser = subparsers.add_parser(
-        'add', description="add a new password entry")
-    remove_parser = subparsers.add_parser(
-        'delete', description="delete a password entry")
-    edit_parser = subparsers.add_parser(
-        'edit', description="edit an existing password entry")
-    dump_parser = subparsers.add_parser(
-        'dump', description="dump raw database content")
+    list_parser = subparsers.add_parser('list',
+         description="list password entries")
+    show_parser = subparsers.add_parser('show',
+         description="show a password entry and its details")
+    add_parser = subparsers.add_parser('add',
+         description="add a new password entry")
+    edit_parser = subparsers.add_parser('edit',
+         description="edit an existing password entry")
+    delete_parser = subparsers.add_parser('delete',
+         description="delete a password entry")
+    dump_parser = subparsers.add_parser('dump',
+         description="dump raw database content")
+
+    add_parser.add_argument('-t', '--type', choices=('folder', 'generic'),
+        default='generic', help="entry type (the default is generic)")
+
+    for sub_parser in (add_parser, edit_parser):
+        common_group = sub_parser.add_argument_group(
+            "optional arguments valid for all entry types")
+        common_group.add_argument('--description', metavar='DESC',
+            help="set entry description to the specified value")
+        common_group.add_argument('--notes',
+            help="set entry notes to the specified value")
+
+        password_group = sub_parser.add_argument_group(
+            "optional arguments valid for password type")
+        password_group.add_argument('--hostname', metavar='HOST',
+            help="set hostname to the specified value")
+        password_group.add_argument('--username', metavar='USER',
+            help="set username to the specified value")
+        password_group.add_argument('--password', action='store_true',
+            help="prompt for a password value")
+
+    for sub_parser in (show_parser, add_parser, delete_parser, edit_parser):
+        sub_parser.add_argument('entry', nargs=1, metavar='ENTRY',
+            help="password entry")
 
     try:
         args = parser.parse_args()
@@ -231,13 +341,13 @@ def main():
     elif args.command == 'list':
         res = process_list_command(args, model)
     elif args.command == 'show':
-        return process_show_command(args, model)
+        res = process_show_command(args, model)
     elif args.command == 'add':
-        return process_add_command(args, model)
-    elif args.command == 'delete':
-        return process_delete_command(args, model)
+        res = process_add_command(args, model)
     elif args.command == 'edit':
-        return process_edit_command(args, model)
+        res = process_edit_command(args, model)
+    elif args.command == 'delete':
+        res = process_delete_command(args, model)
     else:
         assert 0 and "Unimplemented command!"
 

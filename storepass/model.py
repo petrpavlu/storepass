@@ -9,6 +9,31 @@ class Container:
     def children(self):
         return self._children
 
+    def _get_child_index(self, name):
+        low = 0
+        high = len(self._children)
+        while low < high:
+            mid = (low + high) // 2
+            if self._children[mid].name < name:
+                low = mid + 1
+            else:
+                high = mid
+        return low
+
+    def get_child(self, name):
+        index = self._get_child_index(name)
+        if index < len(self._children):
+            child = self._children[index]
+            if child.name == name:
+                return (child, index)
+        return (None, index)
+
+    def add_child(self, child):
+        old_child, index = self.get_child(child.name)
+        if old_child is not None:
+            raise 0 # TODO
+        self._children.insert(index, child)
+
 class Root(Container):
     def __init__(self, children):
         Container.__init__(self, children)
@@ -76,6 +101,12 @@ class Model:
         """Initialize the model using the specified storage object."""
 
         self._root = storage.read_tree()
+
+
+    def add_entry(self, parent_path_spec, entry):
+        # TODO Error handling.
+        parent_entry = self.get_entry(parent_path_spec)
+        parent_entry.add_child(entry)
 
     def get_entry(self, path_spec):
         entry = self._root
