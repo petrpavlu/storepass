@@ -95,7 +95,7 @@ class Generic(Entry):
 
 class Model:
     def __init__(self):
-        self._root = None
+        self._root = Root([])
 
     def load(self, storage):
         """Initialize the model using the specified storage object."""
