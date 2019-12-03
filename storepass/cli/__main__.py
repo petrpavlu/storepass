@@ -351,6 +351,10 @@ def main():
     else:
         assert 0 and "Unimplemented command!"
 
+    if args.command in ('init', 'add', 'edit', 'delete'):
+        # TODO Error handling.
+        model.save(storage)
+
     return 0
 
 if __name__ == '__main__':
