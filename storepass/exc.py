@@ -4,19 +4,15 @@
 
 class StorePassException(Exception):
     """Base StorePass exception."""
-    pass
 
 
 class StorageException(StorePassException):
     """Base Storage exception."""
-    pass
 
 
 class StorageReadException(StorageException):
     """Error reading a password database."""
-    pass
 
 
 class StorageWriteException(StorageException):
     """Error writing a password database."""
-    pass
