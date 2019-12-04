@@ -357,15 +357,15 @@ class TestStorage(helpers.StorePassTestCase):
         self.assertTrue(isinstance(root, storepass.model.Root))
         self.assertEqual(len(root.children), 1)
 
-        c0 = root.children[0]
-        self.assertIs(type(c0), storepass.model.Generic)
-        self.assertEqual(c0.name, "E1 name")
-        self.assertEqual(c0.description, "E1 description")
-        self.assertEqual(c0.updated, "1546300800")
-        self.assertEqual(c0.notes, "E1 notes")
-        self.assertEqual(c0.hostname, "E1 hostname")
-        self.assertEqual(c0.username, "E1 username")
-        self.assertEqual(c0.password, "E1 password")
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.Generic)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(child_0.updated, "1546300800")
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.hostname, "E1 hostname")
+        self.assertEqual(child_0.username, "E1 username")
+        self.assertEqual(child_0.password, "E1 password")
 
     def test_write_plain(self):
         """Check that the plain writer can save raw database content."""
