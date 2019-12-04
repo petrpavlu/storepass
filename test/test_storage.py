@@ -255,7 +255,7 @@ class TestStorage(helpers.StorePassTestCase):
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
-            data = storage.read_plain()
+            _ = storage.read_plain()
         self.assertEqual(str(cm.exception), "Compressed data have zero size")
 
     def test_read_wrong_padding_length(self):
@@ -272,7 +272,7 @@ class TestStorage(helpers.StorePassTestCase):
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
-            data = storage.read_plain()
+            _ = storage.read_plain()
         self.assertEqual(
             str(cm.exception),
             "Compressed data have incorrect padding, length '16' is bigger "
@@ -292,7 +292,7 @@ class TestStorage(helpers.StorePassTestCase):
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
-            data = storage.read_plain()
+            _ = storage.read_plain()
         self.assertEqual(
             str(cm.exception),
             "Compressed data have incorrect padding, expected b'\\x02\\x02' "
@@ -311,7 +311,7 @@ class TestStorage(helpers.StorePassTestCase):
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
-            data = storage.read_plain()
+            _ = storage.read_plain()
         self.assertEqual(
             str(cm.exception),
             "Error -3 while decompressing data: incorrect header check")
@@ -325,7 +325,7 @@ class TestStorage(helpers.StorePassTestCase):
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
-            data = storage.read_plain()
+            _ = storage.read_plain()
         self.assertEqual(
             str(cm.exception),
             "Error decoding payload: 'utf-8' codec can't decode byte 0xff in "
