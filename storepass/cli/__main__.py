@@ -14,14 +14,14 @@ from storepass.cli import view
 
 
 # Allow to specify application name in the log format.
-def record_factory(*args, **kwargs):
-    record = old_factory(*args, **kwargs)
+def _record_factory(*args, **kwargs):
+    record = _old_factory(*args, **kwargs)
     record.app = os.path.basename(sys.argv[0])
     return record
 
 
-old_factory = logging.getLogRecordFactory()
-logging.setLogRecordFactory(record_factory)
+_old_factory = logging.getLogRecordFactory()
+logging.setLogRecordFactory(_record_factory)
 
 # Make level names lowercase.
 logging.addLevelName(logging.CRITICAL, "critical")
@@ -35,22 +35,22 @@ logging.addLevelName(logging.DEBUG, "debug")
 # by the logging module by default, but references sys.stderr at the time when a
 # message is printed, which allows sys.stderr to be correctly overwritten in
 # unit tests.
-class StderrHandler(logging.Handler):
+class _StderrHandler(logging.Handler):
     def emit(self, record):
         log_entry = self.format(record)
         print(log_entry, file=sys.stderr)
 
 
-log_handler = StderrHandler()
+_log_handler = _StderrHandler()
 
 # Initialize logging.
 logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s",
-                    handlers=[log_handler])
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+                    handlers=[_log_handler])
+_logger = logging.getLogger(__name__)
+_logger.setLevel(logging.INFO)
 
 
-def split_entry(entry):
+def _split_entry(entry):
     """
     Split a name of a password entry and return a list of its path elements.
     Character '/' is expected as the path separator and '\' starts an escape
@@ -79,14 +79,14 @@ def split_entry(entry):
     res.append(element)
 
     if state == STATE_ESCAPE:
-        logger.warning(
+        _logger.warning(
             f"entry name '{entry}' has an incomplete escape sequence at its "
             f"end")
 
     return res
 
 
-def process_init_command(args, model):
+def _process_init_command(args, model):
     """
     Handle the init command which is used to create an empty password database.
     """
@@ -97,7 +97,7 @@ def process_init_command(args, model):
     return 0
 
 
-def process_list_command(args, model):
+def _process_list_command(args, model):
     """
     Handle the list command which is used to print short information about all
     stored password entries.
@@ -110,7 +110,7 @@ def process_list_command(args, model):
     return 0
 
 
-def process_show_command(args, model):
+def _process_show_command(args, model):
     """
     Handle the show command which is used to print detailed information about a
     single password entry.
@@ -121,10 +121,10 @@ def process_show_command(args, model):
 
     # Find the entry specified on the command line.
     entry_name = args.entry[0]
-    path = split_entry(entry_name)
+    path = _split_entry(entry_name)
     entry = model.get_entry(path)
     if entry is None:
-        logger.error(f"entry '{entry_name}' not found")
+        _logger.error(f"entry '{entry_name}' not found")
         return 1
 
     detail_view = view.DetailView()
@@ -135,27 +135,27 @@ def _check_options_validity(type_, accepted_options, args):
     all_valid = True
 
     if args.hostname is not None and 'hostname' not in accepted_options:
-        logger.error(
+        _logger.error(
             f"option --hostname is not valid for entry type '{type_}'")
         all_valid = False
     if args.username is not None and 'username' not in accepted_options:
-        logger.error(
+        _logger.error(
             f"option --username is not valid for entry type '{type_}'")
         all_valid = False
     if args.password is not None and 'password' not in accepted_options:
-        logger.error(
+        _logger.error(
             f"option --password is not valid for entry type '{type_}'")
         all_valid = False
 
     return all_valid
 
 
-def process_add_command(args, model):
+def _process_add_command(args, model):
     assert args.command == 'add'
 
     # Create the entry specified on the command line.
     entry_name = args.entry[0]
-    path = split_entry(entry_name)
+    path = _split_entry(entry_name)
 
     if args.password:
         # TODO Implement, prompt for a password.
@@ -188,16 +188,16 @@ def process_add_command(args, model):
     model.add_entry(path[:-1], entry)
 
 
-def process_edit_command(args, model):
+def _process_edit_command(args, model):
     assert args.command == 'edit'
     assert len(args.entry) == 1
 
     # Find the entry specified on the command line.
     entry_name = args.entry[0]
-    path = split_entry(entry_name)
+    path = _split_entry(entry_name)
     entry = model.get_entry(path)
     if entry is None:
-        logger.error(f"entry '{entry_name}' not found")
+        _logger.error(f"entry '{entry_name}' not found")
         return 1
 
     # Process options valid for all entries.
@@ -212,19 +212,19 @@ def process_edit_command(args, model):
         if isinstance(entry, storepass.model.Generic):
             entry.username = args.username
         else:
-            logger.error(f"TODO")
+            _logger.error(f"TODO")
             has_error = True
     if args.hostname is not None:
         if isinstance(entry, storepass.model.Generic):
             entry.hostname = args.hostname
         else:
-            logger.error(f"TODO")
+            _logger.error(f"TODO")
             has_error = True
     if args.password:
         if isinstance(entry, storepass.model.Generic):
             entry.password = getpass.getpass("Entry password: ")
         else:
-            logger.error(f"TODO")
+            _logger.error(f"TODO")
             has_error = True
     if has_error:
         return 1
@@ -232,12 +232,12 @@ def process_edit_command(args, model):
     # TODO Implement store operation in the main function.
 
 
-def process_delete_command(args, model):
+def _process_delete_command(args, model):
     assert args.command == 'delete'
     assert 0 and "Unimplemented command 'delete'!"
 
 
-def process_dump_command(args, storage):
+def _process_dump_command(args, storage):
     """
     Handle the dump command which is used to print the raw XML content of a
     password database.
@@ -249,7 +249,7 @@ def process_dump_command(args, storage):
     try:
         plain_data = storage.read_plain()
     except storepass.exc.StorageReadException as e:
-        logger.error(f"failed to load password database '{args.file}': {e}")
+        _logger.error(f"failed to load password database '{args.file}': {e}")
         return 1
 
     # Print the content.
@@ -338,15 +338,15 @@ def main():
     if args.verbose is not None:
         assert args.verbose > 0
         level = ('INFO', 'DEBUG')[min(args.verbose, 2) - 1]
-        logger.setLevel(level)
-        logger.info(f"log verbosity set to '{level}'")
+        _logger.setLevel(level)
+        _logger.info(f"log verbosity set to '{level}'")
 
     # Handle the specified command.
     if args.command is None:
         parser.error("no command specified")
         return 1
 
-    logger.debug(f"processing command '{args.command}' on file '{args.file}'")
+    _logger.debug(f"processing command '{args.command}' on file '{args.file}'")
 
     # Create a storage object.
     storage = storepass.storage.Storage(
@@ -355,7 +355,7 @@ def main():
     # Handle the dump command early because it does not require any high-level
     # representation.
     if args.command == 'dump':
-        return process_dump_command(args, storage)
+        return _process_dump_command(args, storage)
 
     # Create a data representation object.
     model = storepass.model.Model()
@@ -364,23 +364,23 @@ def main():
         try:
             model.load(storage)
         except storepass.exc.StorageReadException as e:
-            logger.error(
+            _logger.error(
                 f"failed to load password database '{args.file}': {e}")
             return 1
 
     # Handle individual commands.
     if args.command == 'init':
-        res = process_init_command(args, model)
+        res = _process_init_command(args, model)
     elif args.command == 'list':
-        res = process_list_command(args, model)
+        res = _process_list_command(args, model)
     elif args.command == 'show':
-        res = process_show_command(args, model)
+        res = _process_show_command(args, model)
     elif args.command == 'add':
-        res = process_add_command(args, model)
+        res = _process_add_command(args, model)
     elif args.command == 'edit':
-        res = process_edit_command(args, model)
+        res = _process_edit_command(args, model)
     elif args.command == 'delete':
-        res = process_delete_command(args, model)
+        res = _process_delete_command(args, model)
     else:
         assert 0 and "Unimplemented command!"
 
