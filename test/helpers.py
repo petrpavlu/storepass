@@ -24,6 +24,19 @@ class StorePassTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.testdir)
 
+def dedent2(text):
+    """
+    Remove any common leading whitespace + character '|' from every line in
+    the given text.
+    """
+
+    output = ''
+    lines = dedent(text).splitlines(True)
+    for line in lines:
+        assert line[:1] == '|'
+        output += line[1:]
+    return output
+
 def write_file(filename, bytes_):
     """Write raw content (bytes) into a specified file."""
 
