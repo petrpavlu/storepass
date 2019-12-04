@@ -27,7 +27,7 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(os.getcwd(), DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
-        self.assertRegex(str(cm.exception), "\[Errno 21\] Is a directory:")
+        self.assertRegex(str(cm.exception), r"\[Errno 21\] Is a directory:")
 
     def test_read_header_size_min(self):
         """
@@ -382,7 +382,7 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(os.getcwd(), DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageWriteException) as cm:
             storage.write_plain('')
-        self.assertRegex(str(cm.exception), "\[Errno 21\] Is a directory:")
+        self.assertRegex(str(cm.exception), r"\[Errno 21\] Is a directory:")
 
     def test_write_generic_entry(self):
         """Check output of a single generic entry."""
