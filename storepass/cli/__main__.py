@@ -387,6 +387,10 @@ def main():
     else:
         assert 0 and "Unimplemented command!"
 
+    # Bail out if the command failed.
+    if res != 0:
+        return res
+
     if args.command in ('init', 'add', 'edit', 'delete'):
         # TODO Error handling.
         model.save(storage)
