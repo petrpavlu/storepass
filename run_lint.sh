@@ -1,3 +1,3 @@
 #!/bin/sh
 
-pylint storepass-cli.py storepass test/*.py setup.py
+pylint storepass-cli.py storepass test setup.py
