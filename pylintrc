@@ -8,7 +8,11 @@ disable=
 [BASIC]
 
 good-names=
-    e,fi,fo
+    cm,
+    e,
+    fh,
+    i,
+    storepass-cli
 
 [LOGGING]
 
