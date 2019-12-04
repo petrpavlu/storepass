@@ -319,7 +319,8 @@ def main():
     logger.debug(f"processing command '{args.command}' on file '{args.file}'")
 
     # Create a storage object.
-    storage = storepass.storage.Storage(args.file, getpass.getpass)
+    storage = storepass.storage.Storage(args.file,
+        lambda : getpass.getpass("Database password: "))
 
     # Handle the dump command early because it does not require any high-level
     # representation.
