@@ -7,11 +7,11 @@ import os
 import os.path
 import shutil
 import tempfile
+from textwrap import dedent
 import unittest
 import zlib
 
 from Crypto.Cipher import AES
-from textwrap import dedent
 
 
 class StorePassTestCase(unittest.TestCase):

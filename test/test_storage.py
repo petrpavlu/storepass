@@ -1,12 +1,12 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import os
+
 import storepass.exc
 import storepass.model
 import storepass.storage
 from . import helpers
-
-import os
 
 DEFAULT_PASSWORD = 'qwerty'
 

@@ -1,17 +1,16 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-import storepass.exc
-import storepass.model
-import storepass.storage
-from storepass.cli import view
-
 import argparse
 import getpass
 import logging
 import os
 import sys
-import time
+
+import storepass.exc
+import storepass.model
+import storepass.storage
+from storepass.cli import view
 
 
 # Allow to specify application name in the log format.

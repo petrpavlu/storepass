@@ -5,6 +5,7 @@ import hashlib
 import os
 import xml.etree.ElementTree as ET
 import zlib
+
 from Crypto.Cipher import AES
 
 import storepass.exc

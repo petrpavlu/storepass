@@ -1,12 +1,12 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-import storepass.cli.__main__
-from . import helpers
-
 import contextlib
 import io
 import unittest.mock
+
+import storepass.cli.__main__
+from . import helpers
 
 DEFAULT_PASSWORD = 'qwerty'
 
