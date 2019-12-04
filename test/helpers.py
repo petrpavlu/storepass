@@ -12,6 +12,7 @@ import unittest
 import zlib
 
 from Crypto.Cipher import AES
+from textwrap import dedent
 
 class StorePassTestCase(unittest.TestCase):
     def setUp(self):

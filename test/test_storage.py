@@ -7,7 +7,6 @@ import storepass.storage
 from . import helpers
 
 import os
-import textwrap
 
 DEFAULT_PASSWORD = 'qwerty'
 
@@ -337,7 +336,7 @@ class TestStorage(helpers.StorePassTestCase):
 
         helpers.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            textwrap.dedent('''\
+            helpers.dedent('''\
                 <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata version="0.4.14" dataversion="1">
                 \t<entry type="generic">
@@ -399,7 +398,7 @@ class TestStorage(helpers.StorePassTestCase):
         data = helpers.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
         self.assertEqual(
             data,
-            textwrap.dedent('''\
+            helpers.dedent('''\
                 <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
