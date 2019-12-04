@@ -129,6 +129,7 @@ def _process_show_command(args, model):
 
     detail_view = view.DetailView()
     entry.visit(detail_view, None)
+    return 0
 
 
 def _check_options_validity(type_, accepted_options, args):
@@ -186,6 +187,7 @@ def _process_add_command(args, model):
 
     # TODO Implement error handling.
     model.add_entry(path[:-1], entry)
+    return 0
 
 
 def _process_edit_command(args, model):
@@ -229,13 +231,14 @@ def _process_edit_command(args, model):
     if has_error:
         return 1
 
-    # TODO Implement store operation in the main function.
+    return 0
 
 
 def _process_delete_command(args, model):
     assert args.command == 'delete'
     assert 0 and "Unimplemented command 'delete'!"
 
+    return 0
 
 def _process_dump_command(args, storage):
     """
