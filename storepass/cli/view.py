@@ -1,14 +1,13 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
-
 """Textual views suitable for the console."""
+
 
 class ListView:
     """
     View for producing a tree-like list with one-line information about each
     password entry.
     """
-
     def __init__(self):
         self._parent_chain = []
 
@@ -46,6 +45,7 @@ class ListView:
         description = f": {generic.description}" \
             if generic.description is not None else ""
         print(f"{indent}- {generic.name}{hostname}{description}")
+
 
 class DetailView:
     def _print_common_info(self, entry):

@@ -10,9 +10,9 @@ from Crypto.Cipher import AES
 import storepass.exc
 import storepass.model
 
+
 class _XMLToModelConvertor:
     """XML to internal data model convertor."""
-
     def __init__(self):
         # Pass as the convertor is stateless.
         pass
@@ -55,7 +55,8 @@ class _XMLToModelConvertor:
             else:
                 # TODO type_ can be None?
                 raise storepass.exc.StorageReadException(
-                    f"Unrecognized type attribute '{type_}', expected 'folder' or 'generic'")
+                    f"Unrecognized type attribute '{type_}', expected 'folder' or 'generic'"
+                )
 
         return children
 
@@ -91,7 +92,7 @@ class _XMLToModelConvertor:
         children = self._parse_subelements(xml_subelem_iter)
 
         return storepass.model.Folder(name, description, updated, notes,
-            children)
+                                      children)
 
     def _parse_generic(self, xml_elem):
         """Parse a <entry type='generic'> element."""
@@ -134,11 +135,11 @@ class _XMLToModelConvertor:
                     f"Unrecognized property element '{xml_subelem.tag}'")
 
         return storepass.model.Generic(name, description, updated, notes,
-           hostname, username, password)
+                                       hostname, username, password)
+
 
 class _ModelToXMLConvertor:
     """Internal data model to XML convertor."""
-
     def __init__(self):
         self._xml_root = None
         self._parent_chain = []
@@ -150,7 +151,7 @@ class _ModelToXMLConvertor:
         if len(xml_element) > 0:
             xml_element.text = indent + '\t'
             for xml_subelement in xml_element:
-                self._indent_xml(xml_subelement, level+1)
+                self._indent_xml(xml_subelement, level + 1)
             xml_subelement.tail = indent
         xml_element.tail = indent
 
@@ -215,8 +216,8 @@ class _ModelToXMLConvertor:
             xml_updated.text = entry.updated
 
         if entry.notes is not None:
-           xml_notes = ET.SubElement(xml_entry, 'notes')
-           xml_notes.text = entry.notes
+            xml_notes = ET.SubElement(xml_entry, 'notes')
+            xml_notes.text = entry.notes
 
     def visit_folder(self, parent, folder):
         """Create XML representation for a password folder."""
@@ -253,9 +254,9 @@ class _ModelToXMLConvertor:
             xml_password.set('id', 'generic-password')
             xml_password.text = generic.password
 
+
 class Storage:
     """Password database file reader/writer."""
-
     def __init__(self, filename, password_proxy):
         self._filename = filename
         self._password_proxy = password_proxy
@@ -329,7 +330,10 @@ class Storage:
 
         # Calculate the PBKDF2 derived key.
         password = self.get_password()
-        key = hashlib.pbkdf2_hmac('sha1', password.encode('utf-8'), salt, 12000,
+        key = hashlib.pbkdf2_hmac('sha1',
+                                  password.encode('utf-8'),
+                                  salt,
+                                  12000,
                                   dklen=32)
 
         # Decrypt the data.
@@ -414,7 +418,10 @@ class Storage:
         # Calculate the PBKDF2 derived key.
         password = self.get_password()
         salt = os.urandom(8)
-        key = hashlib.pbkdf2_hmac('sha1', password.encode('utf-8'), salt, 12000,
+        key = hashlib.pbkdf2_hmac('sha1',
+                                  password.encode('utf-8'),
+                                  salt,
+                                  12000,
                                   dklen=32)
 
         # Encrypt the data.

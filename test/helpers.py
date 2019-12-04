@@ -1,6 +1,5 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
-
 """Test helper functions."""
 
 import hashlib
@@ -14,6 +13,7 @@ import zlib
 from Crypto.Cipher import AES
 from textwrap import dedent
 
+
 class StorePassTestCase(unittest.TestCase):
     def setUp(self):
         self.testdir = tempfile.mkdtemp()
@@ -23,6 +23,7 @@ class StorePassTestCase(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.testdir)
+
 
 def dedent2(text):
     """
@@ -37,11 +38,13 @@ def dedent2(text):
         output += line[1:]
     return output
 
+
 def write_file(filename, bytes_):
     """Write raw content (bytes) into a specified file."""
 
     with open(filename, 'wb') as fh:
         fh.write(bytes_)
+
 
 def write_password_db(filename, password, xml, compress=True):
     """Write a password database file."""
@@ -68,7 +71,10 @@ def write_password_db(filename, password, xml, compress=True):
 
     # Calculate the PBKDF2 derived key.
     salt = os.urandom(8)
-    key = hashlib.pbkdf2_hmac('sha1', password.encode('utf-8'), salt, 12000,
+    key = hashlib.pbkdf2_hmac('sha1',
+                              password.encode('utf-8'),
+                              salt,
+                              12000,
                               dklen=32)
 
     # Encrypt the data.
@@ -80,6 +86,7 @@ def write_password_db(filename, password, xml, compress=True):
     output_data = b'rvl\x00\x02\x00\x00\x00\x00\x00\x00\x00' + \
         salt + init_vector + encrypted_data
     write_file(filename, output_data)
+
 
 def read_password_db(filename, password, test_case):
     """Read a password database file and verify its basic properties."""
@@ -96,14 +103,17 @@ def read_password_db(filename, password, test_case):
     test_case.assertEqual(len(encrypted_data) % 16, 0)
 
     # Validate the header.
-    test_case.assertEqual(header[0:4], b'rvl\x00')       # magic
-    test_case.assertEqual(header[4:5], b'\x02')          # data version
-    test_case.assertEqual(header[5:6], b'\x00')          # padding
+    test_case.assertEqual(header[0:4], b'rvl\x00')  # magic
+    test_case.assertEqual(header[4:5], b'\x02')  # data version
+    test_case.assertEqual(header[5:6], b'\x00')  # padding
     test_case.assertEqual(header[6:9], b'\x00\x00\x00')  # app version
-    test_case.assertEqual(header[9:], b'\x00\x00\x00')   # padding
+    test_case.assertEqual(header[9:], b'\x00\x00\x00')  # padding
 
     # Calculate the PBKDF2 derived key.
-    key = hashlib.pbkdf2_hmac('sha1', password.encode('utf-8'), salt, 12000,
+    key = hashlib.pbkdf2_hmac('sha1',
+                              password.encode('utf-8'),
+                              salt,
+                              12000,
                               dklen=32)
 
     # Decrypt the data.

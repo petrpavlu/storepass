@@ -1,9 +1,10 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+
 class Container:
     def __init__(self, children):
-        self._children = sorted(children, key=lambda child : child.name)
+        self._children = sorted(children, key=lambda child: child.name)
 
     @property
     def children(self):
@@ -31,8 +32,9 @@ class Container:
     def add_child(self, child):
         old_child, index = self.get_child(child.name)
         if old_child is not None:
-            raise 0 # TODO
+            raise 0  # TODO
         self._children.insert(index, child)
+
 
 class Root(Container):
     def __init__(self, children):
@@ -48,6 +50,7 @@ class Root(Container):
         for child in self._children:
             child.accept(visitor, self)
 
+
 class Entry:
     def __init__(self, name, description, updated, notes):
         self.name = name
@@ -60,6 +63,7 @@ class Entry:
 
     def __str__(self):
         return "Entry(" + self.inline_str() + ")"
+
 
 class Folder(Entry, Container):
     def __init__(self, name, description, updated, notes, children):
@@ -78,6 +82,7 @@ class Folder(Entry, Container):
         for child in self._children:
             child.accept(visitor, self)
 
+
 class Generic(Entry):
     def __init__(self, name, description, updated, notes, hostname, username, \
         password):
@@ -92,6 +97,7 @@ class Generic(Entry):
 
     def accept(self, visitor, parent):
         visitor.visit_generic(parent, self)
+
 
 class Model:
     def __init__(self):

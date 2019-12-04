@@ -10,11 +10,13 @@ import unittest.mock
 
 DEFAULT_PASSWORD = 'qwerty'
 
+
 class CLIMock:
     def __init__(self, getpass, stdout, stderr):
         self.getpass = getpass
         self.stdout = stdout
         self.stderr = stderr
+
 
 @contextlib.contextmanager
 def cli_context(args):
@@ -23,6 +25,7 @@ def cli_context(args):
          unittest.mock.patch('sys.stderr', new_callable=io.StringIO) as err, \
          unittest.mock.patch('sys.argv', args):
         yield CLIMock(getpass, out, err)
+
 
 class TestCLI(helpers.StorePassTestCase):
     def test_help(self):

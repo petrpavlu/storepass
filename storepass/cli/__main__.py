@@ -13,12 +13,15 @@ import os
 import sys
 import time
 
+
 # Allow to specify application name in the log format.
-old_factory = logging.getLogRecordFactory()
 def record_factory(*args, **kwargs):
     record = old_factory(*args, **kwargs)
     record.app = os.path.basename(sys.argv[0])
     return record
+
+
+old_factory = logging.getLogRecordFactory()
 logging.setLogRecordFactory(record_factory)
 
 # Make level names lowercase.
@@ -28,6 +31,7 @@ logging.addLevelName(logging.WARNING, "warning")
 logging.addLevelName(logging.INFO, "info")
 logging.addLevelName(logging.DEBUG, "debug")
 
+
 # Create a custom stderr logger. It is same as a handler that would be created
 # by the logging module by default, but references sys.stderr at the time when a
 # message is printed, which allows sys.stderr to be correctly overwritten in
@@ -36,13 +40,16 @@ class StderrHandler(logging.Handler):
     def emit(self, record):
         log_entry = self.format(record)
         print(log_entry, file=sys.stderr)
+
+
 log_handler = StderrHandler()
 
 # Initialize logging.
-logging.basicConfig(
-    format="%(app)s: %(levelname)s: %(message)s", handlers=[log_handler])
+logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s",
+                    handlers=[log_handler])
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
 
 def split_entry(entry):
     """
@@ -79,6 +86,7 @@ def split_entry(entry):
 
     return res
 
+
 def process_init_command(args, model):
     """
     Handle the init command which is used to create an empty password database.
@@ -88,6 +96,7 @@ def process_init_command(args, model):
 
     # Keep the model empty and let the main() function write out the database.
     return 0
+
 
 def process_list_command(args, model):
     """
@@ -100,6 +109,7 @@ def process_list_command(args, model):
     plain_view = view.ListView()
     model.visit_all(plain_view)
     return 0
+
 
 def process_show_command(args, model):
     """
@@ -121,23 +131,25 @@ def process_show_command(args, model):
     detail_view = view.DetailView()
     entry.visit(detail_view, None)
 
+
 def _check_options_validity(type_, accepted_options, args):
     all_valid = True
 
     if args.hostname is not None and 'hostname' not in accepted_options:
-            logger.error(
-                f"option --hostname is not valid for entry type '{type_}'")
-            all_valid = False
+        logger.error(
+            f"option --hostname is not valid for entry type '{type_}'")
+        all_valid = False
     if args.username is not None and 'username' not in accepted_options:
-            logger.error(
-                f"option --username is not valid for entry type '{type_}'")
-            all_valid = False
+        logger.error(
+            f"option --username is not valid for entry type '{type_}'")
+        all_valid = False
     if args.password is not None and 'password' not in accepted_options:
-            logger.error(
-                f"option --password is not valid for entry type '{type_}'")
-            all_valid = False
+        logger.error(
+            f"option --password is not valid for entry type '{type_}'")
+        all_valid = False
 
     return all_valid
+
 
 def process_add_command(args, model):
     assert args.command == 'add'
@@ -154,12 +166,13 @@ def process_add_command(args, model):
 
     if args.type == 'generic':
         if not _check_options_validity(
-            'generic', ('hostname', 'username', 'password'), args):
+                'generic', ('hostname', 'username', 'password'), args):
             return 1
 
         # TODO Pass proper updated value.
         entry = storepass.model.Generic(path[-1], args.description, None,
-            args.notes, args.hostname, args.username, password)
+                                        args.notes, args.hostname,
+                                        args.username, password)
 
     elif args.type == 'folder':
         if not _check_options_validity('folder', (), args):
@@ -167,13 +180,14 @@ def process_add_command(args, model):
 
         # TODO Pass proper updated value.
         entry = storepass.model.Folder(path[-1], args.description, None,
-            args.notes)
+                                       args.notes)
 
     else:
         assert 0 and "Unhandled entry type!"
 
     # TODO Implement error handling.
     model.add_entry(path[:-1], entry)
+
 
 def process_edit_command(args, model):
     assert args.command == 'edit'
@@ -218,9 +232,11 @@ def process_edit_command(args, model):
 
     # TODO Implement store operation in the main function.
 
+
 def process_delete_command(args, model):
     assert args.command == 'delete'
     assert 0 and "Unimplemented command 'delete'!"
+
 
 def process_dump_command(args, storage):
     """
@@ -243,6 +259,7 @@ def process_dump_command(args, storage):
 
     return 0
 
+
 def main():
     """
     Main entry function. Returns 0 if the operation was successful and a
@@ -252,52 +269,66 @@ def main():
     # Parse the command-line arguments.
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-f', '--file', metavar='PASSDB',
+        '-f',
+        '--file',
+        metavar='PASSDB',
         default=os.path.join(os.path.expanduser('~'), '.storepass.db'),
         help="password database file (the default is ~/.storepass.db)")
-    parser.add_argument(
-        '-v', '--verbose', action='count', help="increase verbosity level")
+    parser.add_argument('-v',
+                        '--verbose',
+                        action='count',
+                        help="increase verbosity level")
 
     # Add sub-commands.
     subparsers = parser.add_subparsers(dest='command')
-    init_parser = subparsers.add_parser('init',
-         description="create a new empty database")
+    init_parser = subparsers.add_parser(
+        'init', description="create a new empty database")
     list_parser = subparsers.add_parser('list',
-         description="list password entries")
-    show_parser = subparsers.add_parser('show',
-         description="show a password entry and its details")
+                                        description="list password entries")
+    show_parser = subparsers.add_parser(
+        'show', description="show a password entry and its details")
     add_parser = subparsers.add_parser('add',
-         description="add a new password entry")
-    edit_parser = subparsers.add_parser('edit',
-         description="edit an existing password entry")
-    delete_parser = subparsers.add_parser('delete',
-         description="delete a password entry")
-    dump_parser = subparsers.add_parser('dump',
-         description="dump raw database content")
+                                       description="add a new password entry")
+    edit_parser = subparsers.add_parser(
+        'edit', description="edit an existing password entry")
+    delete_parser = subparsers.add_parser(
+        'delete', description="delete a password entry")
+    dump_parser = subparsers.add_parser(
+        'dump', description="dump raw database content")
 
-    add_parser.add_argument('-t', '--type', choices=('folder', 'generic'),
-        default='generic', help="entry type (the default is generic)")
+    add_parser.add_argument('-t',
+                            '--type',
+                            choices=('folder', 'generic'),
+                            default='generic',
+                            help="entry type (the default is generic)")
 
     for sub_parser in (add_parser, edit_parser):
         common_group = sub_parser.add_argument_group(
             "optional arguments valid for all entry types")
-        common_group.add_argument('--description', metavar='DESC',
+        common_group.add_argument(
+            '--description',
+            metavar='DESC',
             help="set entry description to the specified value")
-        common_group.add_argument('--notes',
-            help="set entry notes to the specified value")
+        common_group.add_argument(
+            '--notes', help="set entry notes to the specified value")
 
         password_group = sub_parser.add_argument_group(
             "optional arguments valid for password type")
-        password_group.add_argument('--hostname', metavar='HOST',
-            help="set hostname to the specified value")
-        password_group.add_argument('--username', metavar='USER',
-            help="set username to the specified value")
-        password_group.add_argument('--password', action='store_true',
-            help="prompt for a password value")
+        password_group.add_argument('--hostname',
+                                    metavar='HOST',
+                                    help="set hostname to the specified value")
+        password_group.add_argument('--username',
+                                    metavar='USER',
+                                    help="set username to the specified value")
+        password_group.add_argument('--password',
+                                    action='store_true',
+                                    help="prompt for a password value")
 
     for sub_parser in (show_parser, add_parser, delete_parser, edit_parser):
-        sub_parser.add_argument('entry', nargs=1, metavar='ENTRY',
-            help="password entry")
+        sub_parser.add_argument('entry',
+                                nargs=1,
+                                metavar='ENTRY',
+                                help="password entry")
 
     try:
         args = parser.parse_args()
@@ -319,8 +350,8 @@ def main():
     logger.debug(f"processing command '{args.command}' on file '{args.file}'")
 
     # Create a storage object.
-    storage = storepass.storage.Storage(args.file,
-        lambda : getpass.getpass("Database password: "))
+    storage = storepass.storage.Storage(
+        args.file, lambda: getpass.getpass("Database password: "))
 
     # Handle the dump command early because it does not require any high-level
     # representation.
@@ -334,7 +365,8 @@ def main():
         try:
             model.load(storage)
         except storepass.exc.StorageReadException as e:
-            logger.error(f"failed to load password database '{args.file}': {e}")
+            logger.error(
+                f"failed to load password database '{args.file}': {e}")
             return 1
 
     # Handle individual commands.
@@ -358,6 +390,7 @@ def main():
         model.save(storage)
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())
