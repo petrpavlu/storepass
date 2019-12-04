@@ -33,20 +33,22 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_not_called()
-            self.assertEqual(cli_mock.stdout.getvalue(), '''\
-usage: storepass-cli [-h] [-f PASSDB] [-v]
-                     {list,show,add,delete,edit,dump} ...
-
-positional arguments:
-  {list,show,add,delete,edit,dump}
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -f PASSDB, --file PASSDB
-                        password database file (the default is
-                        ~/.storepass.db)
-  -v, --verbose         increase verbosity level
-''')
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                helpers.dedent2('''\
+                    |usage: storepass-cli [-h] [-f PASSDB] [-v]
+                    |                     {init,list,show,add,edit,delete,dump} ...
+                    |
+                    |positional arguments:
+                    |  {init,list,show,add,edit,delete,dump}
+                    |
+                    |optional arguments:
+                    |  -h, --help            show this help message and exit
+                    |  -f PASSDB, --file PASSDB
+                    |                        password database file (the default is
+                    |                        ~/.storepass.db)
+                    |  -v, --verbose         increase verbosity level
+                    '''))
             self.assertEqual(cli_mock.stderr.getvalue(), '')
 
     def test_error(self):
@@ -62,6 +64,8 @@ optional arguments:
             self.assertEqual(res, 1)
             cli_mock.getpass.assert_not_called()
             self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '''\
-storepass-cli: error: failed to load password database \'missing.db\': [Errno 2] No such file or directory: \'missing.db\'
-''')
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                helpers.dedent('''\
+                    storepass-cli: error: failed to load password database \'missing.db\': [Errno 2] No such file or directory: \'missing.db\'
+                    '''))
