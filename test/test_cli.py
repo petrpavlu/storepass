@@ -135,8 +135,7 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
-            # FIXME Call the password function only once.
-            #cli_mock.getpass.assert_called_once()
+            cli_mock.getpass.assert_called_once()
             self.assertEqual(cli_mock.stdout.getvalue(), '')
             self.assertEqual(cli_mock.stderr.getvalue(), '')
 

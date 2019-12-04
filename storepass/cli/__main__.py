@@ -351,9 +351,17 @@ def main():
 
     _logger.debug(f"processing command '{args.command}' on file '{args.file}'")
 
+    # Create a password proxy that asks the user for the database password only
+    # once.
+    db_password = None
+    def get_db_password():
+        nonlocal db_password
+        if db_password is None:
+            db_password = getpass.getpass("Database password: ")
+        return db_password
+
     # Create a storage object.
-    storage = storepass.storage.Storage(
-        args.file, lambda: getpass.getpass("Database password: "))
+    storage = storepass.storage.Storage(args.file, get_db_password)
 
     # Handle the dump command early because it does not require any high-level
     # representation.
