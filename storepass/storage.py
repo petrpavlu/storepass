@@ -394,9 +394,11 @@ class Storage:
         xml_to_model = _XMLToModelConvertor()
         return xml_to_model.process(xml_data)
 
-    def write_plain(self, xml):
+    def write_plain(self, xml, exclusive=False):
         """
-        Encrypt plain XML content and save it into the password database.
+        Encrypt plain XML content and save it into the password database. If
+        exclusive is True then it is checked during opening of the file that it
+        does not exist yet.
         """
 
         # Encode the Unicode data as UTF-8.
@@ -434,18 +436,31 @@ class Storage:
         raw_content = b'rvl\x00\x02\x00\x00\x00\x00\x00\x00\x00' + \
             salt + init_vector + encrypted_data
 
+        def open_for_writing(filename, exclusive):
+            if exclusive:
+                fd = os.open(filename, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                try:
+                    return os.fdopen(fd, 'wb')
+                except:
+                    # In case os.fdopen() fails, make sure that the file
+                    # descriptor gets closed.
+                    os.close(fd)
+                    raise
+            return open(filename, 'wb')
+
         try:
-            with open(self._filename, 'wb') as fh:
+            with open_for_writing(self._filename, exclusive) as fh:
                 fh.write(raw_content)
         except Exception as e:
             raise storepass.exc.StorageWriteException(e) from e
 
-    def write_tree(self, root):
+    def write_tree(self, root, exclusive=False):
         """
         Convert a password tree structure into a XML representation, encrypt it
-        and save into the password database.
+        and save into the password database. The exclusive argument has the same
+        meaning as in the method write_plain().
         """
 
         model_to_xml = _ModelToXMLConvertor()
         xml_data = model_to_xml.process(root)
-        self.write_plain(xml_data)
+        self.write_plain(xml_data, exclusive)

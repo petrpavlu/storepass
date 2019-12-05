@@ -400,8 +400,13 @@ def main():
         return res
 
     if args.command in ('init', 'add', 'edit', 'delete'):
-        # TODO Error handling.
-        model.save(storage)
+        try:
+            exclusive = args.command == 'init'
+            model.save(storage, exclusive)
+        except storepass.exc.StorageWriteException as e:
+            _logger.error(
+                f"failed to write password database '{args.file}': {e}")
+            return 1
 
     return 0
 

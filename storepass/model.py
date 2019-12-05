@@ -108,8 +108,8 @@ class Model:
 
         self._root = storage.read_tree()
 
-    def save(self, storage):
-        storage.write_tree(self._root)
+    def save(self, storage, exclusive=False):
+        storage.write_tree(self._root, exclusive)
 
     def add_entry(self, parent_path_spec, entry):
         # TODO Error handling.

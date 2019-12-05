@@ -114,6 +114,30 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), '')
             self.assertEqual(cli_mock.stderr.getvalue(), '')
 
+    def test_init_overwrite(self):
+        """
+        Check that the init subcommand does not overwrite an already existing
+        file.
+        """
+
+        # Write an empty password database.
+        helpers.write_file(self.dbname, b'')
+
+        # Check that trying to create a password database with the same name is
+        # sensibly rejected.
+        with cli_context(['storepass-cli', '-f', self.dbname, 'init']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), '')
+            self.assertRegex(
+                cli_mock.stderr.getvalue(),
+                helpers.dedent('''\
+                    storepass-cli: error: failed to write password database '.*': \\[Errno 17\\] File exists: '.*'
+                    '''))
+
     def test_add(self):
         """
         Check that a single entry can be added to a password database.
