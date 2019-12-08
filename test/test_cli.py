@@ -1,6 +1,8 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""End-to-end command line tests."""
+
 import contextlib
 import io
 import unittest.mock
@@ -12,6 +14,7 @@ DEFAULT_PASSWORD = 'qwerty'
 
 
 class CLIMock:
+    """Class grouping mocked functions and variables."""
     def __init__(self, getpass, stdout, stderr):
         self.getpass = getpass
         self.stdout = stdout
@@ -20,6 +23,8 @@ class CLIMock:
 
 @contextlib.contextmanager
 def cli_context(args):
+    """Create a mocked CLI context."""
+
     with unittest.mock.patch('getpass.getpass') as getpass, \
          unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as out, \
          unittest.mock.patch('sys.stderr', new_callable=io.StringIO) as err, \
