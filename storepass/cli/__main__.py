@@ -159,8 +159,7 @@ def _process_add_command(args, model):
     path = _split_entry(entry_name)
 
     if args.password:
-        # TODO Implement, prompt for a password.
-        password = 'TODO'
+        password = getpass.getpass("Entry password:")
     else:
         password = None
 

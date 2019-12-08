@@ -222,10 +222,10 @@ class TestCLI(helpers.StorePassTestCase):
                   '--hostname', 'E1 hostname', '--username', 'E1 username',
                   '--password', 'E1 name']) \
              as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.getpass.call_count, 2)
             self.assertEqual(cli_mock.stdout.getvalue(), '')
             self.assertEqual(cli_mock.stderr.getvalue(), '')
 
@@ -247,7 +247,7 @@ class TestCLI(helpers.StorePassTestCase):
                     \t\t<notes>E1 notes</notes>
                     \t\t<field id="generic-hostname">E1 hostname</field>
                     \t\t<field id="generic-username">E1 username</field>
-                    \t\t<field id="generic-password">TODO</field>
+                    \t\t<field id="generic-password">E1 password</field>
                     \t</entry>
                     </revelationdata>
                     '''))
