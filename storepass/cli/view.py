@@ -1,5 +1,6 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
+
 """Textual views suitable for the console."""
 
 

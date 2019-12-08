@@ -2,6 +2,7 @@
 
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
+
 """Local launcher for the StorePass command line interface."""
 
 import sys

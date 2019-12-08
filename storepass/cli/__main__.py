@@ -240,6 +240,7 @@ def _process_delete_command(args, model):
 
     return 0
 
+
 def _process_dump_command(args, storage):
     """
     Handle the dump command which is used to print the raw XML content of a
@@ -354,6 +355,7 @@ def main():
     # Create a password proxy that asks the user for the database password only
     # once.
     db_password = None
+
     def get_db_password():
         nonlocal db_password
         if db_password is None:
