@@ -1,6 +1,8 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+PYTHON_FILES = storepass-cli.py storepass test setup.py
+
 .PHONY: error
 error:
 	@echo "Please choose one of the following targets:" \
@@ -17,8 +19,8 @@ dist:
 
 .PHONY: format
 format:
-	yapf -ir storepass-cli.py storepass test setup.py
+	yapf --style=yapfrc --in-place --recursive $(PYTHON_FILES)
 
 .PHONY: lint
 lint:
-	pylint storepass-cli.py storepass test setup.py
+	pylint --rcfile=pylintrc $(PYTHON_FILES)
