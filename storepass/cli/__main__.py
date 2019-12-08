@@ -179,7 +179,7 @@ def _process_add_command(args, model):
 
         # TODO Pass proper updated value.
         entry = storepass.model.Folder(path[-1], args.description, None,
-                                       args.notes)
+                                       args.notes, [])
 
     else:
         assert 0 and "Unhandled entry type!"
@@ -315,7 +315,7 @@ def main():
             '--notes', help="set entry notes to the specified value")
 
         password_group = sub_parser.add_argument_group(
-            "optional arguments valid for password type")
+            "optional arguments valid for the generic type")
         password_group.add_argument('--hostname',
                                     metavar='HOST',
                                     help="set hostname to the specified value")
@@ -324,6 +324,7 @@ def main():
                                     help="set username to the specified value")
         password_group.add_argument('--password',
                                     action='store_true',
+                                    default=None,
                                     help="prompt for a password value")
 
     for sub_parser in (show_parser, add_parser, delete_parser, edit_parser):
