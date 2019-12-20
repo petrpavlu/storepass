@@ -322,3 +322,88 @@ class TestCLI(helpers.StorePassTestCase):
                     + E1 name: E1 description
                     '''))
             self.assertEqual(cli_mock.stderr.getvalue(), '')
+
+    def test_add_nested(self):
+        """
+        Check that nested entries can be added to a password database.
+        """
+
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Add a new folder entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  '--type', 'folder', 'E1 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), '')
+            self.assertEqual(cli_mock.stderr.getvalue(), '')
+
+        # Add a nested folder entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  '--type', 'folder', 'E1 name/E2 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), '')
+            self.assertEqual(cli_mock.stderr.getvalue(), '')
+
+        # Add a nested generic entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  'E1 name/E2 name/E3 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            #self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), '')
+            self.assertEqual(cli_mock.stderr.getvalue(), '')
+
+        # Read the database back and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                helpers.dedent('''\
+                    <?xml version="1.0" encoding="utf-8"?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="folder">
+                    \t\t<name>E1 name</name>
+                    \t\t<entry type="folder">
+                    \t\t\t<name>E2 name</name>
+                    \t\t\t<entry type="generic">
+                    \t\t\t\t<name>E3 name</name>
+                    \t\t\t</entry>
+                    \t\t</entry>
+                    \t</entry>
+                    </revelationdata>
+                    '''))
+            self.assertEqual(cli_mock.stderr.getvalue(), '')
+
+        # Check that the entries are listed as expected.
+        with cli_context(['storepass-cli', '-f', self.dbname, 'list']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                helpers.dedent2('''\
+                    |+ E1 name
+                    |  + E2 name
+                    |    - E3 name
+                    '''))
+            self.assertEqual(cli_mock.stderr.getvalue(), '')
