@@ -41,8 +41,9 @@ class Root(Container):
         Container.__init__(self, children)
 
     def __str__(self, indent=""):
+        res = indent + "Root:"
         for child in self._children:
-            res += child.__str__(indent) + "\n"
+            res += "\n" + child.__str__(indent + "  ")
         return res
 
     def accept(self, visitor):
