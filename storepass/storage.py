@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import hashlib
+import itertools
 import os
 import xml.etree.ElementTree as ET
 import zlib
@@ -76,6 +77,10 @@ class _XMLToModelConvertor:
 
         for xml_subelem in xml_subelem_iter:
             if xml_subelem.tag == 'entry':
+                # Children entries reached. Add the peeked value back and bail
+                # out.
+                xml_subelem_iter = itertools.chain(
+                    [xml_subelem], xml_subelem_iter)
                 break
 
             if xml_subelem.tag == 'name':
