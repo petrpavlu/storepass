@@ -133,6 +133,12 @@ def _process_show_command(args, model):
 
 
 def _check_options_validity(type_, accepted_options, args):
+    """
+    Check that all type-related options specified on the command line are valid
+    for the given entry type. An error is logged if some option is not
+    available. Returns True if the check was successful and False otherwise.
+    """
+
     all_valid = True
 
     if args.hostname is not None and 'hostname' not in accepted_options:
@@ -151,6 +157,25 @@ def _check_options_validity(type_, accepted_options, args):
     return all_valid
 
 
+def _check_add_command_options(args):
+    """
+    Check that type-related options specified for the add command are valid.
+    Returns True if the check was successful and False otherwise.
+    """
+
+    assert args.command == 'add'
+
+    if args.type == 'generic':
+        return _check_options_validity(
+            'generic', ('hostname', 'username', 'password'), args)
+    elif args.type == 'folder':
+        return _check_options_validity('folder', (), args)
+    else:
+        assert 0 and "Unhandled entry type!"
+
+    return True
+
+
 def _process_add_command(args, model):
     assert args.command == 'add'
 
@@ -164,19 +189,12 @@ def _process_add_command(args, model):
         password = None
 
     if args.type == 'generic':
-        if not _check_options_validity(
-                'generic', ('hostname', 'username', 'password'), args):
-            return 1
-
         # TODO Pass proper updated value.
         entry = storepass.model.Generic(path[-1], args.description, None,
                                         args.notes, args.hostname,
                                         args.username, password)
 
     elif args.type == 'folder':
-        if not _check_options_validity('folder', (), args):
-            return 1
-
         # TODO Pass proper updated value.
         entry = storepass.model.Folder(path[-1], args.description, None,
                                        args.notes, [])
@@ -337,6 +355,10 @@ def main():
         args = parser.parse_args()
     except SystemExit as e:
         return e.code
+
+    # Do further checking of the command line options.
+    if args.command == 'add' and not _check_add_command_options(args):
+        return 1
 
     # Set desired log verbosity.
     if args.verbose is not None:

@@ -323,6 +323,31 @@ class TestCLI(helpers.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
+    def test_folder_options(self):
+        """
+        Check that options that are invalid for the folder entry type are
+        sensibly rejected.
+        """
+
+        # Add a new folder entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  '--type', 'folder', '--hostname', 'E1 hostname',
+                  '--username', 'E1 username', '--password', 'E1 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                helpers.dedent("""\
+                    storepass-cli: error: option --hostname is not valid for entry type 'folder'
+                    storepass-cli: error: option --username is not valid for entry type 'folder'
+                    storepass-cli: error: option --password is not valid for entry type 'folder'
+                    """))
+
     def test_add_nested(self):
         """
         Check that nested entries can be added to a password database.
