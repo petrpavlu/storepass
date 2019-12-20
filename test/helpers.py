@@ -130,7 +130,7 @@ def read_password_db(filename, password, test_case):
 
     # Decompress the data.
     padlen = compressed_data[-1]
-    test_case.assertLess(padlen, 16)
+    test_case.assertLessEqual(padlen, 16)
     actual_padding = compressed_data[-padlen:]
     expected_padding = padlen * padlen.to_bytes(1, 'little')
     test_case.assertEqual(actual_padding, expected_padding)

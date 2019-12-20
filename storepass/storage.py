@@ -354,10 +354,10 @@ class Storage:
 
         # Decompress the data.
         padlen = compressed_data[-1]
-        if padlen > 15:
+        if padlen > 16:
             raise storepass.exc.StorageReadException(
                 f"Compressed data have incorrect padding, length '{padlen}' is "
-                f"bigger than '15' bytes")
+                f"bigger than '16' bytes")
         actual_padding = compressed_data[-padlen:]
         expected_padding = padlen * padlen.to_bytes(1, 'little')
         if actual_padding != expected_padding:

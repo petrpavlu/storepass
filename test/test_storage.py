@@ -267,7 +267,7 @@ class TestStorage(helpers.StorePassTestCase):
         helpers.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
-            '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x10',
+            '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x11',
             compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
@@ -275,8 +275,8 @@ class TestStorage(helpers.StorePassTestCase):
             _ = storage.read_plain()
         self.assertEqual(
             str(cm.exception),
-            "Compressed data have incorrect padding, length '16' is bigger "
-            "than '15' bytes")
+            "Compressed data have incorrect padding, length '17' is bigger "
+            "than '16' bytes")
 
     def test_read_wrong_padding_bytes(self):
         """
