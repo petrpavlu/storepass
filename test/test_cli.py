@@ -42,8 +42,8 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_help(self):
         """Check the basic --help output."""
@@ -55,7 +55,7 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_not_called()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent2('''\
+                helpers.dedent2("""\
                     |usage: storepass-cli [-h] [-f PASSDB] [-v]
                     |                     {init,list,show,add,edit,delete,dump} ...
                     |
@@ -68,8 +68,8 @@ class TestCLI(helpers.StorePassTestCase):
                     |                        password database file (the default is
                     |                        ~/.storepass.db)
                     |  -v, --verbose         increase verbosity level
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_error(self):
         """
@@ -83,12 +83,12 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 1)
             cli_mock.getpass.assert_not_called()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     storepass-cli: error: failed to load password database \'missing.db\': [Errno 2] No such file or directory: \'missing.db\'
-                    '''))
+                    """))
 
     def test_init(self):
         """
@@ -103,8 +103,8 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Read the database back and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
@@ -115,11 +115,11 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     <?xml version="1.0" encoding="utf-8"?>
                     <revelationdata dataversion="1" />
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Check that no entries get listed.
         with cli_context(['storepass-cli', '-f', self.dbname, 'list']) \
@@ -128,8 +128,8 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_init_overwrite(self):
         """
@@ -148,12 +148,12 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 1)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertRegex(
                 cli_mock.stderr.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     storepass-cli: error: failed to write password database '.*': \\[Errno 17\\] File exists: '.*'
-                    '''))
+                    """))
 
     def test_add(self):
         """
@@ -171,8 +171,8 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Read the database back and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
@@ -183,15 +183,15 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     <?xml version="1.0" encoding="utf-8"?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
                     \t\t<name>E1 name</name>
                     \t</entry>
                     </revelationdata>
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Check that the entry is listed as expected.
         with cli_context(['storepass-cli', '-f', self.dbname, 'list']) \
@@ -202,10 +202,10 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     - E1 name
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_add_generic(self):
         """
@@ -226,8 +226,8 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Read the database back and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
@@ -238,7 +238,7 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     <?xml version="1.0" encoding="utf-8"?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
@@ -250,8 +250,8 @@ class TestCLI(helpers.StorePassTestCase):
                     \t\t<field id="generic-password">E1 password</field>
                     \t</entry>
                     </revelationdata>
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Check that the entry is listed as expected.
         with cli_context(['storepass-cli', '-f', self.dbname, 'list']) \
@@ -262,10 +262,10 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     - E1 name [E1 hostname]: E1 description
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_add_folder(self):
         """
@@ -285,8 +285,8 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Read the database back and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
@@ -297,7 +297,7 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     <?xml version="1.0" encoding="utf-8"?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
@@ -306,8 +306,8 @@ class TestCLI(helpers.StorePassTestCase):
                     \t\t<notes>E1 notes</notes>
                     \t</entry>
                     </revelationdata>
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Check that the entry is listed as expected.
         with cli_context(['storepass-cli', '-f', self.dbname, 'list']) \
@@ -318,10 +318,10 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     + E1 name: E1 description
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_add_nested(self):
         """
@@ -340,8 +340,8 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Add a nested folder entry.
         with cli_context(
@@ -352,8 +352,8 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Add a nested generic entry.
         with cli_context(
@@ -364,8 +364,8 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             #self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), '')
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Read the database back and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
@@ -376,7 +376,7 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent('''\
+                helpers.dedent("""\
                     <?xml version="1.0" encoding="utf-8"?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
@@ -389,8 +389,8 @@ class TestCLI(helpers.StorePassTestCase):
                     \t\t</entry>
                     \t</entry>
                     </revelationdata>
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Check that the entries are listed as expected.
         with cli_context(['storepass-cli', '-f', self.dbname, 'list']) \
@@ -401,9 +401,9 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent2('''\
+                helpers.dedent2("""\
                     |+ E1 name
                     |  + E2 name
                     |    - E3 name
-                    '''))
-            self.assertEqual(cli_mock.stderr.getvalue(), '')
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
