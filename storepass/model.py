@@ -83,6 +83,12 @@ class Container:
         return low
 
     def get_child(self, name):
+        """
+        Search for a child by its name. Returns a 2-item tuple consisting of the
+        child object and its index if the name was found and (None,
+        number-of-children) otherwise.
+        """
+
         index = self._get_child_index(name)
         if index < len(self._children):
             child = self._children[index]
@@ -91,6 +97,11 @@ class Container:
         return (None, index)
 
     def add_child(self, child):
+        """
+        Add a new child object. Throws ModelException if a child with the same
+        name already exists.
+        """
+
         old_child, index = self.get_child(child.name)
         if old_child is not None:
             raise storepass.exc.ModelException(
@@ -177,13 +188,19 @@ class Model:
         storage.write_tree(self._root, exclusive)
 
     def add_entry(self, parent_path_spec, entry):
-        """Insert a new entry at the specified path."""
+        """
+        Insert a new entry at the specified path. Throws ModelException if the
+        parent entry does not exist.
+        """
 
         parent_entry = self.get_entry(parent_path_spec)
         parent_entry.add_child(entry)
 
     def get_entry(self, path_spec):
-        """Search for a specified entry."""
+        """
+        Search for a specified entry. Returns the entry if it exists and throws
+        ModelException otherwise.
+        """
 
         entry = self._root
         for i, element in enumerate(path_spec):
