@@ -227,8 +227,21 @@ def _process_edit_command(args, model):
 
 
 def _process_delete_command(args, model):
+    """
+    Handle the delete command which is used to wipe a single password entry.
+    """
+
     assert args.command == 'delete'
-    assert 0 and "Unimplemented command 'delete'!"
+    assert len(args.entry) == 1
+
+    # Delete the entry specified on the command line.
+    entry_name = args.entry[0]
+    try:
+        path_spec = storepass.model.path_string_to_spec(entry_name)
+        entry = model.delete_entry(path_spec)
+    except storepass.exc.ModelException as e:
+        _logger.error(e)
+        return 1
 
     return 0
 

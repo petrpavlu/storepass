@@ -84,9 +84,9 @@ class Container:
 
     def get_child(self, name):
         """
-        Search for a child by its name. Returns a 2-item tuple consisting of the
-        child object and its index if the name was found and (None,
-        number-of-children) otherwise.
+        Search for a child with the given name. Returns a 2-item tuple
+        consisting of the child object and its index if the name was found and
+        (None, number-of-children) otherwise.
         """
 
         index = self._get_child_index(name)
@@ -98,15 +98,20 @@ class Container:
 
     def add_child(self, child):
         """
-        Add a new child object. Throws ModelException if a child with the same
-        name already exists.
+        Add a new child object. Returns True if the insertion was successful and
+        False if a child with the same name already exists.
         """
 
         old_child, index = self.get_child(child.name)
         if old_child is not None:
-            raise storepass.exc.ModelException(
-                f"Entry '{child.name}' already exists")
+            return False
         self._children.insert(index, child)
+        return True
+
+    def delete_child(self, index):
+        """Delete a child at the given index."""
+
+        del self._children[index]
 
 
 class Root(Container):
@@ -187,31 +192,27 @@ class Model:
 
         storage.write_tree(self._root, exclusive)
 
-    def add_entry(self, parent_path_spec, entry):
+    def get_entry_full(self, path_spec):
         """
-        Insert a new entry at the specified path. Throws ModelException if the
-        parent entry does not exist.
-        """
-
-        parent_entry = self.get_entry(parent_path_spec)
-        parent_entry.add_child(entry)
-
-    def get_entry(self, path_spec):
-        """
-        Search for a specified entry. Returns the entry if it exists and throws
-        ModelException otherwise.
+        Search for a specified entry. Returns a 3-item tuple consisting of the
+        found entry, its parent and entry's index in the parent's children if
+        the entry exists and throws ModelException otherwise.
         """
 
+        parent = None
         entry = self._root
+        parent_index = 0
         for i, element in enumerate(path_spec):
-            if not isinstance(entry, Container):
+            parent = entry
+
+            if not isinstance(parent, Container):
                 element_string = path_element_to_string(element)
                 path_string = path_spec_to_string(path_spec)
                 raise storepass.exc.ModelException(
                     f"Entry '{element_string}' (element #{i+1} in "
                     f"'{path_string}') has a non-folder type")
 
-            entry, _ = entry.get_child(element)
+            entry, parent_index = parent.get_child(element)
             if entry is None:
                 element_string = path_element_to_string(element)
                 path_string = path_spec_to_string(path_spec)
@@ -219,7 +220,36 @@ class Model:
                     f"Entry '{element_string}' (element #{i+1} in "
                     f"'{path_string}') does not exist")
 
+        return entry, parent, parent_index
+
+    def get_entry(self, path_spec):
+        """Wrapper for get_entry_full() that returns only the found entry."""
+
+        entry, _, _ = self.get_entry_full(path_spec)
         return entry
+
+    def add_entry(self, parent_path_spec, entry):
+        """
+        Insert a new entry at the specified path. Throws ModelException if the
+        parent path is not valid or the entry already exists.
+        """
+
+        parent_entry = self.get_entry(parent_path_spec)
+        if not parent_entry.add_child(entry):
+            path_string = path_element_to_string(
+                parent_path_spec + [entry.name])
+            raise storepass.exc.ModelException(
+                f"Entry '{path_string}' already exists")
+
+    def delete_entry(self, path_spec):
+        """
+        Delete a specified entry. Throws ModelException if the entry does not
+        exist or is a non-empty folder.
+        """
+
+        entry, parent, parent_index = self.get_entry_full(path_spec)
+        # TODO Check that the entry is empty.
+        parent.delete_child(parent_index)
 
     def visit_all(self, visitor):
         """

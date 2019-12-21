@@ -492,3 +492,48 @@ class TestCLI(helpers.StorePassTestCase):
                 helpers.dedent("""\
                     storepass-cli: error: Entry 'E1 name' already exists
                     """))
+
+    def test_delete(self):
+        """
+        Check that a single entry can be deleted from a password database.
+        """
+
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Add a new entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add', 'E1 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Delete the entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'delete', 'E1 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database back and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                helpers.dedent("""\
+                    <?xml version="1.0" encoding="utf-8"?>
+                    <revelationdata dataversion="1" />
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
