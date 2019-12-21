@@ -93,7 +93,8 @@ class Container:
     def add_child(self, child):
         old_child, index = self.get_child(child.name)
         if old_child is not None:
-            raise 0  # TODO
+            raise storepass.exc.ModelException(
+                f"Entry '{child.name}' already exists")
         self._children.insert(index, child)
 
 
