@@ -171,6 +171,8 @@ class Model:
         self._root = storage.read_tree()
 
     def save(self, storage, exclusive=False):
+        """Save the model using the specified storage object."""
+
         storage.write_tree(self._root, exclusive)
 
     def add_entry(self, parent_path_spec, entry):

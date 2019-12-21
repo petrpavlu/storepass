@@ -131,8 +131,9 @@ def _check_add_command_options(args):
     assert args.command == 'add'
 
     if args.type == 'generic':
-        return _check_options_validity(
-            'generic', ('hostname', 'username', 'password'), args)
+        return _check_options_validity('generic',
+                                       ('hostname', 'username', 'password'),
+                                       args)
     elif args.type == 'folder':
         return _check_options_validity('folder', (), args)
     else:
