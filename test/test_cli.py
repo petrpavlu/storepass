@@ -642,3 +642,70 @@ class TestCLI(helpers.StorePassTestCase):
                 helpers.dedent("""\
                     storepass-cli: error: Entry 'E1 name' (element #1 in 'E1 name/E2 name') does not exist
                     """))
+
+    def test_delete_non_empty(self):
+        """Check that deleting a non-empty folder is sensibly rejected."""
+
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Add a new folder entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  '--type', 'folder', 'E1 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Add a nested generic entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  'E1 name/E2 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Try to delete the top folder.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'delete', 'E1 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                helpers.dedent("""\
+                    storepass-cli: error: Entry 'E1 name' is not empty
+                    """))
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                helpers.dedent("""\
+                    <?xml version="1.0" encoding="utf-8"?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="folder">
+                    \t\t<name>E1 name</name>
+                    \t\t<entry type="generic">
+                    \t\t\t<name>E2 name</name>
+                    \t\t</entry>
+                    \t</entry>
+                    </revelationdata>
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")

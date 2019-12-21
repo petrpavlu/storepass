@@ -248,7 +248,10 @@ class Model:
         """
 
         entry, parent, parent_index = self.get_entry_full(path_spec)
-        # TODO Check that the entry is empty.
+        if isinstance(entry, Container) and len(entry.children) > 0:
+            path_string = path_spec_to_string(path_spec)
+            raise storepass.exc.ModelException(
+                f"Entry '{path_string}' is not empty")
         parent.delete_child(parent_index)
 
     def visit_all(self, visitor):
