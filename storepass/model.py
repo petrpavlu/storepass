@@ -257,5 +257,4 @@ class Model:
         specified visitor.
         """
 
-        if self._root is not None:
-            self._root.accept(visitor)
+        self._root.accept(visitor)
