@@ -193,11 +193,8 @@ class Model:
                     f"Entry '{element_string}' (element #{i+1} in "
                     f"'{path_string}') has a non-folder type")
 
-            for j in entry.children:
-                if j.name == element:
-                    entry = j
-                    break
-            else:
+            entry, _ = entry.get_child(element)
+            if entry is None:
                 element_string = path_element_to_string(element)
                 path_string = path_spec_to_string(path_spec)
                 raise storepass.exc.ModelException(
