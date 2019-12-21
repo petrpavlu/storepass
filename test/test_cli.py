@@ -106,7 +106,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-        # Read the database back and dump its XML content.
+        # Read the database and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
              as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
@@ -156,9 +156,7 @@ class TestCLI(helpers.StorePassTestCase):
                     """))
 
     def test_add(self):
-        """
-        Check that a single entry can be added to a password database.
-        """
+        """Check that a single entry can be added to a password database."""
 
         # Create a new empty password database.
         self._init_database(self.dbname)
@@ -174,7 +172,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-        # Read the database back and dump its XML content.
+        # Read the database and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
              as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
@@ -229,7 +227,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-        # Read the database back and dump its XML content.
+        # Read the database and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
              as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
@@ -288,7 +286,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-        # Read the database back and dump its XML content.
+        # Read the database and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
              as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
@@ -349,9 +347,7 @@ class TestCLI(helpers.StorePassTestCase):
                     """))
 
     def test_add_nested(self):
-        """
-        Check that nested entries can be added to a password database.
-        """
+        """Check that nested entries can be added to a password database."""
 
         # Create a new empty password database.
         self._init_database(self.dbname)
@@ -392,7 +388,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-        # Read the database back and dump its XML content.
+        # Read the database and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
              as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
@@ -523,7 +519,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-        # Read the database back and dump its XML content.
+        # Read the database and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
              as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
@@ -606,7 +602,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-        # Read the database back and dump its XML content.
+        # Read the database and dump its XML content.
         with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
              as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD

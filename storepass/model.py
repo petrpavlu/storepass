@@ -236,8 +236,8 @@ class Model:
 
         parent_entry = self.get_entry(parent_path_spec)
         if not parent_entry.add_child(entry):
-            path_string = path_element_to_string(
-                parent_path_spec + [entry.name])
+            path_string = path_element_to_string(parent_path_spec +
+                                                 [entry.name])
             raise storepass.exc.ModelException(
                 f"Entry '{path_string}' already exists")
 
