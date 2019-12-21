@@ -537,3 +537,112 @@ class TestCLI(helpers.StorePassTestCase):
                     <revelationdata dataversion="1" />
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_delete_nested(self):
+        """
+        Check that nested entries can be deleted from a password database.
+        """
+
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Add a new folder entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  '--type', 'folder', 'E1 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Add a nested folder entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  '--type', 'folder', 'E1 name/E2 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Add a nested generic entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  'E1 name/E2 name/E3 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Delete the nested generic entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'delete',
+                  'E1 name/E2 name/E3 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Delete the nested folder entry.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'delete',
+                  'E1 name/E2 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database back and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname, 'dump']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                helpers.dedent("""\
+                    <?xml version="1.0" encoding="utf-8"?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="folder">
+                    \t\t<name>E1 name</name>
+                    \t</entry>
+                    </revelationdata>
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_delete_invalid_path(self):
+        """Check that deleting a non-existent entry is sensibly rejected."""
+
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Try to delete a nested generic entry with an invalid path.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'delete',
+                  'E1 name/E2 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                helpers.dedent("""\
+                    storepass-cli: error: Entry 'E1 name' (element #1 in 'E1 name/E2 name') does not exist
+                    """))
