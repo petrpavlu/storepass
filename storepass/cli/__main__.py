@@ -50,42 +50,6 @@ _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
 
-def _split_entry(entry):
-    """
-    Split a name of a password entry and return a list of its path elements.
-    Character '/' is expected as the path separator and '\' starts an escape
-    sequence.
-    """
-
-    STATE_NORMAL = 0
-    STATE_ESCAPE = 1
-
-    res = []
-    state = STATE_NORMAL
-    element = ""
-    for c in entry:
-        if state == STATE_NORMAL:
-            if c == '/':
-                res.append(element)
-                element = ""
-            elif c == '\\':
-                state = STATE_ESCAPE
-            else:
-                element += c
-        else:
-            assert state == STATE_ESCAPE
-            element += c
-            state = STATE_NORMAL
-    res.append(element)
-
-    if state == STATE_ESCAPE:
-        _logger.warning(
-            f"entry name '{entry}' has an incomplete escape sequence at its "
-            f"end")
-
-    return res
-
-
 def _process_init_command(args, model):
     """
     Handle the init command which is used to create an empty password database.
@@ -121,10 +85,11 @@ def _process_show_command(args, model):
 
     # Find the entry specified on the command line.
     entry_name = args.entry[0]
-    path = _split_entry(entry_name)
-    entry = model.get_entry(path)
-    if entry is None:
-        _logger.error(f"entry '{entry_name}' not found")
+    try:
+        path_spec = storepass.model.path_string_to_spec(entry_name)
+        entry = model.get_entry(path_spec)
+    except storepass.exc.ModelException as e:
+        _logger.error(e)
         return 1
 
     detail_view = view.DetailView()
@@ -181,7 +146,11 @@ def _process_add_command(args, model):
 
     # Create the entry specified on the command line.
     entry_name = args.entry[0]
-    path = _split_entry(entry_name)
+    try:
+        path_spec = storepass.model.path_string_to_spec(entry_name)
+    except storepass.exc.ModelException as e:
+        _logger.error(e)
+        return 1
 
     if args.password:
         password = getpass.getpass("Entry password:")
@@ -190,20 +159,24 @@ def _process_add_command(args, model):
 
     if args.type == 'generic':
         # TODO Pass proper updated value.
-        entry = storepass.model.Generic(path[-1], args.description, None,
+        entry = storepass.model.Generic(path_spec[-1], args.description, None,
                                         args.notes, args.hostname,
                                         args.username, password)
 
     elif args.type == 'folder':
         # TODO Pass proper updated value.
-        entry = storepass.model.Folder(path[-1], args.description, None,
+        entry = storepass.model.Folder(path_spec[-1], args.description, None,
                                        args.notes, [])
 
     else:
         assert 0 and "Unhandled entry type!"
 
-    # TODO Implement error handling.
-    model.add_entry(path[:-1], entry)
+    # Insert the new entry in the model.
+    try:
+        model.add_entry(path_spec[:-1], entry)
+    except storepass.exc.ModelException as e:
+        _logger.error(e)
+        return 1
     return 0
 
 
@@ -213,10 +186,11 @@ def _process_edit_command(args, model):
 
     # Find the entry specified on the command line.
     entry_name = args.entry[0]
-    path = _split_entry(entry_name)
-    entry = model.get_entry(path)
-    if entry is None:
-        _logger.error(f"entry '{entry_name}' not found")
+    try:
+        path_spec = storepass.model.path_string_to_spec(entry_name)
+        entry = model.get_entry(path_spec)
+    except storepass.exc.ModelException as e:
+        _logger.error(e)
         return 1
 
     # Process options valid for all entries.

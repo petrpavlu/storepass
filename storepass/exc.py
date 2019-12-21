@@ -6,6 +6,10 @@ class StorePassException(Exception):
     """Base StorePass exception."""
 
 
+class ModelException(StorePassException):
+    """Exception when working with the model."""
+
+
 class StorageException(StorePassException):
     """Base Storage exception."""
 

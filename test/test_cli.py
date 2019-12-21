@@ -432,3 +432,28 @@ class TestCLI(helpers.StorePassTestCase):
                     |    - E3 name
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_add_invalid_path(self):
+        """
+        Check that adding a new entry under a non-existent path is sensibly
+        rejected.
+        """
+
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Try to add a nested generic entry with an invalid path.
+        with cli_context(
+                 ['storepass-cli', '-f', self.dbname, 'add',
+                  'E1 name/E2 name']) \
+             as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                helpers.dedent("""\
+                    storepass-cli: error: Entry 'E1 name' (element #1 in 'E1 name') does not exist
+                    """))
