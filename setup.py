@@ -8,7 +8,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='storepass',
-    version='0.1',
+    version='1.0.0',
     author='Petr Pavlu',
     author_email='petr.pavlu@outlook.com',
     description='StorePass Password Manager',
