@@ -5,6 +5,8 @@
 
 import contextlib
 import io
+import os
+import time
 import unittest.mock
 
 import storepass.cli.__main__
@@ -22,14 +24,31 @@ class CLIMock:
 
 
 @contextlib.contextmanager
-def cli_context(args):
+def cli_context(args, tz=None):
     """Create a mocked CLI context."""
 
     with unittest.mock.patch('getpass.getpass') as getpass, \
          unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as out, \
          unittest.mock.patch('sys.stderr', new_callable=io.StringIO) as err, \
          unittest.mock.patch('sys.argv', args):
+        if tz is not None:
+            # Save the current timezone and set the desired one.
+            try:
+                prev_tz = os.environ['TZ']
+            except KeyError:
+                prev_tz = None
+            os.environ['TZ'] = tz
+            time.tzset()
+
         yield CLIMock(getpass, out, err)
+
+        if tz is not None:
+            # Restore the original timezone settings.
+            if prev_tz is None:
+                del os.environ['TZ']
+            else:
+                os.environ['TZ'] = prev_tz
+            time.tzset()
 
 
 class TestCLI(helpers.StorePassTestCase):
@@ -810,8 +829,8 @@ class TestCLI(helpers.StorePassTestCase):
 
         # Check that the entry is shown as expected.
         with cli_context(
-            ['storepass-cli', '-f', self.dbname, 'show',
-             'E1 name']) as cli_mock:
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                tz='GMT') as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
@@ -849,8 +868,8 @@ class TestCLI(helpers.StorePassTestCase):
 
         # Check that the entry is shown as expected.
         with cli_context(
-            ['storepass-cli', '-f', self.dbname, 'show',
-             'E1 name']) as cli_mock:
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                tz='GMT') as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
