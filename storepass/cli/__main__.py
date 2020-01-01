@@ -93,7 +93,7 @@ def _process_show_command(args, model):
         return 1
 
     detail_view = view.DetailView()
-    entry.visit(detail_view, None)
+    entry.accept(detail_view, single=True)
     return 0
 
 

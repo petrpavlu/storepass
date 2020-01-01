@@ -124,10 +124,11 @@ class Root(Container):
             res += "\n" + child.__str__(indent + "  ")
         return res
 
-    def accept(self, visitor):
+    def accept(self, visitor, single=False):
         visitor.visit_root(None, self)
-        for child in self._children:
-            child.accept(visitor, self)
+        if not single:
+            for child in self._children:
+                child.accept(visitor, self)
 
 
 class Entry:
@@ -156,10 +157,11 @@ class Folder(Entry, Container):
             res += "\n" + child.__str__(indent + "  ")
         return res
 
-    def accept(self, visitor, parent):
+    def accept(self, visitor, parent=None, single=False):
         visitor.visit_folder(parent, self)
-        for child in self._children:
-            child.accept(visitor, self)
+        if not single:
+            for child in self._children:
+                child.accept(visitor, self)
 
 
 class Generic(Entry):
@@ -174,7 +176,7 @@ class Generic(Entry):
         parent = super().inline_str()
         return indent + f"Generic({parent}, hostname={self.hostname}, username={self.username}, password={self.password})"
 
-    def accept(self, visitor, parent):
+    def accept(self, visitor, parent=None, single=False):
         visitor.visit_generic(parent, self)
 
 
