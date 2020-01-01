@@ -500,19 +500,17 @@ class TestCLI(helpers.StorePassTestCase):
         Check that a single entry can be deleted from a password database.
         """
 
-        # Create a new empty password database.
-        self._init_database(self.dbname)
-
-        # Add a new entry.
-        with cli_context(
-                 ['storepass-cli', '-f', self.dbname, 'add', 'E1 name']) \
-             as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
+        # Create a test database.
+        helpers.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            helpers.dedent('''\
+                <?xml version="1.0" encoding="utf-8"?>
+                <revelationdata dataversion="1">
+                \t<entry type="generic">
+                \t\t<name>E1 name</name>
+                \t</entry>
+                </revelationdata>
+                '''))
 
         # Delete the entry.
         with cli_context(
@@ -545,44 +543,23 @@ class TestCLI(helpers.StorePassTestCase):
         Check that nested entries can be deleted from a password database.
         """
 
-        # Create a new empty password database.
-        self._init_database(self.dbname)
-
-        # Add a new folder entry.
-        with cli_context(
-                 ['storepass-cli', '-f', self.dbname, 'add',
-                  '--type', 'folder', 'E1 name']) \
-             as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
-        # Add a nested folder entry.
-        with cli_context(
-                 ['storepass-cli', '-f', self.dbname, 'add',
-                  '--type', 'folder', 'E1 name/E2 name']) \
-             as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
-        # Add a nested generic entry.
-        with cli_context(
-                 ['storepass-cli', '-f', self.dbname, 'add',
-                  'E1 name/E2 name/E3 name']) \
-             as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
+        # Create a test database.
+        helpers.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            helpers.dedent('''\
+                <?xml version="1.0" encoding="utf-8"?>
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<name>E1 name</name>
+                \t\t<entry type="folder">
+                \t\t\t<name>E2 name</name>
+                \t\t\t<entry type="generic">
+                \t\t\t\t<name>E3 name</name>
+                \t\t\t</entry>
+                \t\t</entry>
+                \t</entry>
+                </revelationdata>
+                '''))
 
         # Delete the nested generic entry.
         with cli_context(
@@ -615,17 +592,16 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertRegex(
+            self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 helpers.dedent("""\
-                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
+                    <?xml version="1.0" encoding="utf-8"?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
-                    \t\t<updated>[0-9]+</updated>
                     \t</entry>
                     </revelationdata>
-                    $"""))
+                    """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_delete_invalid_path(self):
@@ -653,32 +629,20 @@ class TestCLI(helpers.StorePassTestCase):
     def test_delete_non_empty(self):
         """Check that deleting a non-empty folder is sensibly rejected."""
 
-        # Create a new empty password database.
-        self._init_database(self.dbname)
-
-        # Add a new folder entry.
-        with cli_context(
-                 ['storepass-cli', '-f', self.dbname, 'add',
-                  '--type', 'folder', 'E1 name']) \
-             as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
-        # Add a nested generic entry.
-        with cli_context(
-                 ['storepass-cli', '-f', self.dbname, 'add',
-                  'E1 name/E2 name']) \
-             as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
+        # Create a test database.
+        helpers.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            helpers.dedent('''\
+                <?xml version="1.0" encoding="utf-8"?>
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<name>E1 name</name>
+                \t\t<entry type="generic">
+                \t\t\t<name>E2 name</name>
+                \t\t</entry>
+                \t</entry>
+                </revelationdata>
+                '''))
 
         # Try to delete the top folder.
         with cli_context(
@@ -702,19 +666,17 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertRegex(
+            self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 helpers.dedent("""\
-                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
+                    <?xml version="1.0" encoding="utf-8"?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
-                    \t\t<updated>[0-9]+</updated>
                     \t\t<entry type="generic">
                     \t\t\t<name>E2 name</name>
-                    \t\t\t<updated>[0-9]+</updated>
                     \t\t</entry>
                     \t</entry>
                     </revelationdata>
-                    $"""))
+                    """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
