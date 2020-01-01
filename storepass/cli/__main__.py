@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
+import datetime
 import getpass
 import logging
 import os
@@ -158,16 +159,16 @@ def _process_add_command(args, model):
     else:
         password = None
 
+    updated = datetime.datetime.now(datetime.timezone.utc)
+
     if args.type == 'generic':
-        # TODO Pass proper updated value.
-        entry = storepass.model.Generic(path_spec[-1], args.description, None,
-                                        args.notes, args.hostname,
+        entry = storepass.model.Generic(path_spec[-1], args.description,
+                                        updated, args.notes, args.hostname,
                                         args.username, password)
 
     elif args.type == 'folder':
-        # TODO Pass proper updated value.
-        entry = storepass.model.Folder(path_spec[-1], args.description, None,
-                                       args.notes, [])
+        entry = storepass.model.Folder(path_spec[-1], args.description,
+                                       updated, args.notes, [])
 
     else:
         assert 0 and "Unhandled entry type!"

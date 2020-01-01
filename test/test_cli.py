@@ -179,16 +179,17 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(
+            self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 helpers.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
+                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
                     \t\t<name>E1 name</name>
+                    \t\t<updated>[0-9]+</updated>
                     \t</entry>
                     </revelationdata>
-                    """))
+                    $"""))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Check that the entry is listed as expected.
@@ -234,21 +235,22 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(
+            self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 helpers.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
+                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
                     \t\t<name>E1 name</name>
                     \t\t<description>E1 description</description>
+                    \t\t<updated>[0-9]+</updated>
                     \t\t<notes>E1 notes</notes>
                     \t\t<field id="generic-hostname">E1 hostname</field>
                     \t\t<field id="generic-username">E1 username</field>
                     \t\t<field id="generic-password">E1 password</field>
                     \t</entry>
                     </revelationdata>
-                    """))
+                    $"""))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Check that the entry is listed as expected.
@@ -293,18 +295,19 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(
+            self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 helpers.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
+                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
                     \t\t<description>E1 description</description>
+                    \t\t<updated>[0-9]+</updated>
                     \t\t<notes>E1 notes</notes>
                     \t</entry>
                     </revelationdata>
-                    """))
+                    $"""))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Check that the entry is listed as expected.
@@ -395,22 +398,25 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(
+            self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 helpers.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
+                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
+                    \t\t<updated>[0-9]+</updated>
                     \t\t<entry type="folder">
                     \t\t\t<name>E2 name</name>
+                    \t\t\t<updated>[0-9]+</updated>
                     \t\t\t<entry type="generic">
                     \t\t\t\t<name>E3 name</name>
+                    \t\t\t\t<updated>[0-9]+</updated>
                     \t\t\t</entry>
                     \t\t</entry>
                     \t</entry>
                     </revelationdata>
-                    """))
+                    $"""))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
         # Check that the entries are listed as expected.
@@ -609,16 +615,17 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(
+            self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 helpers.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
+                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
+                    \t\t<updated>[0-9]+</updated>
                     \t</entry>
                     </revelationdata>
-                    """))
+                    $"""))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_delete_invalid_path(self):
@@ -695,17 +702,19 @@ class TestCLI(helpers.StorePassTestCase):
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             cli_mock.getpass.assert_called_once()
-            self.assertEqual(
+            self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 helpers.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
+                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
+                    \t\t<updated>[0-9]+</updated>
                     \t\t<entry type="generic">
                     \t\t\t<name>E2 name</name>
+                    \t\t\t<updated>[0-9]+</updated>
                     \t\t</entry>
                     \t</entry>
                     </revelationdata>
-                    """))
+                    $"""))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
