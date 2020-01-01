@@ -227,7 +227,7 @@ class _ModelToXMLConvertor:
 
         if entry.updated is not None:
             xml_updated = ET.SubElement(xml_entry, 'updated')
-            xml_updated.text = entry.updated
+            xml_updated.text = str(int(entry.updated.timestamp()))
 
         if entry.notes is not None:
             xml_notes = ET.SubElement(xml_entry, 'notes')

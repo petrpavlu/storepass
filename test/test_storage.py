@@ -390,9 +390,10 @@ class TestStorage(helpers.StorePassTestCase):
     def test_write_generic_entry(self):
         """Check output of a single generic entry."""
 
-        generic = storepass.model.Generic("E1 name", "E1 description", \
-            "1546300800", "E1 notes", "E1 hostname", "E1 username", \
-            "E1 password")
+        generic = storepass.model.Generic(
+            "E1 name", "E1 description",
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc),
+            "E1 notes", "E1 hostname", "E1 username", "E1 password")
         root = storepass.model.Root([generic])
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
