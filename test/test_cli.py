@@ -806,6 +806,57 @@ class TestCLI(helpers.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
+    def test_show_timezone(self):
+        """
+        Check that timezone settings are correctly taken into effect when
+        displaying details of a single entry.
+        """
+
+        # Create a test database.
+        helpers.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            helpers.dedent('''\
+                <?xml version="1.0" encoding="utf-8"?>
+                <revelationdata dataversion="1">
+                \t<entry type="generic">
+                \t\t<name>E1 name</name>
+                \t\t<updated>1546300800</updated>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check the display with the GMT timezone.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show',
+             'E1 name'], tz='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                helpers.dedent2("""\
+                    |+ E1 name (password entry)
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Check the display with the GMT+1 timezone.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show',
+             'E1 name'], tz='GMT-1') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                helpers.dedent2("""\
+                    |+ E1 name (password entry)
+                    |  - Last modified: Tue Jan  1 01:00:00 2019 GMT
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
     def test_show_generic(self):
         """Check that details of a complete generic entry can be shown."""
 
