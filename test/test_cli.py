@@ -888,14 +888,14 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent("""\
-                    + E1 name (password entry)
-                      - Hostname: E1 hostname
-                      - Username: E1 username
-                      - Password: E1 password
-                      - Description: E1 description
-                      - Last modified: Tue Jan  1 01:00:00 2019 CET
-                      - Notes: E1 notes
+                helpers.dedent2("""\
+                    |+ E1 name (password entry)
+                    |  - Hostname: E1 hostname
+                    |  - Username: E1 username
+                    |  - Password: E1 password
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -927,11 +927,11 @@ class TestCLI(helpers.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                helpers.dedent("""\
-                    + E1 name (folder)
-                      - Description: E1 description
-                      - Last modified: Tue Jan  1 01:00:00 2019 CET
-                      - Notes: E1 notes
+                helpers.dedent2("""\
+                    |+ E1 name (folder)
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
