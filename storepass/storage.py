@@ -1,14 +1,13 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import Crypto.Cipher.AES
 import datetime
 import hashlib
 import itertools
 import os
 import xml.etree.ElementTree as ET
 import zlib
-
-from Crypto.Cipher import AES
 
 import storepass.exc
 import storepass.model
@@ -351,7 +350,8 @@ class Storage:
                                   dklen=32)
 
         # Decrypt the data.
-        crypto_obj = AES.new(key, AES.MODE_CBC, init_vector)
+        crypto_obj = Crypto.Cipher.AES.new(key, Crypto.Cipher.AES.MODE_CBC,
+                                           init_vector)
         decrypted_data = crypto_obj.decrypt(encrypted_data)
 
         hash256 = decrypted_data[0:32]
@@ -442,7 +442,8 @@ class Storage:
 
         # Encrypt the data.
         init_vector = os.urandom(16)
-        crypto_obj = AES.new(key, AES.MODE_CBC, init_vector)
+        crypto_obj = Crypto.Cipher.AES.new(key, Crypto.Cipher.AES.MODE_CBC,
+                                           init_vector)
         encrypted_data = crypto_obj.encrypt(decrypted_data)
 
         # Prepare final output and write it out.

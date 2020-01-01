@@ -3,6 +3,7 @@
 
 """Test helper functions."""
 
+import Crypto.Cipher.AES
 import hashlib
 import os
 import os.path
@@ -11,8 +12,6 @@ import tempfile
 from textwrap import dedent
 import unittest
 import zlib
-
-from Crypto.Cipher import AES
 
 
 class StorePassTestCase(unittest.TestCase):
@@ -80,7 +79,8 @@ def write_password_db(filename, password, xml, compress=True):
 
     # Encrypt the data.
     init_vector = os.urandom(16)
-    crypto_obj = AES.new(key, AES.MODE_CBC, init_vector)
+    crypto_obj = Crypto.Cipher.AES.new(key, Crypto.Cipher.AES.MODE_CBC,
+                                       init_vector)
     encrypted_data = crypto_obj.encrypt(decrypted_data)
 
     # Prepare final output and write it out.
@@ -118,7 +118,8 @@ def read_password_db(filename, password, test_case):
                               dklen=32)
 
     # Decrypt the data.
-    crypto_obj = AES.new(key, AES.MODE_CBC, init_vector)
+    crypto_obj = Crypto.Cipher.AES.new(key, Crypto.Cipher.AES.MODE_CBC,
+                                       init_vector)
     decrypted_data = crypto_obj.decrypt(encrypted_data)
 
     hash256 = decrypted_data[0:32]
