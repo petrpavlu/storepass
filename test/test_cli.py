@@ -777,7 +777,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show(self):
-        """Check that details of a single entry can be shown."""
+        """Check that details of a single entry can be displayed."""
 
         # Create a test database.
         helpers.write_password_db(
@@ -791,7 +791,7 @@ class TestCLI(helpers.StorePassTestCase):
                 </revelationdata>
                 '''))
 
-        # Check that the entry is shown as expected.
+        # Check that the entry is displayed as expected.
         with cli_context(
             ['storepass-cli', '-f', self.dbname, 'show',
              'E1 name']) as cli_mock:
@@ -858,7 +858,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show_generic(self):
-        """Check that details of a complete generic entry can be shown."""
+        """Check that details of a complete generic entry can be displayed."""
 
         # Create a test database.
         helpers.write_password_db(
@@ -878,7 +878,7 @@ class TestCLI(helpers.StorePassTestCase):
                 </revelationdata>
                 '''))
 
-        # Check that the entry is shown as expected.
+        # Check that the entry is displayed as expected.
         with cli_context(
             ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
                 tz='GMT') as cli_mock:
@@ -900,7 +900,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show_folder(self):
-        """Check that details of a complete folder entry can be shown."""
+        """Check that details of a complete folder entry can be displayed."""
 
         # Create a test database.
         helpers.write_password_db(
@@ -917,7 +917,7 @@ class TestCLI(helpers.StorePassTestCase):
                 </revelationdata>
                 '''))
 
-        # Check that the entry is shown as expected.
+        # Check that the entry is displayed as expected.
         with cli_context(
             ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
                 tz='GMT') as cli_mock:
@@ -936,7 +936,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show_nested(self):
-        """Check that nested entries can be shown."""
+        """Check that nested entries can be displayed."""
 
         # Create a test database.
         helpers.write_password_db(
@@ -959,7 +959,7 @@ class TestCLI(helpers.StorePassTestCase):
                 </revelationdata>
                 '''))
 
-        # Check that the entries are shown as expected.
+        # Check that the entries are displayed as expected.
         with cli_context(
             ['storepass-cli', '-f', self.dbname, 'show',
              'E1 name']) as cli_mock:
