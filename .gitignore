@@ -1,4 +1,6 @@
 *.swp
+/.coverage
 /dist/
+/htmlcov/
 /storepass.egg-info/
 __pycache__/

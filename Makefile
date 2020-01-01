@@ -6,12 +6,21 @@ PYTHON_FILES = storepass-cli.py storepass test setup.py
 .PHONY: error
 error:
 	@echo "Please choose one of the following targets:" \
-	    "check, dist, format, lint"
+	    "check, coverage, dist, format, lint"
 	@exit 1
+
+UNITTEST_ARGS = -m unittest discover \
+                 --top-level-directory . --start-directory test
 
 .PHONY: check
 check:
-	python3 -m unittest discover --top-level-directory . --start-directory test
+	python3 $(UNITTEST_ARGS)
+
+.PHONY: coverage
+coverage:
+	coverage3 run --source storepass,test $(UNITTEST_ARGS)
+	coverage3 html
+	xdg-open htmlcov/index.html
 
 .PHONY: dist
 dist:
