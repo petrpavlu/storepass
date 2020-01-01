@@ -1,6 +1,7 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import datetime
 import hashlib
 import itertools
 import os
@@ -62,6 +63,13 @@ class _XMLToModelConvertor:
 
         return children
 
+    def _parse_updated(self, xml_elem):
+        """Parse a <updated> element."""
+
+        # TODO Error checking.
+        updated = int(xml_elem.text)
+        return datetime.datetime.fromtimestamp(updated, datetime.timezone.utc)
+
     def _parse_folder(self, xml_elem):
         """Parse a <entry type='folder'> element."""
 
@@ -88,7 +96,7 @@ class _XMLToModelConvertor:
             elif xml_subelem.tag == 'description':
                 description = xml_subelem.text
             elif xml_subelem.tag == 'updated':
-                updated = xml_subelem.text
+                updated = self._parse_updated(xml_subelem)
             elif xml_subelem.tag == 'notes':
                 notes = xml_subelem.text
             else:
@@ -120,7 +128,7 @@ class _XMLToModelConvertor:
             elif xml_subelem.tag == 'description':
                 description = xml_subelem.text
             elif xml_subelem.tag == 'updated':
-                updated = xml_subelem.text
+                updated = self._parse_updated(xml_subelem)
             elif xml_subelem.tag == 'notes':
                 notes = xml_subelem.text
             elif xml_subelem.tag == 'field':

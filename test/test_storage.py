@@ -1,6 +1,7 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import datetime
 import os
 
 import storepass.exc
@@ -361,7 +362,9 @@ class TestStorage(helpers.StorePassTestCase):
         self.assertIs(type(child_0), storepass.model.Generic)
         self.assertEqual(child_0.name, "E1 name")
         self.assertEqual(child_0.description, "E1 description")
-        self.assertEqual(child_0.updated, "1546300800")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
         self.assertEqual(child_0.notes, "E1 notes")
         self.assertEqual(child_0.hostname, "E1 hostname")
         self.assertEqual(child_0.username, "E1 username")

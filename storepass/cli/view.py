@@ -53,7 +53,8 @@ class DetailView:
         if entry.description is not None:
             print(f"  - Description: {entry.description}")
         if entry.updated is not None:
-            print(f"  - Last modified: {entry.updated}")
+            updated = entry.updated.astimezone().strftime('%c %Z')
+            print(f"  - Last modified: {updated}")
         if entry.notes is not None:
             print(f"  - Notes: {entry.notes}")
 
