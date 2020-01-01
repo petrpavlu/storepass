@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
+# Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
 PYTHON_FILES = storepass-cli.py storepass test setup.py
