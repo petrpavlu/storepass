@@ -1,7 +1,7 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-PYTHON_FILES = storepass-cli.py storepass test setup.py
+PYTHON_FILES = storepass-cli.py storepass-gtk.py storepass test setup.py
 
 .PHONY: error
 error:

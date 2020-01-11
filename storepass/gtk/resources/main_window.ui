@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
+SPDX-License-Identifier: MIT
+-->
+<interface>
+    <template class="MainWindow" parent="GtkApplicationWindow">
+        <property name="title">StorePass</property>
+        <property name="width-request">800</property>
+        <property name="height-request">600</property>
+        <child>
+            <object class="GtkPaned">
+                <property name="visible">True</property>
+                <property name="position">250</property>
+                <child>
+                    <object class="GtkTreeView" id="entry_treeview">
+                        <property name="visible">True</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkButton" id="hello_world">
+                        <property name="label">Hello World!</property>
+                        <property name="visible">True</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>
