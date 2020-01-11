@@ -151,11 +151,12 @@ class _XMLToModelConvertor:
                                        hostname, username, password)
 
 
-class _ModelToXMLConvertor:
+class _ModelToXMLConvertor(storepass.model.ModelVisitor):
     """Internal data model to XML convertor."""
     def __init__(self):
+        super().__init__()
+
         self._xml_root = None
-        self._parent_chain = []
 
     def _indent_xml(self, xml_element, level=0):
         """Indent elements of a given ElementTree for pretty-print."""
@@ -175,7 +176,7 @@ class _ModelToXMLConvertor:
         """
 
         self._xml_root = None
-        self._parent_chain = []
+        assert len(self._path) == 0
 
         # Visit all nodes and create their ElementTree representation.
         root.accept(self)
@@ -191,28 +192,15 @@ class _ModelToXMLConvertor:
 
         return data
 
-    def _backtrace_parent(self, parent):
-        """
-        Pop elements from the parent chain up to the current's node parent.
-        """
-
-        assert parent is not None
-        assert len(self._parent_chain) > 0
-
-        while self._parent_chain[-1][0] != parent:
-            del self._parent_chain[-1]
-        return self._parent_chain[-1][1]
-
     def visit_root(self, parent, root):
         """Create XML representation for the data root."""
 
         assert parent is None
-        assert len(self._parent_chain) == 0
 
         self._xml_root = ET.Element('revelationdata')
         self._xml_root.set('dataversion', '1')
 
-        self._parent_chain.append((root, self._xml_root))
+        return self._xml_root
 
     def _add_entry_properties(self, entry, xml_entry):
         """Create XML representation for common password entry properties."""
@@ -235,18 +223,18 @@ class _ModelToXMLConvertor:
     def visit_folder(self, parent, folder):
         """Create XML representation for a password folder."""
 
-        xml_parent = self._backtrace_parent(parent)
+        xml_parent = self.get_path_data(parent)
 
         xml_folder = ET.SubElement(xml_parent, 'entry')
         xml_folder.set('type', 'folder')
         self._add_entry_properties(folder, xml_folder)
 
-        self._parent_chain.append((folder, xml_folder))
+        return xml_folder
 
     def visit_generic(self, parent, generic):
         """Create XML representation for a generic password record."""
 
-        xml_parent = self._backtrace_parent(parent)
+        xml_parent = self.get_path_data(parent)
 
         xml_generic = ET.SubElement(xml_parent, 'entry')
         xml_generic.set('type', 'generic')
@@ -266,6 +254,8 @@ class _ModelToXMLConvertor:
             xml_password = ET.SubElement(xml_generic, 'field')
             xml_password.set('id', 'generic-password')
             xml_password.text = generic.password
+
+        return xml_generic
 
 
 class Storage:

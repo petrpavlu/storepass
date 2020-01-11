@@ -63,6 +63,28 @@ def path_spec_to_string(path_spec):
     return "/".join([path_element_to_string(element) for element in path_spec])
 
 
+class ModelVisitor:
+    def __init__(self):
+        self._path = []
+
+    def enter_container(self, container, data):
+        self._path.append((container, data))
+
+    def leave_container(self):
+        self._path.pop()
+
+    def get_path_data(self, container):
+        """Obtain data associated with the specified container."""
+
+        # Search the path in the reverse order because the common case is to
+        # obtain data for the current parent.
+        for i in reversed(self._path):
+            if i[0] == container:
+                return i[1]
+
+        assert 0 and "Container not on the parent path!"
+
+
 class Container:
     def __init__(self, children):
         self._children = sorted(children, key=lambda child: child.name)
@@ -113,6 +135,14 @@ class Container:
 
         del self._children[index]
 
+    def _accept_children(self, visitor, parent_data):
+        """Visit all child entries."""
+
+        visitor.enter_container(self, parent_data)
+        for child in self._children:
+            child.accept(visitor, self)
+        visitor.leave_container()
+
 
 class Root(Container):
     def __init__(self, children):
@@ -125,10 +155,9 @@ class Root(Container):
         return res
 
     def accept(self, visitor, single=False):
-        visitor.visit_root(None, self)
+        parent_data = visitor.visit_root(None, self)
         if not single:
-            for child in self._children:
-                child.accept(visitor, self)
+            self._accept_children(visitor, parent_data)
 
 
 class Entry:
@@ -158,10 +187,9 @@ class Folder(Entry, Container):
         return res
 
     def accept(self, visitor, parent=None, single=False):
-        visitor.visit_folder(parent, self)
+        parent_data = visitor.visit_folder(parent, self)
         if not single:
-            for child in self._children:
-                child.accept(visitor, self)
+            self._accept_children(visitor, parent_data)
 
 
 class Generic(Entry):
