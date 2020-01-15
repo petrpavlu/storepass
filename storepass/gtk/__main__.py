@@ -3,12 +3,51 @@
 
 import gi
 import importlib.resources
+import os
 import sys
+
+# TODO Remove.
+import getpass
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import GLib
+from gi.repository import GObject
 from gi.repository import Gio
 from gi.repository import Gtk
+
+import storepass.model
+import storepass.storage
+
+# Keep in sync with the ui files.
+ENTRIES_TREEVIEW_NAME_COLUMN = 0
+ENTRIES_TREEVIEW_ENTRY_COLUMN = 1
+
+class EntryGObject(GObject.Object):
+    def __init__(self, entry):
+        super().__init__()
+        self.entry = entry
+
+
+class TreeStorePopulator(storepass.model.ModelVisitor):
+    def __init__(self, tree_store):
+        super().__init__()
+
+        self.tree_store = tree_store
+
+    def visit_root(self, parent, root):
+        return None
+
+    def visit_folder(self, parent, folder):
+        parent_iter = self.get_path_data(parent)
+        return self.tree_store.append(parent_iter,
+            [folder.name, EntryGObject(folder)])
+
+    def visit_generic(self, parent, generic):
+        parent_iter = self.get_path_data(parent)
+        assert ENTRIES_TREEVIEW_NAME_COLUMN == 0
+        assert ENTRIES_TREEVIEW_ENTRY_COLUMN == 1
+        return self.tree_store.append(parent_iter,
+            [generic.name, EntryGObject(generic)])
 
 
 @Gtk.Template.from_string(
@@ -16,8 +55,11 @@ from gi.repository import Gtk
 class MainWindow(Gtk.ApplicationWindow):
     __gtype_name__ = "MainWindow"
 
-    hello_world = Gtk.Template.Child()
-    entry_treeview = Gtk.Template.Child()
+    entries_treeview = Gtk.Template.Child()
+    entry_name = Gtk.Template.Child()
+    entry_description = Gtk.Template.Child()
+    entry_updated = Gtk.Template.Child()
+    entry_notes = Gtk.Template.Child()
 
     def __init__(self, application):
         super().__init__(application=application)
@@ -38,14 +80,13 @@ class MainWindow(Gtk.ApplicationWindow):
         save_as_action.connect("activate", self.on_save_as)
         self.add_action(save_as_action)
 
-        store = Gtk.TreeStore(str)
-        store.append(None, ["foo"])
-        store.append(None, ["bar"])
-        self.entry_treeview.set_model(store)
+        self._entries_tree_store = Gtk.TreeStore(str, EntryGObject)
+        self.entries_treeview.set_model(self._entries_tree_store)
 
-        renderer = Gtk.CellRendererText()
-        column = Gtk.TreeViewColumn("Title", renderer, text=0)
-        self.entry_treeview.append_column(column)
+        self.storage = None
+        self.model = None
+        self._open_default_database()
+
     def on_new(self, action, param):
         print("on_new")
 
@@ -58,6 +99,35 @@ class MainWindow(Gtk.ApplicationWindow):
     def on_save_as(self, action, param):
         print("on_save_as")
 
+    def _open_default_database(self):
+        # TODO Ask for the password via a dialog.
+        # TODO Check if the file exists first.
+        self.storage = storepass.storage.Storage(
+            os.path.join(os.path.expanduser('~'), '.storepass.db'),
+            getpass.getpass())
+        self.model = storepass.model.Model()
+        self.model.load(self.storage)
+
+        self._populate_treeview()
+
+    def _populate_treeview(self):
+        self.model.visit_all(TreeStorePopulator(self._entries_tree_store))
+
+    @Gtk.Template.Callback("on_entries_treeview_selection_changed")
+    def _on_entries_treeview_selection_changed(self, tree_selection):
+        model, entry_iter = tree_selection.get_selected()
+        if entry_iter is None:
+            return
+
+        entry = model.get_value(entry_iter, ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
+
+        self.entry_name.set_text(entry.name)
+        self.entry_description.set_text(
+            entry.description if entry.description is not None else "")
+        # TODO Convert datetime to a string.
+        #self.entry_updated.set_text(entry.updated)
+        self.entry_notes.set_text(
+            entry.notes if entry.notes is not None else "")
 
 
 class App(Gtk.Application):

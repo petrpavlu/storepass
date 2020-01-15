@@ -13,14 +13,135 @@ SPDX-License-Identifier: MIT
                 <property name="visible">True</property>
                 <property name="position">250</property>
                 <child>
-                    <object class="GtkTreeView" id="entry_treeview">
+                    <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
+                        <child>
+                            <object class="GtkTreeView" id="entries_treeview">
+                                <property name="visible">True</property>
+                                <property name="headers_visible">False</property>
+                                <child>
+                                    <object class="GtkTreeViewColumn">
+                                        <child>
+                                            <object class="GtkCellRendererText"/>
+                                            <attributes>
+                                                <attribute name="text">0</attribute>
+                                            </attributes>
+                                        </child>
+                                    </object>
+                                </child>
+                                <child internal-child="selection">
+                                    <object class="GtkTreeSelection" id="selection">
+                                        <signal name="changed" handler="on_entries_treeview_selection_changed"/>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
                     </object>
                 </child>
                 <child>
-                    <object class="GtkButton" id="hello_world">
-                        <property name="label">Hello World!</property>
+                    <object class="GtkBox">
+                        <!-- TODO Make not visible by default. -->
                         <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
+                        <property name="valign">center</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="halign">center</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Name:</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="entry_name">
+                                        <property name="visible">True</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="halign">center</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Description:</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="entry_description">
+                                        <property name="visible">True</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="halign">center</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Updated:</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="entry_updated">
+                                        <property name="visible">True</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="halign">center</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Notes:</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="entry_notes">
+                                        <property name="visible">True</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkStack">
+                                <property name="visible">True</property>
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                            <!-- TODO -->
+                                            <placeholder/>
+                                        </child>
+                                    </object>
+                                    <packing>
+                                        <property name="name">page_folder</property>
+                                    </packing>
+                                </child>
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                            <placeholder/>
+                                        </child>
+                                    </object>
+                                    <packing>
+                                        <property name="name">page_generic</property>
+                                    </packing>
+                                </child>
+                            </object>
+                        </child>
                     </object>
                 </child>
             </object>
