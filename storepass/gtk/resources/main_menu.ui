@@ -10,23 +10,28 @@ SPDX-License-Identifier: MIT
             <section>
                 <item>
                     <attribute name="label" translatable="yes">_New</attribute>
+                    <attribute name="action">win.new</attribute>
                     <attribute name="accel">&lt;Primary&gt;n</attribute>
                 </item>
                 <item>
-                    <attribute name="label" translatable="yes">_Open...</attribute>
+                    <attribute name="label" translatable="yes">_Open…</attribute>
+                    <attribute name="action">win.open</attribute>
                     <attribute name="accel">&lt;Primary&gt;o</attribute>
                 </item>
                 <item>
                     <attribute name="label" translatable="yes">_Save</attribute>
+                    <attribute name="action">win.save</attribute>
                     <attribute name="accel">&lt;Primary&gt;s</attribute>
                 </item>
                 <item>
-                    <attribute name="label" translatable="yes">Save _As...</attribute>
+                    <attribute name="label" translatable="yes">Save _As…</attribute>
+                    <attribute name="action">win.save_as</attribute>
                 </item>
             </section>
             <section>
                 <item>
                     <attribute name="label" translatable="yes">_Quit</attribute>
+                    <attribute name="action">app.quit</attribute>
                     <attribute name="accel">&lt;Primary&gt;q</attribute>
                 </item>
             </section>
@@ -36,6 +41,7 @@ SPDX-License-Identifier: MIT
             <section>
                 <item>
                     <attribute name="label" translatable="yes">_About</attribute>
+                    <attribute name="action">app.about</attribute>
                 </item>
             </section>
         </submenu>
