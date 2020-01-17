@@ -60,6 +60,10 @@ class MainWindow(Gtk.ApplicationWindow):
     entry_description = Gtk.Template.Child()
     entry_updated = Gtk.Template.Child()
     entry_notes = Gtk.Template.Child()
+    entry_stack = Gtk.Template.Child()
+    entry_generic_hostname = Gtk.Template.Child()
+    entry_generic_username = Gtk.Template.Child()
+    entry_generic_password = Gtk.Template.Child()
 
     def __init__(self, application):
         super().__init__(application=application)
@@ -113,21 +117,48 @@ class MainWindow(Gtk.ApplicationWindow):
     def _populate_treeview(self):
         self.model.visit_all(TreeStorePopulator(self._entries_tree_store))
 
+    def _set_label(self, label_widget, text):
+        if text is not None:
+            label_widget.set_text(text)
+            label_widget.show()
+        else:
+            label_widget.set_text("")
+            label_widget.hide()
+
     @Gtk.Template.Callback("on_entries_treeview_selection_changed")
     def _on_entries_treeview_selection_changed(self, tree_selection):
+        self._set_label(self.entry_name, None)
+        self._set_label(self.entry_description, None)
+        self._set_label(self.entry_updated, None)
+        self._set_label(self.entry_notes, None)
+
+        self.entry_stack.set_visible_child_name("page_empty")
+        self._set_label(self.entry_generic_hostname, None)
+        self._set_label(self.entry_generic_username, None)
+        self._set_label(self.entry_generic_password, None)
+
         model, entry_iter = tree_selection.get_selected()
         if entry_iter is None:
             return
 
         entry = model.get_value(entry_iter, ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
 
-        self.entry_name.set_text(entry.name)
-        self.entry_description.set_text(
-            entry.description if entry.description is not None else "")
+        # Show the panel with details of the entry.
+        self._set_label(self.entry_name, entry.name)
+        self._set_label(self.entry_description, entry.description)
         # TODO Convert datetime to a string.
-        #self.entry_updated.set_text(entry.updated)
-        self.entry_notes.set_text(
-            entry.notes if entry.notes is not None else "")
+        #self._set_label(self.entry_updated, entry.updated)
+        self._set_label(self.entry_notes, entry.notes)
+
+        if isinstance(entry, storepass.model.Folder):
+            self.entry_stack.set_visible_child_name("page_folder")
+        elif isinstance(entry, storepass.model.Generic):
+            self.entry_stack.set_visible_child_name("page_generic")
+            self._set_label(self.entry_generic_hostname, entry.hostname)
+            self._set_label(self.entry_generic_username, entry.username)
+            self._set_label(self.entry_generic_password, entry.password)
+        else:
+            self.entry_stack.set_visible_child_name("page_empty")
 
 
 class App(Gtk.Application):
