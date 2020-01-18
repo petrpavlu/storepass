@@ -109,6 +109,13 @@ class MainWindow(Gtk.ApplicationWindow):
         self.storage = None
         self.model = None
 
+    def run_default_actions(self):
+        # Try to open the default password database.
+        default_database = os.path.join(os.path.expanduser('~'),
+                                        '.storepass.db')
+        if os.path.exists(default_database):
+            self._open_password_database(default_database)
+
     def on_new(self, action, param):
         print("on_new")
 
@@ -120,13 +127,6 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def on_save_as(self, action, param):
         print("on_save_as")
-
-    def open_default_database(self):
-        # Try to open the default password database.
-        # TODO Check if the file exists first.
-        default_database = os.path.join(os.path.expanduser('~'),
-                                        '.storepass.db')
-        self._open_password_database(default_database)
 
     def _open_password_database(self, filename):
         # Ask for the password via a dialog.
@@ -241,7 +241,7 @@ class App(Gtk.Application):
     def do_activate(self):
         window = MainWindow(self)
         window.show()
-        window.open_default_database()
+        window.run_default_actions()
 
     def on_quit(self, action, param):
         self.quit()
