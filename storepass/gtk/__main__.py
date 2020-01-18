@@ -17,7 +17,7 @@ from gi.repository import Gtk
 import storepass.model
 import storepass.storage
 
-# Keep in sync with the ui files.
+# Note: Keep these constants in sync with the ui files.
 ENTRIES_TREEVIEW_NAME_COLUMN = 0
 ENTRIES_TREEVIEW_ENTRY_COLUMN = 1
 
@@ -26,6 +26,8 @@ ENTRIES_TREEVIEW_ENTRY_COLUMN = 1
     importlib.resources.read_text('storepass.gtk.resources',
                                   'password_dialog.ui'))
 class PasswordDialog(Gtk.Dialog):
+    """Dialog to prompt the user for a database password."""
+
     __gtype_name__ = "PasswordDialog"
 
     _password_entry = Gtk.Template.Child('password_entry')
@@ -42,6 +44,7 @@ class PasswordDialog(Gtk.Dialog):
 
 
 class EntryGObject(GObject.Object):
+    """Wrapper of storepass.model.Entry in GObject.Object."""
     def __init__(self, entry):
         super().__init__()
         self.entry = entry

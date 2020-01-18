@@ -144,6 +144,10 @@ def _check_add_command_options(args):
 
 
 def _process_add_command(args, model):
+    """
+    Handle the add command which is used to insert a new single password entry.
+    """
+
     assert args.command == 'add'
 
     # Create the entry specified on the command line.
