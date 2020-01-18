@@ -159,7 +159,7 @@ def _process_add_command(args, model):
         return 1
 
     if args.password:
-        password = getpass.getpass("Entry password:")
+        password = getpass.getpass("Entry password: ")
     else:
         password = None
 
