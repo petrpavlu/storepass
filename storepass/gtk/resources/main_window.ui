@@ -45,7 +45,7 @@ SPDX-License-Identifier: MIT
                         <property name="valign">center</property>
                         <property name="spacing">4</property>
                         <child>
-                            <object class="GtkBox">
+                            <object class="GtkBox" id="entry_name_box">
                                 <property name="visible">True</property>
                                 <property name="halign">center</property>
                                 <property name="spacing">4</property>
@@ -56,14 +56,14 @@ SPDX-License-Identifier: MIT
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkLabel" id="entry_name">
+                                    <object class="GtkLabel" id="entry_name_label">
                                         <property name="selectable">True</property>
                                     </object>
                                 </child>
                             </object>
                         </child>
                         <child>
-                            <object class="GtkBox">
+                            <object class="GtkBox" id="entry_description_box">
                                 <property name="visible">True</property>
                                 <property name="halign">center</property>
                                 <property name="spacing">4</property>
@@ -74,14 +74,14 @@ SPDX-License-Identifier: MIT
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkLabel" id="entry_description">
+                                    <object class="GtkLabel" id="entry_description_label">
                                         <property name="selectable">True</property>
                                     </object>
                                 </child>
                             </object>
                         </child>
                         <child>
-                            <object class="GtkBox">
+                            <object class="GtkBox" id="entry_updated_box">
                                 <property name="visible">True</property>
                                 <property name="halign">center</property>
                                 <property name="spacing">4</property>
@@ -92,14 +92,14 @@ SPDX-License-Identifier: MIT
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkLabel" id="entry_updated">
+                                    <object class="GtkLabel" id="entry_updated_label">
                                         <property name="selectable">True</property>
                                     </object>
                                 </child>
                             </object>
                         </child>
                         <child>
-                            <object class="GtkBox">
+                            <object class="GtkBox" id="entry_notes_box">
                                 <property name="visible">True</property>
                                 <property name="halign">center</property>
                                 <property name="spacing">4</property>
@@ -110,94 +110,60 @@ SPDX-License-Identifier: MIT
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkLabel" id="entry_notes">
+                                    <object class="GtkLabel" id="entry_notes_label">
                                         <property name="selectable">True</property>
                                     </object>
                                 </child>
                             </object>
                         </child>
                         <child>
-                            <object class="GtkStack" id="entry_stack">
-                                <property name="visible">True</property>
+                            <object class="GtkBox" id="entry_generic_hostname_box">
+                                <property name="halign">center</property>
+                                <property name="spacing">4</property>
                                 <child>
-                                    <object class="GtkBox">
+                                    <object class="GtkLabel">
                                         <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Hostname:</property>
                                     </object>
-                                    <packing>
-                                        <property name="name">page_empty</property>
-                                    </packing>
                                 </child>
                                 <child>
-                                    <object class="GtkBox">
-                                        <property name="visible">True</property>
+                                    <object class="GtkLabel" id="entry_generic_hostname_label">
+                                        <property name="selectable">True</property>
                                     </object>
-                                    <packing>
-                                        <property name="name">page_folder</property>
-                                    </packing>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox" id="entry_generic_username_box">
+                                <property name="halign">center</property>
+                                <property name="spacing">4</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Username:</property>
+                                    </object>
                                 </child>
                                 <child>
-                                    <object class="GtkBox">
-                                        <property name="visible">True</property>
-                                        <property name="orientation">vertical</property>
-                                        <property name="spacing">4</property>
-                                        <child>
-                                            <object class="GtkBox">
-                                                <property name="visible">True</property>
-                                                <property name="halign">center</property>
-                                                <property name="spacing">4</property>
-                                                <child>
-                                                    <object class="GtkLabel">
-                                                        <property name="visible">True</property>
-                                                        <property name="label" translatable="yes">Hostname:</property>
-                                                    </object>
-                                                </child>
-                                                <child>
-                                                    <object class="GtkLabel" id="entry_generic_hostname">
-                                                        <property name="selectable">True</property>
-                                                    </object>
-                                                </child>
-                                            </object>
-                                        </child>
-                                        <child>
-                                            <object class="GtkBox">
-                                                <property name="visible">True</property>
-                                                <property name="halign">center</property>
-                                                <property name="spacing">4</property>
-                                                <child>
-                                                    <object class="GtkLabel">
-                                                        <property name="visible">True</property>
-                                                        <property name="label" translatable="yes">Username:</property>
-                                                    </object>
-                                                </child>
-                                                <child>
-                                                    <object class="GtkLabel" id="entry_generic_username">
-                                                        <property name="selectable">True</property>
-                                                    </object>
-                                                </child>
-                                            </object>
-                                        </child>
-                                        <child>
-                                            <object class="GtkBox">
-                                                <property name="visible">True</property>
-                                                <property name="halign">center</property>
-                                                <property name="spacing">4</property>
-                                                <child>
-                                                    <object class="GtkLabel">
-                                                        <property name="visible">True</property>
-                                                        <property name="label" translatable="yes">Password:</property>
-                                                    </object>
-                                                </child>
-                                                <child>
-                                                    <object class="GtkLabel" id="entry_generic_password">
-                                                        <property name="selectable">True</property>
-                                                    </object>
-                                                </child>
-                                            </object>
-                                        </child>
+                                    <object class="GtkLabel" id="entry_generic_username_label">
+                                        <property name="selectable">True</property>
                                     </object>
-                                    <packing>
-                                        <property name="name">page_generic</property>
-                                    </packing>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox" id="entry_generic_password_box">
+                                <property name="halign">center</property>
+                                <property name="spacing">4</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Password:</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="entry_generic_password_label">
+                                        <property name="selectable">True</property>
+                                    </object>
                                 </child>
                             </object>
                         </child>

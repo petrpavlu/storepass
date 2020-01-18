@@ -56,14 +56,20 @@ class MainWindow(Gtk.ApplicationWindow):
     __gtype_name__ = "MainWindow"
 
     entries_treeview = Gtk.Template.Child()
-    entry_name = Gtk.Template.Child()
-    entry_description = Gtk.Template.Child()
-    entry_updated = Gtk.Template.Child()
-    entry_notes = Gtk.Template.Child()
-    entry_stack = Gtk.Template.Child()
-    entry_generic_hostname = Gtk.Template.Child()
-    entry_generic_username = Gtk.Template.Child()
-    entry_generic_password = Gtk.Template.Child()
+    entry_name_box = Gtk.Template.Child()
+    entry_name_label = Gtk.Template.Child()
+    entry_description_box = Gtk.Template.Child()
+    entry_description_label = Gtk.Template.Child()
+    entry_updated_box = Gtk.Template.Child()
+    entry_updated_label = Gtk.Template.Child()
+    entry_notes_box = Gtk.Template.Child()
+    entry_notes_label = Gtk.Template.Child()
+    entry_generic_hostname_box = Gtk.Template.Child()
+    entry_generic_hostname_label = Gtk.Template.Child()
+    entry_generic_username_box = Gtk.Template.Child()
+    entry_generic_username_label = Gtk.Template.Child()
+    entry_generic_password_box = Gtk.Template.Child()
+    entry_generic_password_label = Gtk.Template.Child()
 
     def __init__(self, application):
         super().__init__(application=application)
@@ -117,48 +123,74 @@ class MainWindow(Gtk.ApplicationWindow):
     def _populate_treeview(self):
         self.model.visit_all(TreeStorePopulator(self._entries_tree_store))
 
-    def _set_label(self, label_widget, text):
+    def _update_entry_property(self, box_widget, label_widget, text,
+                               hide_if_empty):
         if text is not None:
+            box_widget.show()
             label_widget.set_text(text)
             label_widget.show()
         else:
+            if hide_if_empty:
+                box_widget.hide()
             label_widget.set_text("")
             label_widget.hide()
 
     @Gtk.Template.Callback("on_entries_treeview_selection_changed")
     def _on_entries_treeview_selection_changed(self, tree_selection):
-        self._set_label(self.entry_name, None)
-        self._set_label(self.entry_description, None)
-        self._set_label(self.entry_updated, None)
-        self._set_label(self.entry_notes, None)
-
-        self.entry_stack.set_visible_child_name("page_empty")
-        self._set_label(self.entry_generic_hostname, None)
-        self._set_label(self.entry_generic_username, None)
-        self._set_label(self.entry_generic_password, None)
-
         model, entry_iter = tree_selection.get_selected()
         if entry_iter is None:
+            self._update_entry_property(self.entry_name_box,
+                                        self.entry_name_label, None, False)
+            self._update_entry_property(self.entry_description_box,
+                                        self.entry_description_label, None,
+                                        False)
+            self._update_entry_property(self.entry_updated_box,
+                                        self.entry_updated_label, None, False)
+            self._update_entry_property(self.entry_notes_box,
+                                        self.entry_notes_label, None, False)
+
+            self._update_entry_property(self.entry_generic_hostname_box,
+                                        self.entry_generic_hostname_label,
+                                        None, True)
+            self._update_entry_property(self.entry_generic_username_box,
+                                        self.entry_generic_username_label,
+                                        None, True)
+            self._update_entry_property(self.entry_generic_password_box,
+                                        self.entry_generic_password_label,
+                                        None, True)
             return
 
-        entry = model.get_value(entry_iter, ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
+        entry = model.get_value(entry_iter,
+                                ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
 
         # Show the panel with details of the entry.
-        self._set_label(self.entry_name, entry.name)
-        self._set_label(self.entry_description, entry.description)
+        self._update_entry_property(self.entry_name_box, self.entry_name_label,
+                                    entry.name, False)
+        self._update_entry_property(self.entry_description_box,
+                                    self.entry_description_label,
+                                    entry.description, False)
         # TODO Convert datetime to a string.
-        #self._set_label(self.entry_updated, entry.updated)
-        self._set_label(self.entry_notes, entry.notes)
+        #self._update_entry_property(
+        #    self.entry_updated_box, self.entry_updated_label, entry.updated,
+        #    False)
+        self._update_entry_property(self.entry_notes_box,
+                                    self.entry_notes_label, entry.notes, False)
 
-        if isinstance(entry, storepass.model.Folder):
-            self.entry_stack.set_visible_child_name("page_folder")
-        elif isinstance(entry, storepass.model.Generic):
-            self.entry_stack.set_visible_child_name("page_generic")
-            self._set_label(self.entry_generic_hostname, entry.hostname)
-            self._set_label(self.entry_generic_username, entry.username)
-            self._set_label(self.entry_generic_password, entry.password)
-        else:
-            self.entry_stack.set_visible_child_name("page_empty")
+        hostname = entry.hostname if isinstance(
+            entry, storepass.model.Generic) else None
+        self._update_entry_property(self.entry_generic_hostname_box,
+                                    self.entry_generic_hostname_label,
+                                    hostname, True)
+        username = entry.username if isinstance(
+            entry, storepass.model.Generic) else None
+        self._update_entry_property(self.entry_generic_username_box,
+                                    self.entry_generic_username_label,
+                                    username, True)
+        password = entry.password if isinstance(
+            entry, storepass.model.Generic) else None
+        self._update_entry_property(self.entry_generic_password_box,
+                                    self.entry_generic_password_label,
+                                    password, True)
 
 
 class App(Gtk.Application):
