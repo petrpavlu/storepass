@@ -6,9 +6,6 @@ import importlib.resources
 import os
 import sys
 
-# TODO Remove.
-import getpass
-
 gi.require_version('Gtk', '3.0')
 from gi.repository import GLib
 from gi.repository import GObject
@@ -21,6 +18,21 @@ import storepass.storage
 # Keep in sync with the ui files.
 ENTRIES_TREEVIEW_NAME_COLUMN = 0
 ENTRIES_TREEVIEW_ENTRY_COLUMN = 1
+
+
+@Gtk.Template.from_string(
+    importlib.resources.read_text('storepass.gtk.resources',
+                                  'password_dialog.ui'))
+class PasswordDialog(Gtk.Dialog):
+    __gtype_name__ = "PasswordDialog"
+
+    _password_entry = Gtk.Template.Child('password_entry')
+
+    def __init__(self):
+        super().__init__()
+
+    def get_password(self):
+        return self._password_entry.get_text()
 
 
 class EntryGObject(GObject.Object):
@@ -96,7 +108,6 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.storage = None
         self.model = None
-        self._open_default_database()
 
     def on_new(self, action, param):
         print("on_new")
@@ -110,12 +121,25 @@ class MainWindow(Gtk.ApplicationWindow):
     def on_save_as(self, action, param):
         print("on_save_as")
 
-    def _open_default_database(self):
-        # TODO Ask for the password via a dialog.
+    def open_default_database(self):
+        # Try to open the default password database.
         # TODO Check if the file exists first.
-        self.storage = storepass.storage.Storage(
-            os.path.join(os.path.expanduser('~'), '.storepass.db'),
-            getpass.getpass())
+        default_database = os.path.join(os.path.expanduser('~'),
+                                        '.storepass.db')
+        self._open_password_database(default_database)
+
+    def _open_password_database(self, filename):
+        # Ask for the password via a dialog.
+        password_dialog = PasswordDialog()
+        response = password_dialog.run()
+        password = password_dialog.get_password()
+        password_dialog.destroy()
+
+        if response != Gtk.ResponseType.OK:
+            return
+
+        # TODO Error checking.
+        self.storage = storepass.storage.Storage(filename, password)
         self.model = storepass.model.Model()
         self.model.load(self.storage)
 
@@ -217,6 +241,7 @@ class App(Gtk.Application):
     def do_activate(self):
         window = MainWindow(self)
         window.show()
+        window.open_default_database()
 
     def on_quit(self, action, param):
         self.quit()
