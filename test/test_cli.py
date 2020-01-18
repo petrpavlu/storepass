@@ -827,8 +827,8 @@ class TestCLI(helpers.StorePassTestCase):
 
         # Check the display with the GMT timezone.
         with cli_context(
-            ['storepass-cli', '-f', self.dbname, 'show',
-             'E1 name'], tz='GMT') as cli_mock:
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                tz='GMT') as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
@@ -843,8 +843,8 @@ class TestCLI(helpers.StorePassTestCase):
 
         # Check the display with the GMT+1 timezone.
         with cli_context(
-            ['storepass-cli', '-f', self.dbname, 'show',
-             'E1 name'], tz='GMT-1') as cli_mock:
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                tz='GMT-1') as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)

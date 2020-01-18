@@ -22,6 +22,7 @@ import storepass.storage
 ENTRIES_TREEVIEW_NAME_COLUMN = 0
 ENTRIES_TREEVIEW_ENTRY_COLUMN = 1
 
+
 class EntryGObject(GObject.Object):
     def __init__(self, entry):
         super().__init__()
@@ -39,15 +40,15 @@ class TreeStorePopulator(storepass.model.ModelVisitor):
 
     def visit_folder(self, parent, folder):
         parent_iter = self.get_path_data(parent)
-        return self.tree_store.append(parent_iter,
-            [folder.name, EntryGObject(folder)])
+        return self.tree_store.append(
+            parent_iter, [folder.name, EntryGObject(folder)])
 
     def visit_generic(self, parent, generic):
         parent_iter = self.get_path_data(parent)
         assert ENTRIES_TREEVIEW_NAME_COLUMN == 0
         assert ENTRIES_TREEVIEW_ENTRY_COLUMN == 1
-        return self.tree_store.append(parent_iter,
-            [generic.name, EntryGObject(generic)])
+        return self.tree_store.append(
+            parent_iter, [generic.name, EntryGObject(generic)])
 
 
 @Gtk.Template.from_string(
