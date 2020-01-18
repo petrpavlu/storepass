@@ -25,7 +25,7 @@ ENTRIES_TREEVIEW_ENTRY_COLUMN = 1
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources',
                                   'password_dialog.ui'))
-class PasswordDialog(Gtk.Dialog):
+class _PasswordDialog(Gtk.Dialog):
     """Dialog to prompt the user for a database password."""
 
     __gtype_name__ = "PasswordDialog"
@@ -43,7 +43,7 @@ class PasswordDialog(Gtk.Dialog):
         return self._password_entry.get_text()
 
 
-class EntryGObject(GObject.Object):
+class _EntryGObject(GObject.Object):
     """Wrapper of storepass.model.Entry in GObject.Object."""
     def __init__(self, entry):
         super().__init__()
@@ -62,58 +62,64 @@ class TreeStorePopulator(storepass.model.ModelVisitor):
     def visit_folder(self, parent, folder):
         parent_iter = self.get_path_data(parent)
         return self.tree_store.append(
-            parent_iter, [folder.name, EntryGObject(folder)])
+            parent_iter, [folder.name, _EntryGObject(folder)])
 
     def visit_generic(self, parent, generic):
         parent_iter = self.get_path_data(parent)
         assert ENTRIES_TREEVIEW_NAME_COLUMN == 0
         assert ENTRIES_TREEVIEW_ENTRY_COLUMN == 1
         return self.tree_store.append(
-            parent_iter, [generic.name, EntryGObject(generic)])
+            parent_iter, [generic.name, _EntryGObject(generic)])
 
 
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources', 'main_window.ui'))
-class MainWindow(Gtk.ApplicationWindow):
+class _MainWindow(Gtk.ApplicationWindow):
     __gtype_name__ = "MainWindow"
 
-    entries_treeview = Gtk.Template.Child()
-    entry_name_box = Gtk.Template.Child()
-    entry_name_label = Gtk.Template.Child()
-    entry_description_box = Gtk.Template.Child()
-    entry_description_label = Gtk.Template.Child()
-    entry_updated_box = Gtk.Template.Child()
-    entry_updated_label = Gtk.Template.Child()
-    entry_notes_box = Gtk.Template.Child()
-    entry_notes_label = Gtk.Template.Child()
-    entry_generic_hostname_box = Gtk.Template.Child()
-    entry_generic_hostname_label = Gtk.Template.Child()
-    entry_generic_username_box = Gtk.Template.Child()
-    entry_generic_username_label = Gtk.Template.Child()
-    entry_generic_password_box = Gtk.Template.Child()
-    entry_generic_password_label = Gtk.Template.Child()
+    _entries_treeview = Gtk.Template.Child('entries_treeview')
+    _entry_name_box = Gtk.Template.Child('entry_name_box')
+    _entry_name_label = Gtk.Template.Child('entry_name_label')
+    _entry_description_box = Gtk.Template.Child('entry_description_box')
+    _entry_description_label = Gtk.Template.Child('entry_description_label')
+    _entry_updated_box = Gtk.Template.Child('entry_updated_box')
+    _entry_updated_label = Gtk.Template.Child('entry_updated_label')
+    _entry_notes_box = Gtk.Template.Child('entry_notes_box')
+    _entry_notes_label = Gtk.Template.Child('entry_notes_label')
+    _entry_generic_hostname_box = Gtk.Template.Child(
+        'entry_generic_hostname_box')
+    _entry_generic_hostname_label = Gtk.Template.Child(
+        'entry_generic_hostname_label')
+    _entry_generic_username_box = Gtk.Template.Child(
+        'entry_generic_username_box')
+    _entry_generic_username_label = Gtk.Template.Child(
+        'entry_generic_username_label')
+    _entry_generic_password_box = Gtk.Template.Child(
+        'entry_generic_password_box')
+    _entry_generic_password_label = Gtk.Template.Child(
+        'entry_generic_password_label')
 
     def __init__(self, application):
         super().__init__(application=application)
 
-        new_action = Gio.SimpleAction.new("new", None)
-        new_action.connect("activate", self.on_new)
+        new_action = Gio.SimpleAction.new('new', None)
+        new_action.connect('activate', self._on_new)
         self.add_action(new_action)
 
-        open_action = Gio.SimpleAction.new("open", None)
-        open_action.connect("activate", self.on_open)
+        open_action = Gio.SimpleAction.new('open', None)
+        open_action.connect('activate', self._on_open)
         self.add_action(open_action)
 
-        save_action = Gio.SimpleAction.new("save", None)
-        save_action.connect("activate", self.on_save)
+        save_action = Gio.SimpleAction.new('save', None)
+        save_action.connect('activate', self._on_save)
         self.add_action(save_action)
 
-        save_as_action = Gio.SimpleAction.new("save_as", None)
-        save_as_action.connect("activate", self.on_save_as)
+        save_as_action = Gio.SimpleAction.new('save_as', None)
+        save_as_action.connect('activate', self._on_save_as)
         self.add_action(save_as_action)
 
-        self._entries_tree_store = Gtk.TreeStore(str, EntryGObject)
-        self.entries_treeview.set_model(self._entries_tree_store)
+        self._entries_treestore = Gtk.TreeStore(str, _EntryGObject)
+        self._entries_treeview.set_model(self._entries_treestore)
 
         self.storage = None
         self.model = storepass.model.Model()
@@ -125,28 +131,28 @@ class MainWindow(Gtk.ApplicationWindow):
         if os.path.exists(default_database):
             self._open_password_database(default_database)
 
-    def on_new(self, action, param):
-        print("on_new")
+    def _on_new(self, action, param):
+        print("_on_new")
 
-    def on_open(self, action, param):
-        print("on_open")
+    def _on_open(self, action, param):
+        print("_on_open")
 
-    def on_save(self, action, param):
-        print("on_save")
+    def _on_save(self, action, param):
+        print("_on_save")
 
-    def on_save_as(self, action, param):
-        print("on_save_as")
+    def _on_save_as(self, action, param):
+        print("_on_save_as")
 
     def _open_password_database(self, filename):
         # Ask for the password via a dialog.
-        password_dialog = PasswordDialog(self, filename)
-        password_dialog.connect("response",
-                self.on_open_password_database_dialog_response)
+        password_dialog = _PasswordDialog(self, filename)
+        password_dialog.connect(
+            "response", self._on_open_password_database_dialog_response)
         password_dialog.show()
         password_dialog.present_with_time(Gdk.CURRENT_TIME)
 
-    def on_open_password_database_dialog_response(self, dialog, response_id):
-        assert isinstance(dialog, PasswordDialog)
+    def _on_open_password_database_dialog_response(self, dialog, response_id):
+        assert isinstance(dialog, _PasswordDialog)
 
         filename = dialog.get_filename()
         password = dialog.get_password()
@@ -181,24 +187,24 @@ class MainWindow(Gtk.ApplicationWindow):
     def _on_entries_treeview_selection_changed(self, tree_selection):
         model, entry_iter = tree_selection.get_selected()
         if entry_iter is None:
-            self._update_entry_property(self.entry_name_box,
-                                        self.entry_name_label, None, False)
-            self._update_entry_property(self.entry_description_box,
-                                        self.entry_description_label, None,
+            self._update_entry_property(self._entry_name_box,
+                                        self._entry_name_label, None, False)
+            self._update_entry_property(self._entry_description_box,
+                                        self._entry_description_label, None,
                                         False)
-            self._update_entry_property(self.entry_updated_box,
-                                        self.entry_updated_label, None, False)
-            self._update_entry_property(self.entry_notes_box,
-                                        self.entry_notes_label, None, False)
+            self._update_entry_property(self._entry_updated_box,
+                                        self._entry_updated_label, None, False)
+            self._update_entry_property(self._entry_notes_box,
+                                        self._entry_notes_label, None, False)
 
-            self._update_entry_property(self.entry_generic_hostname_box,
-                                        self.entry_generic_hostname_label,
+            self._update_entry_property(self._entry_generic_hostname_box,
+                                        self._entry_generic_hostname_label,
                                         None, True)
-            self._update_entry_property(self.entry_generic_username_box,
-                                        self.entry_generic_username_label,
+            self._update_entry_property(self._entry_generic_username_box,
+                                        self._entry_generic_username_label,
                                         None, True)
-            self._update_entry_property(self.entry_generic_password_box,
-                                        self.entry_generic_password_label,
+            self._update_entry_property(self._entry_generic_password_box,
+                                        self._entry_generic_password_label,
                                         None, True)
             return
 
@@ -206,36 +212,37 @@ class MainWindow(Gtk.ApplicationWindow):
                                 ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
 
         # Show the panel with details of the entry.
-        self._update_entry_property(self.entry_name_box, self.entry_name_label,
-                                    entry.name, False)
-        self._update_entry_property(self.entry_description_box,
-                                    self.entry_description_label,
+        self._update_entry_property(self._entry_name_box,
+                                    self._entry_name_label, entry.name, False)
+        self._update_entry_property(self._entry_description_box,
+                                    self._entry_description_label,
                                     entry.description, False)
         # TODO Convert datetime to a string.
         #self._update_entry_property(
-        #    self.entry_updated_box, self.entry_updated_label, entry.updated,
+        #    self._entry_updated_box, self._entry_updated_label, entry.updated,
         #    False)
-        self._update_entry_property(self.entry_notes_box,
-                                    self.entry_notes_label, entry.notes, False)
+        self._update_entry_property(self._entry_notes_box,
+                                    self._entry_notes_label, entry.notes,
+                                    False)
 
         hostname = entry.hostname if isinstance(
             entry, storepass.model.Generic) else None
-        self._update_entry_property(self.entry_generic_hostname_box,
-                                    self.entry_generic_hostname_label,
+        self._update_entry_property(self._entry_generic_hostname_box,
+                                    self._entry_generic_hostname_label,
                                     hostname, True)
         username = entry.username if isinstance(
             entry, storepass.model.Generic) else None
-        self._update_entry_property(self.entry_generic_username_box,
-                                    self.entry_generic_username_label,
+        self._update_entry_property(self._entry_generic_username_box,
+                                    self._entry_generic_username_label,
                                     username, True)
         password = entry.password if isinstance(
             entry, storepass.model.Generic) else None
-        self._update_entry_property(self.entry_generic_password_box,
-                                    self.entry_generic_password_label,
+        self._update_entry_property(self._entry_generic_password_box,
+                                    self._entry_generic_password_label,
                                     password, True)
 
 
-class App(Gtk.Application):
+class _App(Gtk.Application):
     def __init__(self):
         super().__init__()
 
@@ -243,11 +250,11 @@ class App(Gtk.Application):
         Gtk.Application.do_startup(self)
 
         quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", self.on_quit)
+        quit_action.connect("activate", self._on_quit)
         self.add_action(quit_action)
 
         about_action = Gio.SimpleAction.new("about", None)
-        about_action.connect("activate", self.on_about)
+        about_action.connect("activate", self._on_about)
         self.add_action(about_action)
 
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
@@ -256,19 +263,19 @@ class App(Gtk.Application):
         self.set_menubar(builder.get_object("main-menu"))
 
     def do_activate(self):
-        window = MainWindow(self)
+        window = _MainWindow(self)
         window.show()
         window.run_default_actions()
 
-    def on_quit(self, action, param):
+    def _on_quit(self, action, param):
         self.quit()
 
-    def on_about(self, action, param):
-        print("on_about")
+    def _on_about(self, action, param):
+        print("_on_about")
 
 
 def main():
-    app = App()
+    app = _App()
     return app.run(sys.argv)
 
 
