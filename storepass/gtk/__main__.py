@@ -174,12 +174,13 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _on_open_password_database_dialog_response(self, dialog, response_id):
         assert isinstance(dialog, _PasswordDialog)
 
+        if response_id != Gtk.ResponseType.OK:
+            dialog.destroy()
+            return
+
         filename = dialog.get_filename()
         password = dialog.get_password()
         dialog.destroy()
-
-        if response_id != Gtk.ResponseType.OK:
-            return
 
         # TODO Error checking.
         self.storage = storepass.storage.Storage(filename, password)
