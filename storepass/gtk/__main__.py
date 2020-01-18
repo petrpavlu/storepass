@@ -6,8 +6,10 @@ import importlib.resources
 import os
 import sys
 
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gdk
+
 gi.require_version('Gtk', '3.0')
-from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gio
 from gi.repository import Gtk
@@ -28,8 +30,12 @@ class PasswordDialog(Gtk.Dialog):
 
     _password_entry = Gtk.Template.Child('password_entry')
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent, filename):
+        super().__init__(parent=parent)
+        self._filename = filename
+
+    def get_filename(self):
+        return self._filename
 
     def get_password(self):
         return self._password_entry.get_text()
@@ -130,12 +136,20 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def _open_password_database(self, filename):
         # Ask for the password via a dialog.
-        password_dialog = PasswordDialog()
-        response = password_dialog.run()
-        password = password_dialog.get_password()
-        password_dialog.destroy()
+        password_dialog = PasswordDialog(self, filename)
+        password_dialog.connect("response",
+                self.on_open_password_database_dialog_response)
+        password_dialog.show()
+        password_dialog.present_with_time(Gdk.CURRENT_TIME)
 
-        if response != Gtk.ResponseType.OK:
+    def on_open_password_database_dialog_response(self, dialog, response_id):
+        assert isinstance(dialog, PasswordDialog)
+
+        filename = dialog.get_filename()
+        password = dialog.get_password()
+        dialog.destroy()
+
+        if response_id != Gtk.ResponseType.OK:
             return
 
         # TODO Error checking.
