@@ -135,7 +135,22 @@ class _MainWindow(Gtk.ApplicationWindow):
         print("_on_new")
 
     def _on_open(self, action, param):
-        print("_on_open")
+        dialog = Gtk.FileChooserDialog(
+            "Open Password Database File", self, Gtk.FileChooserAction.OPEN,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK,
+             Gtk.ResponseType.OK), modal=True)
+        dialog.connect('response', self._on_open_dialog_response)
+        dialog.show()
+
+    def _on_open_dialog_response(self, dialog, response_id):
+        if response_id != Gtk.ResponseType.OK:
+            dialog.destroy()
+            return
+
+        filename = dialog.get_filename()
+        dialog.destroy()
+
+        self._open_password_database(filename)
 
     def _on_save(self, action, param):
         print("_on_save")
@@ -144,12 +159,17 @@ class _MainWindow(Gtk.ApplicationWindow):
         print("_on_save_as")
 
     def _open_password_database(self, filename):
+        # Clear the current state.
+        self.storage = None
+        self.model = None
+        self._entries_treestore.clear()
+
         # Ask for the password via a dialog.
-        password_dialog = _PasswordDialog(self, filename)
-        password_dialog.connect(
-            "response", self._on_open_password_database_dialog_response)
-        password_dialog.show()
-        password_dialog.present_with_time(Gdk.CURRENT_TIME)
+        dialog = _PasswordDialog(self, filename)
+        dialog.connect('response',
+                       self._on_open_password_database_dialog_response)
+        dialog.show()
+        dialog.present_with_time(Gdk.CURRENT_TIME)
 
     def _on_open_password_database_dialog_response(self, dialog, response_id):
         assert isinstance(dialog, _PasswordDialog)
@@ -169,7 +189,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._populate_treeview()
 
     def _populate_treeview(self):
-        self.model.visit_all(TreeStorePopulator(self._entries_tree_store))
+        self.model.visit_all(TreeStorePopulator(self._entries_treestore))
 
     def _update_entry_property(self, box_widget, label_widget, text,
                                hide_if_empty):
