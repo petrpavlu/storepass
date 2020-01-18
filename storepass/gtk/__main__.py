@@ -107,7 +107,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.entries_treeview.set_model(self._entries_tree_store)
 
         self.storage = None
-        self.model = None
+        self.model = storepass.model.Model()
 
     def run_default_actions(self):
         # Try to open the default password database.
