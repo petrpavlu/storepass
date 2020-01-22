@@ -131,8 +131,20 @@ class _MainWindow(Gtk.ApplicationWindow):
         if os.path.exists(default_database):
             self._open_password_database(default_database)
 
+    def _clear_state(self):
+        """Clear the current state. The result is a blank database."""
+
+        self.storage = None
+        self.model = None
+        self._entries_treestore.clear()
+
     def _on_new(self, action, param):
-        print("_on_new")
+        """
+        Handle the New action which is used to start a new (empty) password
+        database.
+        """
+
+        self._clear_state()
 
     def _on_open(self, action, param):
         dialog = Gtk.FileChooserDialog(
@@ -159,10 +171,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         print("_on_save_as")
 
     def _open_password_database(self, filename):
-        # Clear the current state.
-        self.storage = None
-        self.model = None
-        self._entries_treestore.clear()
+        self._clear_state()
 
         # Ask for the password via a dialog.
         dialog = _PasswordDialog(self, filename)
