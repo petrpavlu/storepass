@@ -147,8 +147,13 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._clear_state()
 
     def _on_open(self, action, param):
+        """
+        Handle the Open action which is used to open an already existing
+        password database.
+        """
+
         dialog = Gtk.FileChooserDialog(
-            "Open Password Database File", self, Gtk.FileChooserAction.OPEN,
+            "Open File", self, Gtk.FileChooserAction.OPEN,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK,
              Gtk.ResponseType.OK), modal=True)
         dialog.connect('response', self._on_open_dialog_response)
@@ -184,7 +189,9 @@ class _MainWindow(Gtk.ApplicationWindow):
         filename = dialog.get_filename()
         password = dialog.get_password()
         dialog.destroy()
+        self._open_password_database2(filename, password)
 
+    def _open_password_database2(self, filename, password):
         # TODO Error checking.
         self.storage = storepass.storage.Storage(filename, password)
         self.model = storepass.model.Model()
