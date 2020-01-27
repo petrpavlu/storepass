@@ -168,9 +168,12 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Display a dialog to select a database file to open.
         dialog = Gtk.FileChooserDialog(
-            "Open File", self, Gtk.FileChooserAction.OPEN,
+            "Open File",
+            self,
+            Gtk.FileChooserAction.OPEN,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK,
-             Gtk.ResponseType.OK), modal=True)
+             Gtk.ResponseType.OK),
+            modal=True)
         dialog.connect('response', self._on_open_dialog_response)
         dialog.show()
 
@@ -262,9 +265,12 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Display a dialog to specify a new filename where to store the
         # database.
         dialog = Gtk.FileChooserDialog(
-            "Save As", self, Gtk.FileChooserAction.SAVE,
+            "Save As",
+            self,
+            Gtk.FileChooserAction.SAVE,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK,
-                Gtk.ResponseType.OK), modal=True)
+             Gtk.ResponseType.OK),
+            modal=True)
         dialog.connect('response', self._on_save_as_dialog_response)
         dialog.show()
 
