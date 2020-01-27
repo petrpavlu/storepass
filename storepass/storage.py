@@ -260,15 +260,23 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
 class Storage:
     """Password database file reader/writer."""
-    def __init__(self, filename, password_proxy):
+    def __init__(self, filename, password):
         self._filename = filename
-        self._password_proxy = password_proxy
+        self._password = password
 
-    def get_password(self):
-        if callable(self._password_proxy):
-            return self._password_proxy()
+    @property
+    def filename(self):
+        return self._filename
+
+    @property
+    def password(self):
+        return self._password
+
+    def _get_real_password(self):
+        if callable(self._password):
+            return self._password()
         else:
-            return self._password_proxy
+            return self._password
 
     def _parse_header(self, header):
         """Verify validity of a password database header."""
@@ -332,7 +340,7 @@ class Storage:
         self._parse_header(header)
 
         # Calculate the PBKDF2 derived key.
-        password = self.get_password()
+        password = self._get_real_password()
         key = hashlib.pbkdf2_hmac('sha1',
                                   password.encode('utf-8'),
                                   salt,
@@ -422,7 +430,7 @@ class Storage:
         decrypted_data = hash256 + compressed_data
 
         # Calculate the PBKDF2 derived key.
-        password = self.get_password()
+        password = self._get_real_password()
         salt = os.urandom(8)
         key = hashlib.pbkdf2_hmac('sha1',
                                   password.encode('utf-8'),
