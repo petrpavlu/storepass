@@ -164,12 +164,6 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         self._open_password_database(filename)
 
-    def _on_save(self, action, param):
-        print("_on_save")
-
-    def _on_save_as(self, action, param):
-        print("_on_save_as")
-
     def _open_password_database(self, filename):
         self._clear_state()
 
@@ -197,6 +191,71 @@ class _MainWindow(Gtk.ApplicationWindow):
         self.model.load(self.storage)
 
         self._populate_treeview()
+
+    def _on_save(self, action, param):
+        """
+        Handle the Save action which is used to store the currently opened
+        password database on disk.
+        """
+
+        # Redirect to the Save As action if this is a new database and its
+        # filename has not been specified yet.
+        if self.storage is None:
+            self._on_save_as(action, param)
+            return
+
+        self.model.save(self.storage)
+
+    def _on_save_as(self, action, param):
+        """
+        Handle the Save As action which is used to store the currently opened
+        password database on disk under a new name.
+        """
+
+        dialog = Gtk.FileChooserDialog(
+            "Save As", self, Gtk.FileChooserAction.SAVE,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK,
+                Gtk.ResponseType.OK), modal=True)
+        dialog.connect('response', self._on_save_as_dialog_response)
+        dialog.show()
+
+    def _on_save_as_dialog_response(self, dialog, response_id):
+        if response_id != Gtk.ResponseType.OK:
+            dialog.destroy()
+            return
+
+        filename = dialog.get_filename()
+        dialog.destroy()
+
+        if self.storage is not None:
+            self._save_as_password_database2(filename, self.storage.password)
+        else:
+            self._save_as_password_database(filename)
+
+    def _save_as_password_database(self, filename):
+        # Ask for the password via a dialog.
+        dialog = _PasswordDialog(self, filename)
+        dialog.connect('response',
+                       self._on_save_password_database_dialog_response)
+        dialog.show()
+        dialog.present_with_time(Gdk.CURRENT_TIME)
+
+    def _on_save_password_database_dialog_response(self, dialog, response_id):
+        assert isinstance(dialog, _PasswordDialog)
+
+        if response_id != Gtk.ResponseType.OK:
+            dialog.destroy()
+            return
+
+        filename = dialog.get_filename()
+        password = dialog.get_password()
+        dialog.destroy()
+
+        self._save_as_password_database2(filename, password)
+
+    def _save_as_password_database2(self, filename, password):
+        self.storage = storepass.storage.Storage(filename, password)
+        self.model.save(self.storage)
 
     def _populate_treeview(self):
         self.model.visit_all(TreeStorePopulator(self._entries_treestore))
