@@ -125,6 +125,11 @@ class _MainWindow(Gtk.ApplicationWindow):
         self.model = storepass.model.Model()
 
     def run_default_actions(self):
+        """
+        Run the default actions when the main window gets constructed and
+        displayed.
+        """
+
         # Try to open the default password database.
         default_database = os.path.join(os.path.expanduser('~'),
                                         '.storepass.db')
@@ -150,8 +155,18 @@ class _MainWindow(Gtk.ApplicationWindow):
         """
         Handle the Open action which is used to open an already existing
         password database.
+
+        The complete operation consists of the following steps:
+        1) Display a file dialog to select a password database file:
+           _on_open() -> _on_open_dialog_response().
+        2) Display a dialog to prompt the password for the database:
+           _open_password_database() ->
+           _on_open_password_database_dialog_response().
+        3) Complete opening the database:
+           _open_password_database2().
         """
 
+        # Display a dialog to select a database file to open.
         dialog = Gtk.FileChooserDialog(
             "Open File", self, Gtk.FileChooserAction.OPEN,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK,
@@ -160,6 +175,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.show()
 
     def _on_open_dialog_response(self, dialog, response_id):
+        """Process a response from the Open File dialog."""
+
         if response_id != Gtk.ResponseType.OK:
             dialog.destroy()
             return
@@ -167,9 +184,12 @@ class _MainWindow(Gtk.ApplicationWindow):
         filename = dialog.get_filename()
         dialog.destroy()
 
+        # Continue the process of opening the file.
         self._open_password_database(filename)
 
     def _open_password_database(self, filename):
+        """Open a password database specified by the filename."""
+
         self._clear_state()
 
         # Ask for the password via a dialog.
@@ -180,6 +200,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.present_with_time(Gdk.CURRENT_TIME)
 
     def _on_open_password_database_dialog_response(self, dialog, response_id):
+        """Process a response from a Password dialog (for database open)."""
+
         assert isinstance(dialog, _PasswordDialog)
 
         if response_id != Gtk.ResponseType.OK:
@@ -189,9 +211,16 @@ class _MainWindow(Gtk.ApplicationWindow):
         filename = dialog.get_filename()
         password = dialog.get_password()
         dialog.destroy()
+
+        # Finalize opening the database.
         self._open_password_database2(filename, password)
 
     def _open_password_database2(self, filename, password):
+        """
+        Complete the process of opening a password database by actually loading
+        it into the program.
+        """
+
         # TODO Error checking.
         self.storage = storepass.storage.Storage(filename, password)
         self.model = storepass.model.Model()
@@ -217,8 +246,21 @@ class _MainWindow(Gtk.ApplicationWindow):
         """
         Handle the Save As action which is used to store the currently opened
         password database on disk under a new name.
+
+        The complete operation consists of the following steps:
+        1) Display a file dialog to specify a new filename for the password
+           database:
+           _on_save_as() -> _on_save_as_dialog_response().
+        2) Display a dialog to prompt the password for the database:
+           _save_as_password_database() ->
+           _on_save_as_password_database_dialog_response().
+           If the database already has a password then this step is skipped.
+        3) Complete saving the database:
+           _save_as_password_database2().
         """
 
+        # Display a dialog to specify a new filename where to store the
+        # database.
         dialog = Gtk.FileChooserDialog(
             "Save As", self, Gtk.FileChooserAction.SAVE,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK,
@@ -227,6 +269,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.show()
 
     def _on_save_as_dialog_response(self, dialog, response_id):
+        """Process a response from the Save As dialog."""
+
         if response_id != Gtk.ResponseType.OK:
             dialog.destroy()
             return
@@ -234,12 +278,17 @@ class _MainWindow(Gtk.ApplicationWindow):
         filename = dialog.get_filename()
         dialog.destroy()
 
+        # Continue the process of opening the file. If the database already has
+        # a password specified then proceed to saving it, else first prompt for
+        # the password.
         if self.storage is not None:
             self._save_as_password_database2(filename, self.storage.password)
         else:
             self._save_as_password_database(filename)
 
     def _save_as_password_database(self, filename):
+        """Save a password database to the specified file."""
+
         # Ask for the password via a dialog.
         dialog = _PasswordDialog(self, filename)
         dialog.connect('response',
@@ -248,6 +297,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.present_with_time(Gdk.CURRENT_TIME)
 
     def _on_save_password_database_dialog_response(self, dialog, response_id):
+        """Process a response from a Password dialog (for database save)."""
+
         assert isinstance(dialog, _PasswordDialog)
 
         if response_id != Gtk.ResponseType.OK:
@@ -258,9 +309,16 @@ class _MainWindow(Gtk.ApplicationWindow):
         password = dialog.get_password()
         dialog.destroy()
 
+        # Finalize saving the database.
         self._save_as_password_database2(filename, password)
 
     def _save_as_password_database2(self, filename, password):
+        """
+        Complete the process of saving a password database by actually storing
+        it into a file.
+        """
+
+        # TODO Error checking.
         self.storage = storepass.storage.Storage(filename, password)
         self.model.save(self.storage)
 
