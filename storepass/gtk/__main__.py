@@ -10,6 +10,7 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
 
 gi.require_version('Gtk', '3.0')
+from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gio
 from gi.repository import Gtk
@@ -41,6 +42,15 @@ class _PasswordDialog(Gtk.Dialog):
 
     def get_password(self):
         return self._password_entry.get_text()
+
+
+@Gtk.Template.from_string(
+    importlib.resources.read_text('storepass.gtk.resources',
+                                  'about_dialog.ui'))
+class _AboutDialog(Gtk.AboutDialog):
+    """About application dialog."""
+
+    __gtype_name__ = "AboutDialog"
 
 
 class _EntryGObject(GObject.Object):
@@ -408,6 +418,7 @@ class _App(Gtk.Application):
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
+        GLib.set_prgname("StorePass")
 
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", self._on_quit)
@@ -431,7 +442,12 @@ class _App(Gtk.Application):
         self.quit()
 
     def _on_about(self, action, param):
-        print("_on_about")
+        dialog = _AboutDialog()
+        dialog.connect('response', self._on_about_dialog_response)
+        dialog.show()
+
+    def _on_about_dialog_response(self, dialog, response_id):
+        dialog.destroy()
 
 
 def main():

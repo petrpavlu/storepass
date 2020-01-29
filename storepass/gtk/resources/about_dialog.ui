@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <template class="AboutDialog" parent="GtkAboutDialog">
+        <property name="modal">True</property>
+        <property name="logo_icon_name">emblem-readonly</property>
+        <property name="copyright">Copyright © 2020 Petr Pavlu </property>
+        <property name="website">https://github.com/petrpavlu/storepass</property>
+        <property name="license_type">mit-x11</property>
+    </template>
+</interface>
