@@ -472,11 +472,9 @@ class _App(Gtk.Application):
 
     def _on_about(self, action, param):
         dialog = _AboutDialog()
-        dialog.connect('response', self._on_about_dialog_response)
+        dialog.connect('response',
+                       lambda dialog, response_id: dialog.destroy())
         dialog.show()
-
-    def _on_about_dialog_response(self, dialog, response_id):
-        dialog.destroy()
 
 
 def main():
