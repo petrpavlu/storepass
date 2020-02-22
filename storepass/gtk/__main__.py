@@ -15,6 +15,7 @@ from gi.repository import GObject
 from gi.repository import Gio
 from gi.repository import Gtk
 
+import storepass.exc
 import storepass.model
 import storepass.storage
 
@@ -234,10 +235,26 @@ class _MainWindow(Gtk.ApplicationWindow):
         it into the program.
         """
 
-        # TODO Error checking.
         self.storage = storepass.storage.Storage(filename, password)
         self.model = storepass.model.Model()
-        self.model.load(self.storage)
+        try:
+            self.model.load(self.storage)
+        except storepass.exc.StorageReadException as e:
+            # Reset back to the clear state.
+            self._clear_state()
+
+            # Show a dialog with the error.
+            dialog = Gtk.MessageDialog(
+                self,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
+                "Error loading password database")
+            dialog.format_secondary_text(
+                f"Failed to load password database '{filename}': {e}.")
+            dialog.connect('response',
+                           lambda dialog, response_id: dialog.destroy())
+            dialog.show()
+            return
 
         self._populate_treeview()
 
@@ -334,9 +351,21 @@ class _MainWindow(Gtk.ApplicationWindow):
         it into a file.
         """
 
-        # TODO Error checking.
         self.storage = storepass.storage.Storage(filename, password)
-        self.model.save(self.storage)
+        try:
+            self.model.save(self.storage)
+        except storepass.exc.StorageWriteException as e:
+            # Show a dialog with the error.
+            dialog = Gtk.MessageDialog(
+                self,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
+                "Error saving password database")
+            dialog.format_secondary_text(
+                f"Failed to save password database '{filename}': {e}.")
+            dialog.connect('response',
+                           lambda dialog, response_id: dialog.destroy())
+            dialog.show()
 
     def _populate_treeview(self):
         self.model.visit_all(TreeStorePopulator(self._entries_treestore))
