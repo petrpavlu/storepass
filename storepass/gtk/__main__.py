@@ -129,8 +129,20 @@ class _MainWindow(Gtk.ApplicationWindow):
         save_as_action.connect('activate', self._on_save_as)
         self.add_action(save_as_action)
 
+        # Initialize the entries TreeView.
         self._entries_treestore = Gtk.TreeStore(str, _EntryGObject)
         self._entries_treeview.set_model(self._entries_treestore)
+
+        menu_xml = importlib.resources.read_text('storepass.gtk.resources',
+                                                 'entries_treeview_menu.ui')
+        builder = Gtk.Builder.new_from_string(menu_xml, -1)
+        self._entries_treeview_menu = Gtk.Menu.new_from_model(
+            builder.get_object('entries-treeview-menu'))
+        self._entries_treeview_menu.attach_to_widget(self._entries_treeview)
+
+        edit_action = Gio.SimpleAction.new('entry_edit', None)
+        edit_action.connect('activate', self._on_entry_edit)
+        self.add_action(edit_action)
 
         self.storage = None
         self.model = storepass.model.Model()
@@ -440,6 +452,16 @@ class _MainWindow(Gtk.ApplicationWindow):
                                     self._entry_generic_password_label,
                                     password, True)
 
+    @Gtk.Template.Callback("on_entries_treeview_button_press_event")
+    def _on_entries_treeview_button_press_event(self, widget, event):
+        assert widget == self._entries_treeview
+
+        if event.type == Gdk.EventType.BUTTON_PRESS and \
+            event.button == Gdk.BUTTON_SECONDARY:
+            self._entries_treeview_menu.popup_at_pointer(event)
+
+    def _on_entry_edit(self, action, param):
+        print("_on_entry_edit")
 
 class _App(Gtk.Application):
     def __init__(self):

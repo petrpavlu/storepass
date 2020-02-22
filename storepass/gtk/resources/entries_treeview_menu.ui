@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
+SPDX-License-Identifier: MIT
+-->
+<interface>
+    <menu id="entries-treeview-menu">
+        <section>
+            <item>
+                <attribute name="label" translatable="yes">_Edit…</attribute>
+                <attribute name="action">win.entry_edit</attribute>
+            </item>
+        </section>
+    </menu>
+</interface>
+
