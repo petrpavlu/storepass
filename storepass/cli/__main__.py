@@ -422,7 +422,7 @@ def main():
             model.save(storage, exclusive)
         except storepass.exc.StorageWriteException as e:
             _logger.error(
-                f"failed to write password database '{args.file}': {e}")
+                f"failed to save password database '{args.file}': {e}")
             return 1
 
     return 0

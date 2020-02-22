@@ -171,7 +171,7 @@ class TestCLI(helpers.StorePassTestCase):
             self.assertRegex(
                 cli_mock.stderr.getvalue(),
                 helpers.dedent("""\
-                    storepass-cli: error: failed to write password database '.*': \\[Errno 17\\] File exists: '.*'
+                    storepass-cli: error: failed to save password database '.*': \\[Errno 17\\] File exists: '.*'
                     """))
 
     def test_add(self):
