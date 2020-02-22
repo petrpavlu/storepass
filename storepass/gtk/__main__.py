@@ -150,7 +150,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         """Clear the current state. The result is a blank database."""
 
         self.storage = None
-        self.model = None
+        self.model = storepass.model.Model()
         self._entries_treestore.clear()
 
     def _on_new(self, action, param):
