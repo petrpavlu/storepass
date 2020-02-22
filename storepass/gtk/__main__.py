@@ -420,18 +420,18 @@ class _App(Gtk.Application):
         Gtk.Application.do_startup(self)
         GLib.set_prgname("StorePass")
 
-        quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", self._on_quit)
+        quit_action = Gio.SimpleAction.new('quit', None)
+        quit_action.connect('activate', self._on_quit)
         self.add_action(quit_action)
 
-        about_action = Gio.SimpleAction.new("about", None)
-        about_action.connect("activate", self._on_about)
+        about_action = Gio.SimpleAction.new('about', None)
+        about_action.connect('activate', self._on_about)
         self.add_action(about_action)
 
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
                                                  'main_menu.ui')
         builder = Gtk.Builder.new_from_string(menu_xml, -1)
-        self.set_menubar(builder.get_object("main-menu"))
+        self.set_menubar(builder.get_object('main-menu'))
 
     def do_activate(self):
         window = _MainWindow(self)
