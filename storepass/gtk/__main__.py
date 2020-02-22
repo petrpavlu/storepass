@@ -387,10 +387,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._update_entry_property(self._entry_description_box,
                                     self._entry_description_label,
                                     entry.description, False)
-        # TODO Convert datetime to a string.
-        #self._update_entry_property(
-        #    self._entry_updated_box, self._entry_updated_label, entry.updated,
-        #    False)
+        self._update_entry_property(
+            self._entry_updated_box, self._entry_updated_label,
+            None if entry.updated is None else
+            entry.updated.astimezone().strftime('%c %Z'), False)
         self._update_entry_property(self._entry_notes_box,
                                     self._entry_notes_label, entry.notes,
                                     False)
