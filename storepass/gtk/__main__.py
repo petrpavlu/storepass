@@ -35,8 +35,8 @@ class _PasswordDialog(Gtk.Dialog):
 
     _password_entry = Gtk.Template.Child('password_entry')
 
-    def __init__(self, parent, filename):
-        super().__init__(parent=parent)
+    def __init__(self, parent_window, filename):
+        super().__init__(parent=parent_window)
         self._filename = filename
 
     def get_filename(self):
@@ -114,6 +114,7 @@ class _MainWindow(Gtk.ApplicationWindow):
     def __init__(self, application):
         super().__init__(application=application)
 
+        # Connect main menu actions.
         new_action = Gio.SimpleAction.new('new', None)
         new_action.connect('activate', self._on_new)
         self.add_action(new_action)
@@ -145,6 +146,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         edit_action.connect('activate', self._on_entry_edit)
         self.add_action(edit_action)
 
+        # Create an empty database storage and model.
         self.storage = None
         self.model = storepass.model.Model()
 
@@ -397,7 +399,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     @Gtk.Template.Callback("on_entries_treeview_selection_changed")
     def _on_entries_treeview_selection_changed(self, tree_selection):
-        model, entry_iter = tree_selection.get_selected()
+        tree_model, entry_iter = tree_selection.get_selected()
         if entry_iter is None:
             self._update_entry_property(self._entry_name_box,
                                         self._entry_name_label, None, False)
@@ -420,8 +422,8 @@ class _MainWindow(Gtk.ApplicationWindow):
                                         None, True)
             return
 
-        entry = model.get_value(entry_iter,
-                                ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
+        entry = tree_model.get_value(entry_iter,
+                                     ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
 
         # Show the panel with details of the entry.
         self._update_entry_property(self._entry_name_box,
