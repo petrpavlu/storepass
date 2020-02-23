@@ -6,8 +6,8 @@ SPDX-License-Identifier: MIT
 <interface>
     <template class="MainWindow" parent="GtkApplicationWindow">
         <property name="title">StorePass</property>
-        <property name="width-request">800</property>
-        <property name="height-request">600</property>
+        <property name="default-width">800</property>
+        <property name="default-height">600</property>
         <child>
             <object class="GtkPaned">
                 <property name="visible">True</property>
