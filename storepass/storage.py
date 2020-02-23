@@ -192,10 +192,8 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
         return data
 
-    def visit_root(self, parent, root):
+    def visit_root(self, root):
         """Create XML representation for the data root."""
-
-        assert parent is None
 
         self._xml_root = ET.Element('revelationdata')
         self._xml_root.set('dataversion', '1')
@@ -220,10 +218,10 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
             xml_notes = ET.SubElement(xml_entry, 'notes')
             xml_notes.text = entry.notes
 
-    def visit_folder(self, parent, folder):
+    def visit_folder(self, folder):
         """Create XML representation for a password folder."""
 
-        xml_parent = self.get_path_data(parent)
+        xml_parent = self.get_path_data(folder.parent)
 
         xml_folder = ET.SubElement(xml_parent, 'entry')
         xml_folder.set('type', 'folder')
@@ -231,10 +229,10 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
         return xml_folder
 
-    def visit_generic(self, parent, generic):
+    def visit_generic(self, generic):
         """Create XML representation for a generic password record."""
 
-        xml_parent = self.get_path_data(parent)
+        xml_parent = self.get_path_data(generic.parent)
 
         xml_generic = ET.SubElement(xml_parent, 'entry')
         xml_generic.set('type', 'generic')

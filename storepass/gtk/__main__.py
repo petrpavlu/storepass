@@ -68,16 +68,16 @@ class TreeStorePopulator(storepass.model.ModelVisitor):
 
         self.tree_store = tree_store
 
-    def visit_root(self, parent, root):
+    def visit_root(self, root):
         return None
 
-    def visit_folder(self, parent, folder):
-        parent_iter = self.get_path_data(parent)
+    def visit_folder(self, folder):
+        parent_iter = self.get_path_data(folder.parent)
         return self.tree_store.append(
             parent_iter, [folder.name, _EntryGObject(folder)])
 
-    def visit_generic(self, parent, generic):
-        parent_iter = self.get_path_data(parent)
+    def visit_generic(self, generic):
+        parent_iter = self.get_path_data(generic.parent)
         assert ENTRIES_TREEVIEW_NAME_COLUMN == 0
         assert ENTRIES_TREEVIEW_ENTRY_COLUMN == 1
         return self.tree_store.append(

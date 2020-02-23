@@ -88,6 +88,9 @@ class ModelVisitor:
 class Container:
     def __init__(self, children):
         self._children = sorted(children, key=lambda child: child.name)
+        for child in self._children:
+            assert child._parent is None
+            child._parent = self
 
     @property
     def children(self):
@@ -124,15 +127,19 @@ class Container:
         False if a child with the same name already exists.
         """
 
+        assert child.parent is None
+
         old_child, index = self.get_child(child.name)
         if old_child is not None:
             return False
         self._children.insert(index, child)
+        child._parent = self
         return True
 
     def delete_child(self, index):
         """Delete a child at the given index."""
 
+        self._children[index]._parent = None
         del self._children[index]
 
     def _accept_children(self, visitor, parent_data):
@@ -140,7 +147,7 @@ class Container:
 
         visitor.enter_container(self, parent_data)
         for child in self._children:
-            child.accept(visitor, self)
+            child.accept(visitor)
         visitor.leave_container()
 
 
@@ -155,17 +162,24 @@ class Root(Container):
         return res
 
     def accept(self, visitor, single=False):
-        parent_data = visitor.visit_root(None, self)
+        parent_data = visitor.visit_root(self)
         if not single:
             self._accept_children(visitor, parent_data)
 
 
 class Entry:
     def __init__(self, name, description, updated, notes):
+        # Parent container. The value is managed by the Container class.
+        self._parent = None
+
         self.name = name
         self.description = description
         self.updated = updated
         self.notes = notes
+
+    @property
+    def parent(self):
+        return self._parent
 
     def inline_str(self):
         return f"name={self.name}, description={self.description}, updated={self.updated}, notes={self.notes}"
@@ -186,8 +200,8 @@ class Folder(Entry, Container):
             res += "\n" + child.__str__(indent + "  ")
         return res
 
-    def accept(self, visitor, parent=None, single=False):
-        parent_data = visitor.visit_folder(parent, self)
+    def accept(self, visitor, single=False):
+        parent_data = visitor.visit_folder(self)
         if not single:
             self._accept_children(visitor, parent_data)
 
@@ -204,8 +218,8 @@ class Generic(Entry):
         parent = super().inline_str()
         return indent + f"Generic({parent}, hostname={self.hostname}, username={self.username}, password={self.password})"
 
-    def accept(self, visitor, parent=None, single=False):
-        visitor.visit_generic(parent, self)
+    def accept(self, visitor, single=False):
+        visitor.visit_generic(self)
 
 
 class Model:
