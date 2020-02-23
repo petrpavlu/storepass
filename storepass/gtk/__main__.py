@@ -18,6 +18,7 @@ from gi.repository import Gtk
 import storepass.exc
 import storepass.model
 import storepass.storage
+from storepass.gtk import edit
 
 # Note: Keep these constants in sync with the ui files.
 ENTRIES_TREEVIEW_NAME_COLUMN = 0
@@ -461,7 +462,14 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._entries_treeview_menu.popup_at_pointer(event)
 
     def _on_entry_edit(self, action, param):
-        print("_on_entry_edit")
+        tree_selection = self._entries_treeview.get_selection()
+        tree_model, entry_iter = tree_selection.get_selected()
+        assert entry_iter is not None
+
+        entry = tree_model.get_value(entry_iter,
+                                     ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
+        edit.edit(self, entry)
+
 
 class _App(Gtk.Application):
     def __init__(self):
