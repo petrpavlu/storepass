@@ -172,7 +172,7 @@ class Entry:
         # Parent container. The value is managed by the Container class.
         self._parent = None
 
-        self.name = name
+        self._name = name
         self.description = description
         self.updated = updated
         self.notes = notes
@@ -180,6 +180,10 @@ class Entry:
     @property
     def parent(self):
         return self._parent
+
+    @property
+    def name(self):
+        return self._name
 
     def inline_str(self):
         return f"name={self.name}, description={self.description}, updated={self.updated}, notes={self.notes}"
