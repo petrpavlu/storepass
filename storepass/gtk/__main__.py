@@ -485,17 +485,33 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Update the entry.
+        # Obtain new properties.
         name = dialog.get_name()
-        if name != entry.name:
-            # TODO Validate the name. It must not be empty and not a duplicate
-            # of another entry.
-            pass
-        entry.name = name
-        entry.description = dialog.get_description()
-        entry.notes = dialog.get_notes()
+        description = dialog.get_description()
+        notes = dialog.get_notes()
 
         dialog.destroy()
+
+        # Validate the new name. It must not be empty and not a duplicate of
+        # another entry.
+        if name != entry.name:
+            error = None
+            if name is None:
+                error = "Name cannot be empty."
+            else:
+                child, _ = entry.parent.get_child(name)
+                if child is not None:
+                    error = f"Entry with name '{name}' already exists."
+
+            if error is not None:
+                # Show a dialog with the error.
+                self._show_error_dialog("Invalid folder name", error)
+                return
+
+        # Update the entry.
+        entry.name = name
+        entry.description = description
+        entry.notes = notes
 
         # TODO Only move the entry in the right position and select it.
         self._entries_treestore.clear()

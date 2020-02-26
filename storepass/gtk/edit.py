@@ -14,6 +14,8 @@ import storepass.model
     importlib.resources.read_text('storepass.gtk.resources',
                                   'folder_edit_dialog.ui'))
 class FolderEditDialog(Gtk.Dialog):
+    """Dialog to edit folder properties."""
+
     __gtype_name__ = "FolderEditDialog"
 
     _name_entry = Gtk.Template.Child('name_entry')
@@ -30,7 +32,8 @@ class FolderEditDialog(Gtk.Dialog):
             entry.notes if entry.notes is not None else "", -1)
 
     def get_name(self):
-        return self._name_entry.get_text()
+        text = self._name_entry.get_text()
+        return text if text != "" else None
 
     def get_description(self):
         text = self._description_entry.get_text()
