@@ -162,6 +162,17 @@ class _MainWindow(Gtk.ApplicationWindow):
         if os.path.exists(default_database):
             self._open_password_database(default_database)
 
+    def _show_error_dialog(self, primary_text, secondary_text):
+        """Create and display an error dialog."""
+
+        dialog = Gtk.MessageDialog(
+            self, Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            Gtk.MessageType.ERROR, Gtk.ButtonsType.OK, primary_text)
+        dialog.format_secondary_text(secondary_text)
+        dialog.connect('response',
+                       lambda dialog, response_id: dialog.destroy())
+        dialog.show()
+
     def _clear_state(self):
         """Clear the current state. The result is a blank database."""
 
@@ -259,16 +270,9 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._clear_state()
 
             # Show a dialog with the error.
-            dialog = Gtk.MessageDialog(
-                self,
-                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-                "Error loading password database")
-            dialog.format_secondary_text(
+            self._show_error_dialog(
+                "Error loading password database",
                 f"Failed to load password database '{filename}': {e}.")
-            dialog.connect('response',
-                           lambda dialog, response_id: dialog.destroy())
-            dialog.show()
             return
 
         self._populate_treeview()
@@ -371,16 +375,9 @@ class _MainWindow(Gtk.ApplicationWindow):
             self.model.save(self.storage)
         except storepass.exc.StorageWriteException as e:
             # Show a dialog with the error.
-            dialog = Gtk.MessageDialog(
-                self,
-                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-                "Error saving password database")
-            dialog.format_secondary_text(
+            self._show_error_dialog(
+                "Error saving password database",
                 f"Failed to save password database '{filename}': {e}.")
-            dialog.connect('response',
-                           lambda dialog, response_id: dialog.destroy())
-            dialog.show()
 
     def _populate_treeview(self):
         self.model.visit_all(TreeStorePopulator(self._entries_treestore))
