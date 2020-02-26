@@ -136,7 +136,17 @@ class Container:
         child._parent = self
         return True
 
-    def delete_child(self, index):
+    def remove_child(self, child):
+        """Delete a specified child."""
+
+        assert child._parent == self
+
+        child2, index = self.get_child(child.name)
+        assert child == child2
+
+        self.remove_child_at(index)
+
+    def remove_child_at(self, index):
         """Delete a child at the given index."""
 
         self._children[index]._parent = None
@@ -184,6 +194,25 @@ class Entry:
     @property
     def name(self):
         return self._name
+
+    @name.setter
+    def name(self, name):
+        if name == self._name:
+            return
+
+        # Temporarily unlink the child from its parent (if it has any). This
+        # prevents the rename operation from violating the ordering invariant in
+        # the parent.
+        parent = self._parent
+        if parent is not None:
+            parent.remove_child(self)
+
+        # Update the name.
+        self._name = name
+
+        # Re-insert the child into the parent.
+        if parent is not None:
+            parent.add_child(self)
 
     def inline_str(self):
         return f"name={self.name}, description={self.description}, updated={self.updated}, notes={self.notes}"
@@ -300,7 +329,7 @@ class Model:
             path_string = path_spec_to_string(path_spec)
             raise storepass.exc.ModelException(
                 f"Entry '{path_string}' is not empty")
-        parent.delete_child(parent_index)
+        parent.remove_child_at(parent_index)
 
     def visit_all(self, visitor):
         """
