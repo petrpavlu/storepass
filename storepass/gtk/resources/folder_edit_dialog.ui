@@ -4,7 +4,7 @@ Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 SPDX-License-Identifier: MIT
 -->
 <interface>
-    <template class="FolderEditWindow" parent="GtkDialog">
+    <template class="FolderEditDialog" parent="GtkDialog">
         <property name="title" translatable="yes">Edit Folder</property>
         <property name="modal">False</property>
         <property name="default-width">600</property>

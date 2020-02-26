@@ -470,7 +470,39 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         entry = tree_model.get_value(entry_iter,
                                      ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
-        edit.edit(self, entry)
+        if isinstance(entry, storepass.model.Folder):
+            dialog = edit.FolderEditDialog(self, entry)
+            dialog.connect(
+                'response', lambda dialog, response_id: self.
+                _on_edit_folder_dialog_response(dialog, response_id, entry))
+        else:
+            print("Editing accounts not implemented")
+            return
+        dialog.show()
+
+    def _on_edit_folder_dialog_response(self, dialog, response_id, entry):
+        assert isinstance(dialog, edit.FolderEditDialog)
+        assert isinstance(entry, storepass.model.Folder)
+
+        if response_id != Gtk.ResponseType.APPLY:
+            dialog.destroy()
+            return
+
+        # Update the entry.
+        name = dialog.get_name()
+        if name != entry.name:
+            # TODO Validate the name. It must not be empty and not a duplicate
+            # of another entry.
+            pass
+        entry.name = name
+        entry.description = dialog.get_description()
+        entry.notes = dialog.get_notes()
+
+        dialog.destroy()
+
+        # TODO Only move the entry in the right position and select it.
+        self._entries_treestore.clear()
+        self._populate_treeview()
 
 
 class _App(Gtk.Application):
