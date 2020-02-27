@@ -66,21 +66,21 @@ class TreeStorePopulator(storepass.model.ModelVisitor):
     def __init__(self, tree_store):
         super().__init__()
 
-        self.tree_store = tree_store
+        self._tree_store = tree_store
 
     def visit_root(self, root):
         return None
 
     def visit_folder(self, folder):
         parent_iter = self.get_path_data(folder.parent)
-        return self.tree_store.append(
+        return self._tree_store.append(
             parent_iter, [folder.name, _EntryGObject(folder)])
 
     def visit_generic(self, generic):
         parent_iter = self.get_path_data(generic.parent)
         assert ENTRIES_TREEVIEW_NAME_COLUMN == 0
         assert ENTRIES_TREEVIEW_ENTRY_COLUMN == 1
-        return self.tree_store.append(
+        return self._tree_store.append(
             parent_iter, [generic.name, _EntryGObject(generic)])
 
 
@@ -89,7 +89,7 @@ class TreeStorePopulator(storepass.model.ModelVisitor):
 class _MainWindow(Gtk.ApplicationWindow):
     __gtype_name__ = "MainWindow"
 
-    _entries_treeview = Gtk.Template.Child('entries_treeview')
+    _entries_tree_view = Gtk.Template.Child('entries_tree_view')
     _entry_name_box = Gtk.Template.Child('entry_name_box')
     _entry_name_label = Gtk.Template.Child('entry_name_label')
     _entry_description_box = Gtk.Template.Child('entry_description_box')
@@ -132,15 +132,15 @@ class _MainWindow(Gtk.ApplicationWindow):
         self.add_action(save_as_action)
 
         # Initialize the entries TreeView.
-        self._entries_treestore = Gtk.TreeStore(str, _EntryGObject)
-        self._entries_treeview.set_model(self._entries_treestore)
+        self._entries_tree_store = Gtk.TreeStore(str, _EntryGObject)
+        self._entries_tree_view.set_model(self._entries_tree_store)
 
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
-                                                 'entries_treeview_menu.ui')
+                                                 'entries_tree_view_menu.ui')
         builder = Gtk.Builder.new_from_string(menu_xml, -1)
-        self._entries_treeview_menu = Gtk.Menu.new_from_model(
-            builder.get_object('entries-treeview-menu'))
-        self._entries_treeview_menu.attach_to_widget(self._entries_treeview)
+        self._entries_tree_view_menu = Gtk.Menu.new_from_model(
+            builder.get_object('entries_tree_view_menu'))
+        self._entries_tree_view_menu.attach_to_widget(self._entries_tree_view)
 
         edit_action = Gio.SimpleAction.new('entry_edit', None)
         edit_action.connect('activate', self._on_entry_edit)
@@ -178,7 +178,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         self.storage = None
         self.model = storepass.model.Model()
-        self._entries_treestore.clear()
+        self._entries_tree_store.clear()
 
     def _on_new(self, action, param):
         """
@@ -275,7 +275,7 @@ class _MainWindow(Gtk.ApplicationWindow):
                 f"Failed to load password database '{filename}': {e}.")
             return
 
-        self._populate_treeview()
+        self._populate_tree_view()
 
     def _on_save(self, action, param):
         """
@@ -379,8 +379,8 @@ class _MainWindow(Gtk.ApplicationWindow):
                 "Error saving password database",
                 f"Failed to save password database '{filename}': {e}.")
 
-    def _populate_treeview(self):
-        self.model.visit_all(TreeStorePopulator(self._entries_treestore))
+    def _populate_tree_view(self):
+        self.model.visit_all(TreeStorePopulator(self._entries_tree_store))
 
     def _update_entry_property(self, box_widget, label_widget, text,
                                hide_if_empty):
@@ -394,8 +394,8 @@ class _MainWindow(Gtk.ApplicationWindow):
             label_widget.set_text("")
             label_widget.hide()
 
-    @Gtk.Template.Callback("on_entries_treeview_selection_changed")
-    def _on_entries_treeview_selection_changed(self, tree_selection):
+    @Gtk.Template.Callback("on_entries_tree_view_selection_changed")
+    def _on_entries_tree_view_selection_changed(self, tree_selection):
         tree_model, entry_iter = tree_selection.get_selected()
         if entry_iter is None:
             self._update_entry_property(self._entry_name_box,
@@ -452,16 +452,16 @@ class _MainWindow(Gtk.ApplicationWindow):
                                     self._entry_generic_password_label,
                                     password, True)
 
-    @Gtk.Template.Callback("on_entries_treeview_button_press_event")
-    def _on_entries_treeview_button_press_event(self, widget, event):
-        assert widget == self._entries_treeview
+    @Gtk.Template.Callback("on_entries_tree_view_button_press_event")
+    def _on_entries_tree_view_button_press_event(self, widget, event):
+        assert widget == self._entries_tree_view
 
         if event.type == Gdk.EventType.BUTTON_PRESS and \
             event.button == Gdk.BUTTON_SECONDARY:
-            self._entries_treeview_menu.popup_at_pointer(event)
+            self._entries_tree_view_menu.popup_at_pointer(event)
 
     def _on_entry_edit(self, action, param):
-        tree_selection = self._entries_treeview.get_selection()
+        tree_selection = self._entries_tree_view.get_selection()
         tree_model, entry_iter = tree_selection.get_selected()
         assert entry_iter is not None
 
@@ -470,14 +470,16 @@ class _MainWindow(Gtk.ApplicationWindow):
         if isinstance(entry, storepass.model.Folder):
             dialog = edit.FolderEditDialog(self, entry)
             dialog.connect(
-                'response', lambda dialog, response_id: self.
-                _on_edit_folder_dialog_response(dialog, response_id, entry))
+                'response', lambda dialog,
+                response_id: self._on_edit_folder_dialog_response(
+                    dialog, response_id, entry, entry_iter))
         else:
             print("Editing accounts not implemented")
             return
         dialog.show()
 
-    def _on_edit_folder_dialog_response(self, dialog, response_id, entry):
+    def _on_edit_folder_dialog_response(self, dialog, response_id, entry,
+                                        tree_store_iter):
         assert isinstance(dialog, edit.FolderEditDialog)
         assert isinstance(entry, storepass.model.Folder)
 
@@ -514,8 +516,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         entry.notes = notes
 
         # TODO Only move the entry in the right position and select it.
-        self._entries_treestore.clear()
-        self._populate_treeview()
+        self._entries_tree_store.clear()
+        self._populate_tree_view()
 
 
 class _App(Gtk.Application):
@@ -537,7 +539,7 @@ class _App(Gtk.Application):
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
                                                  'main_menu.ui')
         builder = Gtk.Builder.new_from_string(menu_xml, -1)
-        self.set_menubar(builder.get_object('main-menu'))
+        self.set_menubar(builder.get_object('main_menu'))
 
     def do_activate(self):
         window = _MainWindow(self)

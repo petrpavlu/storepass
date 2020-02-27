@@ -4,7 +4,7 @@ Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 SPDX-License-Identifier: MIT
 -->
 <interface>
-    <menu id="main-menu">
+    <menu id="main_menu">
         <submenu>
             <attribute name="label" translatable="yes">_File</attribute>
             <section>

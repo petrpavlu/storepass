@@ -98,7 +98,7 @@ SPDX-License-Identifier: MIT
                                 <property name="visible">True</property>
                                 <property name="margin_left">4</property>
                                 <child>
-                                    <object class="GtkTextView" id="notes_textview">
+                                    <object class="GtkTextView" id="notes_text_view">
                                         <property name="visible">True</property>
                                         <property name="vexpand">True</property>
                                     </object>

@@ -16,10 +16,10 @@ SPDX-License-Identifier: MIT
                     <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
                         <child>
-                            <object class="GtkTreeView" id="entries_treeview">
+                            <object class="GtkTreeView" id="entries_tree_view">
                                 <property name="visible">True</property>
                                 <property name="headers_visible">False</property>
-                                <signal name="button-press-event" handler="on_entries_treeview_button_press_event"/>
+                                <signal name="button-press-event" handler="on_entries_tree_view_button_press_event"/>
                                 <child>
                                     <object class="GtkTreeViewColumn">
                                         <child>
@@ -32,7 +32,7 @@ SPDX-License-Identifier: MIT
                                 </child>
                                 <child internal-child="selection">
                                     <object class="GtkTreeSelection" id="selection">
-                                        <signal name="changed" handler="on_entries_treeview_selection_changed"/>
+                                        <signal name="changed" handler="on_entries_tree_view_selection_changed"/>
                                     </object>
                                 </child>
                             </object>

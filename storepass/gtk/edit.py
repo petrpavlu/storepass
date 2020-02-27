@@ -20,7 +20,7 @@ class FolderEditDialog(Gtk.Dialog):
 
     _name_entry = Gtk.Template.Child('name_entry')
     _description_entry = Gtk.Template.Child('description_entry')
-    _notes_textview = Gtk.Template.Child('notes_textview')
+    _notes_text_view = Gtk.Template.Child('notes_text_view')
 
     def __init__(self, parent_window, entry):
         super().__init__(parent=parent_window)
@@ -28,7 +28,7 @@ class FolderEditDialog(Gtk.Dialog):
         self._name_entry.set_text(entry.name)
         self._description_entry.set_text(
             entry.description if entry.description is not None else "")
-        self._notes_textview.get_buffer().set_text(
+        self._notes_text_view.get_buffer().set_text(
             entry.notes if entry.notes is not None else "", -1)
 
     def get_name(self):
@@ -40,7 +40,7 @@ class FolderEditDialog(Gtk.Dialog):
         return text if text != "" else None
 
     def get_notes(self):
-        text_buffer = self._notes_textview.get_buffer()
+        text_buffer = self._notes_text_view.get_buffer()
         text = text_buffer.get_text(text_buffer.get_start_iter(),
                                     text_buffer.get_end_iter(), True)
         return text if text != "" else None
