@@ -133,6 +133,9 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Initialize the entries TreeView.
         self._entries_tree_store = Gtk.TreeStore(str, _EntryGObject)
+        self._entries_tree_store.set_sort_column_id(
+                ENTRIES_TREEVIEW_NAME_COLUMN,
+                Gtk.SortType.ASCENDING)
         self._entries_tree_view.set_model(self._entries_tree_store)
 
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
@@ -515,9 +518,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         entry.description = description
         entry.notes = notes
 
-        # TODO Only move the entry in the right position and select it.
-        self._entries_tree_store.clear()
-        self._populate_tree_view()
+        # Update the view.
+        self._entries_tree_store.set_value(tree_store_iter,
+                ENTRIES_TREEVIEW_NAME_COLUMN, entry.name)
+        # TODO Update the main panel with detailed information.
 
 
 class _App(Gtk.Application):
