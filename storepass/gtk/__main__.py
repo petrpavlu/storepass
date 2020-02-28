@@ -474,7 +474,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog = edit.FolderEditDialog(self, entry)
             dialog.connect(
                 'response', lambda dialog,
-                response_id: self._on_edit_folder_dialog_response(
+                response_id: self._on_folder_edit_dialog_response(
                     dialog, response_id, entry, entry_iter))
         else:
             dialog = edit.AccountEditDialog(self, entry)
@@ -484,7 +484,7 @@ class _MainWindow(Gtk.ApplicationWindow):
                     dialog, response_id, entry, entry_iter))
         dialog.show()
 
-    def _on_edit_folder_dialog_response(self, dialog, response_id, entry,
+    def _on_folder_edit_dialog_response(self, dialog, response_id, entry,
                                         tree_store_iter):
         assert isinstance(dialog, edit.FolderEditDialog)
         assert isinstance(entry, storepass.model.Folder)
