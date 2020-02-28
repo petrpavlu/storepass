@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
         <property name="title" translatable="yes">Edit Folder</property>
         <property name="modal">False</property>
         <property name="default-width">600</property>
-        <property name="default-height">300</property>
         <property name="border-width">4</property>
         <child internal-child="vbox">
             <object class="GtkBox">
@@ -71,7 +70,7 @@ SPDX-License-Identifier: MIT
                         <child>
                             <object class="GtkEntry" id="description_entry">
                                 <property name="visible">True</property>
-                                <property name="hexpand">False</property>
+                                <property name="hexpand">True</property>
                             </object>
                             <packing>
                                 <property name="left_attach">1</property>
@@ -97,9 +96,11 @@ SPDX-License-Identifier: MIT
                             <object class="GtkScrolledWindow">
                                 <property name="visible">True</property>
                                 <property name="margin_left">4</property>
+                                <property name="height-request">80</property>
                                 <child>
                                     <object class="GtkTextView" id="notes_text_view">
                                         <property name="visible">True</property>
+                                        <property name="hexpand">True</property>
                                         <property name="vexpand">True</property>
                                     </object>
                                 </child>
