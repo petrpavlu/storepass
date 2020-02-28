@@ -40,23 +40,21 @@ class FolderEditDialog(Gtk.Dialog):
 
         self._name_entry.set_text(entry.name)
         self._description_entry.set_text(
-            entry.description if entry.description is not None else "")
+            _normalize_none_to_empty(entry.description))
         self._notes_text_view.get_buffer().set_text(
-            entry.notes if entry.notes is not None else "", -1)
+            _normalize_none_to_empty(entry.notes))
 
     def get_name(self):
-        text = self._name_entry.get_text()
-        return text if text != "" else None
+        return _normalize_empty_to_none(self._name_entry.get_text())
 
     def get_description(self):
-        text = self._description_entry.get_text()
-        return text if text != "" else None
+        return _normalize_empty_to_none(self._description_entry.get_text())
 
     def get_notes(self):
         text_buffer = self._notes_text_view.get_buffer()
         text = text_buffer.get_text(text_buffer.get_start_iter(),
                                     text_buffer.get_end_iter(), True)
-        return text if text != "" else None
+        return _normalize_empty_to_none(text)
 
 
 @Gtk.Template.from_string(
