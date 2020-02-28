@@ -477,8 +477,11 @@ class _MainWindow(Gtk.ApplicationWindow):
                 response_id: self._on_edit_folder_dialog_response(
                     dialog, response_id, entry, entry_iter))
         else:
-            print("Editing accounts not implemented")
-            return
+            dialog = edit.AccountEditDialog(self, entry)
+            dialog.connect(
+                'response', lambda dialog,
+                response_id: self._on_account_edit_dialog_response(
+                    dialog, response_id, entry, entry_iter))
         dialog.show()
 
     def _on_edit_folder_dialog_response(self, dialog, response_id, entry,
@@ -521,6 +524,14 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Update the view.
         self._entries_tree_store.set_value(tree_store_iter,
                 ENTRIES_TREEVIEW_NAME_COLUMN, entry.name)
+
+    def _on_account_edit_dialog_response(self, dialog, response_id, entry,
+                                         tree_store_iter):
+        assert isinstance(dialog, edit.AccountEditDialog)
+
+        dialog.destroy()
+        return
+
         # TODO Update the main panel with detailed information.
 
 

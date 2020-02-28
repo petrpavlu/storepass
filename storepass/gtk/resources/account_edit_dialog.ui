@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
+SPDX-License-Identifier: MIT
+-->
+<interface>
+    <template class="AccountEditDialog" parent="GtkDialog">
+        <property name="title" translatable="yes">Edit Account</property>
+        <property name="modal">False</property>
+        <property name="default-width">600</property>
+        <property name="border-width">4</property>
+        <child internal-child="vbox">
+            <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">8</property>
+                <child>
+                    <object class="GtkGrid">
+                        <property name="visible">True</property>
+                        <property name="row_spacing">5</property>
+                        <property name="column_spacing">5</property>
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="halign">start</property>
+                                <property name="label" translatable="yes">Edit Account</property>
+                                <attributes>
+                                    <attribute name="weight" value="bold"/>
+                                </attributes>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
+                                <property name="width">2</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkLabel" id="name_label">
+                                <property name="visible">True</property>
+                                <property name="halign">start</property>
+                                <property name="margin_left">4</property>
+                                <property name="label" translatable="yes">Name:</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">1</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkEntry" id="name_entry">
+                                <property name="visible">True</property>
+                                <property name="hexpand">True</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">1</property>
+                                <property name="top_attach">1</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkLabel" id="description_label">
+                                <property name="visible">True</property>
+                                <property name="halign">start</property>
+                                <property name="margin_left">4</property>
+                                <property name="label" translatable="yes">Description:</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">2</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkEntry" id="description_entry">
+                                <property name="visible">True</property>
+                                <property name="hexpand">True</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">1</property>
+                                <property name="top_attach">2</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="halign">start</property>
+                                <property name="margin_left">4</property>
+                                <property name="label" translatable="yes">Type:</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">3</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkComboBox" id="type_combo_box">
+                                <property name="visible">True</property>
+                                <property name="hexpand">True</property>
+                                <signal name="changed" handler="on_type_combo_box_changed"/>
+                                <child>
+                                    <object class="GtkCellRendererText"/>
+                                    <attributes>
+                                        <attribute name="text">0</attribute>
+                                    </attributes>
+                                </child>
+                            </object>
+                            <packing>
+                                <property name="left_attach">1</property>
+                                <property name="top_attach">3</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="halign">start</property>
+                                <property name="label" translatable="yes">Account Data</property>
+                                <attributes>
+                                    <attribute name="weight" value="bold"/>
+                                </attributes>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">4</property>
+                                <property name="width">2</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkLabel" id="hostname_label">
+                                <property name="visible">True</property>
+                                <property name="halign">start</property>
+                                <property name="margin_left">4</property>
+                                <property name="label" translatable="yes">Hostname:</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">5</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkEntry" id="hostname_entry">
+                                <property name="visible">True</property>
+                                <property name="hexpand">True</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">1</property>
+                                <property name="top_attach">5</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkLabel" id="username_label">
+                                <property name="visible">True</property>
+                                <property name="halign">start</property>
+                                <property name="margin_left">4</property>
+                                <property name="label" translatable="yes">Username:</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">6</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkEntry" id="username_entry">
+                                <property name="visible">True</property>
+                                <property name="hexpand">True</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">1</property>
+                                <property name="top_attach">6</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkLabel" id="password_label">
+                                <property name="visible">True</property>
+                                <property name="halign">start</property>
+                                <property name="margin_left">4</property>
+                                <property name="label" translatable="yes">Password:</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">7</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkEntry" id="password_entry">
+                                <property name="visible">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="input_purpose">password</property>
+                                <property name="visibility">False</property>
+                            </object>
+                            <packing>
+                                <property name="left_attach">1</property>
+                                <property name="top_attach">7</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="halign">start</property>
+                                <property name="label" translatable="yes">Notes</property>
+                                <attributes>
+                                    <attribute name="weight" value="bold"/>
+                                </attributes>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">8</property>
+                                <property name="width">2</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <object class="GtkScrolledWindow">
+                                <property name="visible">True</property>
+                                <property name="margin_left">4</property>
+                                <property name="height-request">80</property>
+                                <child>
+                                    <object class="GtkTextView" id="notes_text_view">
+                                        <property name="visible">True</property>
+                                        <property name="hexpand">True</property>
+                                        <property name="vexpand">True</property>
+                                    </object>
+                                </child>
+                            </object>
+                            <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">9</property>
+                                <property name="width">2</property>
+                            </packing>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child type="action">
+            <object class="GtkButton" id="cancel_button">
+                <property name="visible">True</property>
+                <property name="label">gtk-cancel</property>
+                <property name="use_stock">True</property>
+            </object>
+        </child>
+        <child type="action">
+            <object class="GtkButton" id="apply_button">
+                <property name="visible">True</property>
+                <property name="label">gtk-apply</property>
+                <property name="use_stock">True</property>
+                <property name="can-default">True</property>
+            </object>
+        </child>
+        <action-widgets>
+            <action-widget response="cancel">cancel_button</action-widget>
+            <action-widget response="apply" default="true">apply_button</action-widget>
+        </action-widgets>
+    </template>
+</interface>
