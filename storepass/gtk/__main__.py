@@ -507,6 +507,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         # TODO Update the main panel with detailed information.
 
     def _get_current_datetime(self):
+        """Obtain the current date+time in the UTC timezone."""
+
         return datetime.datetime.now(datetime.timezone.utc)
 
     def _on_folder_edit_dialog_response(self, dialog, response_id, old_entry,
@@ -570,6 +572,8 @@ class _App(Gtk.Application):
         super().__init__()
 
     def do_startup(self):
+        """Set up the application when it first starts."""
+
         Gtk.Application.do_startup(self)
         GLib.set_prgname("StorePass")
 
@@ -587,14 +591,23 @@ class _App(Gtk.Application):
         self.set_menubar(builder.get_object('main_menu'))
 
     def do_activate(self):
+        """
+        Handle a launch of the application by the desktop environment. Show its
+        default first window.
+        """
+
         window = _MainWindow(self)
         window.show()
         window.run_default_actions()
 
     def _on_quit(self, action, param):
+        """Handle the quit action by exiting the application."""
+
         self.quit()
 
     def _on_about(self, action, param):
+        """Handle the about action by showing the about application dialog."""
+
         dialog = _AboutDialog()
         dialog.connect('response',
                        lambda dialog, response_id: dialog.destroy())
