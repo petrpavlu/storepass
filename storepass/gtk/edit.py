@@ -6,6 +6,7 @@ import gi
 import importlib.resources
 
 gi.require_version('Gtk', '3.0')
+from gi.repository import GObject
 from gi.repository import Gtk
 
 import storepass.model
@@ -17,10 +18,6 @@ def _normalize_empty_to_none(text):
 
 def _normalize_none_to_empty(text):
     return text if text is not None else ""
-
-
-class AccountType(enum.Enum):
-    GENERIC = 0
 
 
 @Gtk.Template.from_string(
@@ -57,6 +54,18 @@ class FolderEditDialog(Gtk.Dialog):
         return _normalize_empty_to_none(text)
 
 
+class _AccountClassGObject(GObject.Object):
+    """Wrapper of storepass.model.Account sub-classes in GObject.Object."""
+    def __init__(self, type_):
+        super().__init__()
+        self.type_ = type_
+
+
+class _AccountListStoreColumn(enum.IntEnum):
+    NAME = 0
+    ACCOUNT_CLASS = 1
+
+
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources',
                                   'account_edit_dialog.ui'))
@@ -85,8 +94,10 @@ class AccountEditDialog(Gtk.Dialog):
         self._notes_text_view.get_buffer().set_text(
             _normalize_none_to_empty(entry.notes))
 
-        self._type_list_store = Gtk.ListStore(str, int)
-        self._type_list_store.append(["Generic", AccountType.GENERIC.value])
+        self._type_list_store = Gtk.ListStore(str, _AccountClassGObject)
+        self._type_list_store.append(
+            ["Generic",
+             _AccountClassGObject(storepass.model.Generic)])
         self._type_combo_box.set_model(self._type_list_store)
         self._type_combo_box.set_active(0)
 
@@ -108,8 +119,11 @@ class AccountEditDialog(Gtk.Dialog):
         show_username = False
         show_password = False
 
-        id_ = combo_box.get_active()
-        if id_ == AccountType.GENERIC.value:
+        active_iter = combo_box.get_active_iter()
+        assert active_iter is not None
+        account_class = combo_box.get_model().get_value(
+            active_iter, _AccountListStoreColumn.ACCOUNT_CLASS)
+        if account_class.type_ == storepass.model.Generic:
             show_hostname = True
             show_username = True
             show_password = True
@@ -136,7 +150,11 @@ class AccountEditDialog(Gtk.Dialog):
         return _normalize_empty_to_none(text)
 
     def get_account_type(self):
-        return AccountType(self._type_combo_box.get_active())
+        active_iter = self._type_combo_box.get_active_iter()
+        assert active_iter is not None
+        account_class = self._type_combo_box.get_model().get_value(
+            active_iter, _AccountListStoreColumn.ACCOUNT_CLASS)
+        return account_class.type_
 
     def get_hostname(self):
         return _normalize_empty_to_none(self._hostname_entry.get_text())
