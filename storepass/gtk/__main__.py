@@ -471,26 +471,32 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _on_entry_edit(self, action, param):
         tree_selection = self._entries_tree_view.get_selection()
         tree_model, entry_iter = tree_selection.get_selected()
+        assert tree_model == self._entries_tree_store
         assert entry_iter is not None
 
         entry = tree_model.get_value(entry_iter,
                                      _EntriesTreeStoreColumn.ENTRY).entry
+        row_ref = Gtk.TreeRowReference(tree_model,
+                                       tree_model.get_path(entry_iter))
+
         if isinstance(entry, storepass.model.Folder):
             dialog = edit.FolderEditDialog(self, entry)
             dialog.connect(
                 'response', lambda dialog,
                 response_id: self._on_folder_edit_dialog_response(
-                    dialog, response_id, entry, entry_iter))
+                    dialog, response_id, entry, row_ref))
         else:
             dialog = edit.AccountEditDialog(self, entry)
             dialog.connect(
                 'response', lambda dialog,
                 response_id: self._on_account_edit_dialog_response(
-                    dialog, response_id, entry, entry_iter))
+                    dialog, response_id, entry, row_ref))
         dialog.show()
 
-    def _replace_entry(self, tree_store_iter, old_entry, new_entry):
+    def _replace_entry(self, tree_store_row_ref, old_entry, new_entry):
         """Replace a previous entry in the model with a new one."""
+
+        assert tree_store_row_ref.valid()
 
         try:
             self._model.replace_entry(old_entry, new_entry)
@@ -500,6 +506,9 @@ class _MainWindow(Gtk.ApplicationWindow):
             return
 
         # Update the view.
+        tree_store = tree_store_row_ref.get_model()
+        tree_store_path = tree_store_row_ref.get_path()
+        tree_store_iter = tree_store.get_iter(tree_store_path)
         self._entries_tree_store.set_row(
             tree_store_iter,
             [new_entry.name, _EntryGObject(new_entry)])
@@ -512,9 +521,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         return datetime.datetime.now(datetime.timezone.utc)
 
     def _on_folder_edit_dialog_response(self, dialog, response_id, old_entry,
-                                        tree_store_iter):
+                                        tree_store_row_ref):
         assert isinstance(dialog, edit.FolderEditDialog)
         assert isinstance(old_entry, storepass.model.Folder)
+        assert tree_store_row_ref.valid()
 
         if response_id != Gtk.ResponseType.APPLY:
             dialog.destroy()
@@ -532,12 +542,13 @@ class _MainWindow(Gtk.ApplicationWindow):
                                            dialog.get_notes(), [])
 
         dialog.destroy()
-        self._replace_entry(tree_store_iter, old_entry, new_entry)
+        self._replace_entry(tree_store_row_ref, old_entry, new_entry)
 
     def _on_account_edit_dialog_response(self, dialog, response_id, old_entry,
-                                         tree_store_iter):
+                                         tree_store_row_ref):
         assert isinstance(dialog, edit.AccountEditDialog)
         assert isinstance(old_entry, storepass.model.Account)
+        assert tree_store_row_ref.valid()
 
         if response_id != Gtk.ResponseType.APPLY:
             dialog.destroy()
@@ -564,7 +575,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             assert 0 and "Unhandled entry type!"
 
         dialog.destroy()
-        self._replace_entry(tree_store_iter, old_entry, new_entry)
+        self._replace_entry(tree_store_row_ref, old_entry, new_entry)
 
 
 class _App(Gtk.Application):
