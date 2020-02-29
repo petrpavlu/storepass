@@ -147,8 +147,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         self.add_action(edit_action)
 
         # Create an empty database storage and model.
-        self.storage = None
-        self.model = storepass.model.Model()
+        self._storage = None
+        self._model = storepass.model.Model()
 
     def run_default_actions(self):
         """
@@ -176,8 +176,8 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _clear_state(self):
         """Clear the current state. The result is a blank database."""
 
-        self.storage = None
-        self.model = storepass.model.Model()
+        self._storage = None
+        self._model = storepass.model.Model()
         self._entries_tree_store.clear()
 
     def _on_new(self, action, param):
@@ -265,10 +265,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         it into the program.
         """
 
-        self.storage = storepass.storage.Storage(filename, password)
-        self.model = storepass.model.Model()
+        self._storage = storepass.storage.Storage(filename, password)
+        self._model = storepass.model.Model()
         try:
-            self.model.load(self.storage)
+            self._model.load(self._storage)
         except storepass.exc.StorageReadException as e:
             # Reset back to the clear state.
             self._clear_state()
@@ -289,11 +289,11 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Redirect to the Save As action if this is a new database and its
         # filename has not been specified yet.
-        if self.storage is None:
+        if self._storage is None:
             self._on_save_as(action, param)
             return
 
-        self.model.save(self.storage)
+        self._model.save(self._storage)
 
     def _on_save_as(self, action, param):
         """
@@ -339,8 +339,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Continue the process of opening the file. If the database already has
         # a password specified then proceed to saving it, else first prompt for
         # the password.
-        if self.storage is not None:
-            self._save_as_password_database2(filename, self.storage.password)
+        if self._storage is not None:
+            self._save_as_password_database2(filename, self._storage.password)
         else:
             self._save_as_password_database(filename)
 
@@ -378,9 +378,9 @@ class _MainWindow(Gtk.ApplicationWindow):
         it into a file.
         """
 
-        self.storage = storepass.storage.Storage(filename, password)
+        self._storage = storepass.storage.Storage(filename, password)
         try:
-            self.model.save(self.storage)
+            self._model.save(self._storage)
         except storepass.exc.StorageWriteException as e:
             # Show a dialog with the error.
             self._show_error_dialog(
@@ -388,7 +388,7 @@ class _MainWindow(Gtk.ApplicationWindow):
                 f"Failed to save password database '{filename}': {e}.")
 
     def _populate_tree_view(self):
-        self.model.visit_all(TreeStorePopulator(self._entries_tree_store))
+        self._model.visit_all(TreeStorePopulator(self._entries_tree_store))
 
     def _update_entry_property(self, box_widget, label_widget, text,
                                hide_if_empty):
@@ -493,7 +493,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         """Replace a previous entry in the model with a new one."""
 
         try:
-            self.model.replace_entry(old_entry, new_entry)
+            self._model.replace_entry(old_entry, new_entry)
         except storepass.exc.ModelException as e:
             # Show a dialog with the error.
             self._show_error_dialog("Error updating entry", f"{e}.")
