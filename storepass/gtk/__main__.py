@@ -1,6 +1,7 @@
 # Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import enum
 import gi
 import importlib.resources
 import os
@@ -20,9 +21,11 @@ import storepass.model
 import storepass.storage
 from storepass.gtk import edit
 
+
 # Note: Keep these constants in sync with the ui files.
-ENTRIES_TREEVIEW_NAME_COLUMN = 0
-ENTRIES_TREEVIEW_ENTRY_COLUMN = 1
+class _EntriesTreeStoreColumn(enum.IntEnum):
+    NAME = 0
+    ENTRY = 1
 
 
 @Gtk.Template.from_string(
@@ -74,8 +77,6 @@ class TreeStorePopulator(storepass.model.ModelVisitor):
 
     def visit_generic(self, generic):
         parent_iter = self.get_path_data(generic.parent)
-        assert ENTRIES_TREEVIEW_NAME_COLUMN == 0
-        assert ENTRIES_TREEVIEW_ENTRY_COLUMN == 1
         return self._tree_store.append(
             parent_iter, [generic.name, _EntryGObject(generic)])
 
@@ -130,7 +131,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Initialize the entries TreeView.
         self._entries_tree_store = Gtk.TreeStore(str, _EntryGObject)
         self._entries_tree_store.set_sort_column_id(
-            ENTRIES_TREEVIEW_NAME_COLUMN, Gtk.SortType.ASCENDING)
+            _EntriesTreeStoreColumn.NAME, Gtk.SortType.ASCENDING)
         self._entries_tree_view.set_model(self._entries_tree_store)
 
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
@@ -426,7 +427,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             return
 
         entry = tree_model.get_value(entry_iter,
-                                     ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
+                                     _EntriesTreeStoreColumn.ENTRY).entry
 
         # Show the panel with details of the entry.
         self._update_entry_property(self._entry_name_box,
@@ -472,7 +473,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         assert entry_iter is not None
 
         entry = tree_model.get_value(entry_iter,
-                                     ENTRIES_TREEVIEW_ENTRY_COLUMN).entry
+                                     _EntriesTreeStoreColumn.ENTRY).entry
         if isinstance(entry, storepass.model.Folder):
             dialog = edit.FolderEditDialog(self, entry)
             dialog.connect(
@@ -526,7 +527,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Update the view.
         self._entries_tree_store.set_value(tree_store_iter,
-                                           ENTRIES_TREEVIEW_NAME_COLUMN,
+                                           _EntriesTreeStoreColumn.NAME,
                                            entry.name)
 
     def _on_account_edit_dialog_response(self, dialog, response_id, entry,
