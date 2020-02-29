@@ -568,9 +568,6 @@ class _MainWindow(Gtk.ApplicationWindow):
 
 
 class _App(Gtk.Application):
-    def __init__(self):
-        super().__init__()
-
     def do_startup(self):
         """Set up the application when it first starts."""
 
