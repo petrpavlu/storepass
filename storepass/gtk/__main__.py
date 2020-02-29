@@ -141,6 +141,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._entries_tree_view_menu = Gtk.Menu.new_from_model(
             builder.get_object('entries_tree_view_menu'))
         self._entries_tree_view_menu.attach_to_widget(self._entries_tree_view)
+        self._entries_tree_view_menu_row_ref = None
 
         edit_action = Gio.SimpleAction.new('entry_edit', None)
         edit_action.connect('activate', self._on_entry_edit)
@@ -466,18 +467,26 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         if event.type == Gdk.EventType.BUTTON_PRESS and \
             event.button == Gdk.BUTTON_SECONDARY:
+            # Record the pointed-at row.
+            path_info = widget.get_path_at_pos(event.x, event.y)
+            if path_info is None:
+                return
+            self._entries_tree_view_menu_row_ref = Gtk.TreeRowReference(
+                widget.get_model(), path_info[0])
+
+            # Show the pop-up menu.
             self._entries_tree_view_menu.popup_at_pointer(event)
 
     def _on_entry_edit(self, action, param):
-        tree_selection = self._entries_tree_view.get_selection()
-        tree_model, entry_iter = tree_selection.get_selected()
-        assert tree_model == self._entries_tree_store
-        assert entry_iter is not None
+        assert self._entries_tree_view_menu_row_ref is not None
+        assert self._entries_tree_view_menu_row_ref.valid()
 
-        entry = tree_model.get_value(entry_iter,
+        row_ref = self._entries_tree_view_menu_row_ref.copy()
+        tree_model = row_ref.get_model()
+        assert tree_model == self._entries_tree_store
+        entry_path = row_ref.get_path()
+        entry = tree_model.get_value(tree_model.get_iter(entry_path),
                                      _EntriesTreeStoreColumn.ENTRY).entry
-        row_ref = Gtk.TreeRowReference(tree_model,
-                                       tree_model.get_path(entry_iter))
 
         if isinstance(entry, storepass.model.Folder):
             dialog = edit.FolderEditDialog(self, entry)
