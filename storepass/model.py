@@ -22,6 +22,10 @@ Class diagram:
   ,---------,
   | Generic |
   '---------'
+
+All Entry's must hold a valid name identifying the Folder/Account. The name is
+set when the entry is created and remains constant during the lifetime of the
+object.
 """
 
 import storepass.exc
@@ -219,25 +223,6 @@ class Entry:
     @property
     def name(self):
         return self._name
-
-    @name.setter
-    def name(self, name):
-        if name == self._name:
-            return
-
-        # Temporarily unlink the child from its parent (if it has any). This
-        # prevents the rename operation from violating the ordering invariant in
-        # the parent.
-        parent = self._parent
-        if parent is not None:
-            parent.remove_child(self)
-
-        # Update the name.
-        self._name = name
-
-        # Re-insert the child into the parent.
-        if parent is not None:
-            parent.add_child(self)
 
     def get_path(self):
         res = []
