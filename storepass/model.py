@@ -51,6 +51,8 @@ def path_string_to_spec(path_string):
                 element += c
         else:
             assert state == STATE_ESCAPE
+            # TODO Check that the character is '\' or '/'. Reject other escape
+            # values.
             element += c
             state = STATE_NORMAL
     res.append(element)
@@ -257,6 +259,20 @@ class Folder(Entry, Container):
         Container.__init__(self, children)
         Entry.__init__(self, name, description, updated, notes)
 
+    def move_children_to(self, folder):
+        """
+        Move children from this folder to another one. The target folder must
+        not yet have any children.
+        """
+
+        assert isinstance(folder, Folder)
+
+        assert len(folder._children) == 0
+        folder._children = self._children
+        self._children = []
+        for child in folder._children:
+            child._parent = folder
+
     def __str__(self, indent=""):
         parent = super().inline_str()
         res = indent + f"Folder({parent}):"
@@ -367,14 +383,14 @@ class Model:
                 f"Entry '{path_string}' is not empty")
         parent.remove_child_at(parent_index)
 
-    def replace_entry(self, old_entry, new_entry):
+    def replace_entry(self, old_entry, new_entry, move_children=True):
         """
         Replace a specified entry with another one. Throws ModelException if the
         new entry has a same name as an already existing entry and it is not the
         old entry.
 
-        Note: For Folder's, callers are responsible to make a copy of the
-        children object if the sub-tree should remain preserved.
+        If move_children is True and the entries are both Folder's then the code
+        moves all children rooted at the old entry to the new one.
         """
 
         parent = old_entry.parent
@@ -388,6 +404,9 @@ class Model:
                 raise storepass.exc.ModelException(
                     f"Entry '{path_string}' already exists")
 
+        if move_children and isinstance(old_entry, Folder) and \
+            isinstance(new_entry, Folder):
+            old_entry.move_children_to(new_entry)
         parent.remove_child(old_entry)
         parent.add_child(new_entry)
 
