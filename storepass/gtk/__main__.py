@@ -488,6 +488,33 @@ class _MainWindow(Gtk.ApplicationWindow):
                     dialog, response_id, entry, entry_iter))
         dialog.show()
 
+    def _validate_new_name(self, entry, new_name):
+        """
+        Validate a new name for an entry. The name must not be empty and not a
+        duplicate of another entry. An error dialog is displayed if the name is
+        invalid. Returns True if the new name successfully passes the checks and
+        False otherwise.
+        """
+
+        if new_name == entry.name:
+            return True
+
+        error = None
+        if new_name is None:
+            error = "Name cannot be empty."
+        else:
+            child, _ = entry.parent.get_child(new_name)
+            if child is not None:
+                error = f"Entry with name '{new_name}' already exists."
+
+        if error is None:
+            return True
+
+        # Show a dialog with the error.
+        self._show_error_dialog("Invalid folder name", error)
+        return False
+
+
     def _on_folder_edit_dialog_response(self, dialog, response_id, entry,
                                         tree_store_iter):
         assert isinstance(dialog, edit.FolderEditDialog)
@@ -497,46 +524,61 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Obtain new properties.
+        # Obtain new properties and update the entry.
         name = dialog.get_name()
-        description = dialog.get_description()
-        notes = dialog.get_notes()
+        if not self._validate_new_name(entry, name):
+            return
+        entry.name = name
+        entry.description = dialog.get_description()
+        entry.notes = dialog.get_notes()
+        # TODO Fix updated.
 
         dialog.destroy()
-
-        # Validate the new name. It must not be empty and not a duplicate of
-        # another entry.
-        if name != entry.name:
-            error = None
-            if name is None:
-                error = "Name cannot be empty."
-            else:
-                child, _ = entry.parent.get_child(name)
-                if child is not None:
-                    error = f"Entry with name '{name}' already exists."
-
-            if error is not None:
-                # Show a dialog with the error.
-                self._show_error_dialog("Invalid folder name", error)
-                return
-
-        # Update the entry.
-        entry.name = name
-        entry.description = description
-        entry.notes = notes
 
         # Update the view.
         self._entries_tree_store.set_value(tree_store_iter,
                                            _EntriesTreeStoreColumn.NAME,
                                            entry.name)
+        # TODO Update the main panel with detailed information.
+        # TODO Make consisent with updating accounts, always create a new folder
+        # object.
 
     def _on_account_edit_dialog_response(self, dialog, response_id, entry,
                                          tree_store_iter):
         assert isinstance(dialog, edit.AccountEditDialog)
+        assert isinstance(entry, storepass.model.Account)
+
+        if response_id != Gtk.ResponseType.APPLY:
+            dialog.destroy()
+            return
+
+        # Obtain new properties and create a fresh entry to replace the previous
+        # one.
+        name = dialog.get_name()
+        if not self._validate_new_name(entry, name):
+            return
+        description = dialog.get_description()
+        notes = dialog.get_notes()
+
+        account_type = dialog.get_account_type()
+        if account_type == storepass.model.Generic:
+            # TODO Fix updated.
+            new_entry = storepass.model.Generic(name, description, notes, None,
+                                                dialog.get_hostname(),
+                                                dialog.get_username(),
+                                                dialog.get_password())
+        else:
+            assert 0 and "Unhandled entry type!"
 
         dialog.destroy()
-        return
 
+        # TODO Error handling.
+        self.model.replace_entry(entry, new_entry)
+
+        # Update the view.
+        self._entries_tree_store.set_row(
+            tree_store_iter,
+            [new_entry.name, _EntryGObject(new_entry)])
         # TODO Update the main panel with detailed information.
 
 

@@ -237,6 +237,14 @@ class Entry:
         if parent is not None:
             parent.add_child(self)
 
+    def get_path(self):
+        res = []
+        entry = self
+        while entry is not None and not isinstance(entry, Root):
+            res.insert(0, entry.name)
+            entry = entry._parent
+        return res
+
     def inline_str(self):
         return f"name={self.name}, description={self.description}, updated={self.updated}, notes={self.notes}"
 
@@ -358,6 +366,30 @@ class Model:
             raise storepass.exc.ModelException(
                 f"Entry '{path_string}' is not empty")
         parent.remove_child_at(parent_index)
+
+    def replace_entry(self, old_entry, new_entry):
+        """
+        Replace a specified entry with another one. Throws ModelException if the
+        new entry has a same name as an already existing entry and it is not the
+        old entry.
+
+        Note: For Folder's, callers are responsible to make a copy of the
+        children object if the sub-tree should remain preserved.
+        """
+
+        parent = old_entry.parent
+        assert parent is not None
+
+        if old_entry.name != new_entry.name:
+            child, _ = parent.get_child(new_entry.name)
+            if child is not None:
+                path_string = path_spec_to_string(parent.get_path() +
+                                                  [new_entry.name])
+                raise storepass.exc.ModelException(
+                    f"Entry '{path_string}' already exists")
+
+        parent.remove_child(old_entry)
+        parent.add_child(new_entry)
 
     def visit_all(self, visitor):
         """
