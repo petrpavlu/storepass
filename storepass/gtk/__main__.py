@@ -216,6 +216,8 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _on_open_dialog_response(self, dialog, response_id):
         """Process a response from the Open File dialog."""
 
+        assert isinstance(dialog, Gtk.FileChooserDialog)
+
         if response_id != Gtk.ResponseType.OK:
             dialog.destroy()
             return
@@ -323,6 +325,8 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_save_as_dialog_response(self, dialog, response_id):
         """Process a response from the Save As dialog."""
+
+        assert isinstance(dialog, Gtk.FileChooserDialog)
 
         if response_id != Gtk.ResponseType.OK:
             dialog.destroy()
