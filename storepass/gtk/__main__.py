@@ -1,6 +1,7 @@
 # Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import datetime
 import enum
 import gi
 import importlib.resources
@@ -505,6 +506,9 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # TODO Update the main panel with detailed information.
 
+    def _get_current_datetime(self):
+        return datetime.datetime.now(datetime.timezone.utc)
+
     def _on_folder_edit_dialog_response(self, dialog, response_id, old_entry,
                                         tree_store_iter):
         assert isinstance(dialog, edit.FolderEditDialog)
@@ -521,9 +525,9 @@ class _MainWindow(Gtk.ApplicationWindow):
                                     "Name cannot be empty.")
             dialog.destroy()
             return
-        # TODO Fix updated.
         new_entry = storepass.model.Folder(name, dialog.get_description(),
-                                           None, dialog.get_notes(), [])
+                                           self._get_current_datetime(),
+                                           dialog.get_notes(), [])
 
         dialog.destroy()
         self._replace_entry(tree_store_iter, old_entry, new_entry)
@@ -545,13 +549,13 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
         description = dialog.get_description()
+        updated = self._get_current_datetime()
         notes = dialog.get_notes()
 
         account_type = dialog.get_account_type()
         if account_type == storepass.model.Generic:
-            # TODO Fix updated.
-            new_entry = storepass.model.Generic(name, description, notes, None,
-                                                dialog.get_hostname(),
+            new_entry = storepass.model.Generic(name, description, updated,
+                                                notes, dialog.get_hostname(),
                                                 dialog.get_username(),
                                                 dialog.get_password())
         else:
