@@ -11,11 +11,11 @@ from gi.repository import Gtk
 import storepass.model
 
 
-def _normalize_empty_to_none(self, text):
+def _normalize_empty_to_none(text):
     return text if text != "" else None
 
 
-def _normalize_none_to_empty(self, text):
+def _normalize_none_to_empty(text):
     return text if text is not None else ""
 
 
