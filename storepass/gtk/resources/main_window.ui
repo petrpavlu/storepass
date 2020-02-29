@@ -18,7 +18,7 @@ SPDX-License-Identifier: MIT
                         <child>
                             <object class="GtkTreeView" id="entries_tree_view">
                                 <property name="visible">True</property>
-                                <property name="headers_visible">False</property>
+                                <property name="headers-visible">False</property>
                                 <signal name="button-press-event" handler="on_entries_tree_view_button_press_event"/>
                                 <child>
                                     <object class="GtkTreeViewColumn">

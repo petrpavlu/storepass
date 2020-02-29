@@ -6,9 +6,9 @@ SPDX-License-Identifier: MIT
 <interface>
     <template class="AboutDialog" parent="GtkAboutDialog">
         <property name="modal">True</property>
-        <property name="logo_icon_name">emblem-readonly</property>
-        <property name="copyright">Copyright © 2019-2020 Petr Pavlu </property>
+        <property name="logo-icon-name">emblem-readonly</property>
+        <property name="copyright">Copyright © 2019-2020 Petr Pavlu</property>
         <property name="website">https://github.com/petrpavlu/storepass</property>
-        <property name="license_type">mit-x11</property>
+        <property name="license-type">mit-x11</property>
     </template>
 </interface>

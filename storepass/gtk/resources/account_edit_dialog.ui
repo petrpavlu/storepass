@@ -16,8 +16,8 @@ SPDX-License-Identifier: MIT
                 <child>
                     <object class="GtkGrid">
                         <property name="visible">True</property>
-                        <property name="row_spacing">5</property>
-                        <property name="column_spacing">5</property>
+                        <property name="row-spacing">5</property>
+                        <property name="column-spacing">5</property>
                         <child>
                             <object class="GtkLabel">
                                 <property name="visible">True</property>
@@ -28,8 +28,8 @@ SPDX-License-Identifier: MIT
                                 </attributes>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">0</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">0</property>
                                 <property name="width">2</property>
                             </packing>
                         </child>
@@ -37,12 +37,12 @@ SPDX-License-Identifier: MIT
                             <object class="GtkLabel" id="name_label">
                                 <property name="visible">True</property>
                                 <property name="halign">start</property>
-                                <property name="margin_left">4</property>
+                                <property name="margin-left">4</property>
                                 <property name="label" translatable="yes">Name:</property>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">1</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">1</property>
                             </packing>
                         </child>
                         <child>
@@ -51,20 +51,20 @@ SPDX-License-Identifier: MIT
                                 <property name="hexpand">True</property>
                             </object>
                             <packing>
-                                <property name="left_attach">1</property>
-                                <property name="top_attach">1</property>
+                                <property name="left-attach">1</property>
+                                <property name="top-attach">1</property>
                             </packing>
                         </child>
                         <child>
                             <object class="GtkLabel" id="description_label">
                                 <property name="visible">True</property>
                                 <property name="halign">start</property>
-                                <property name="margin_left">4</property>
+                                <property name="margin-left">4</property>
                                 <property name="label" translatable="yes">Description:</property>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">2</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">2</property>
                             </packing>
                         </child>
                         <child>
@@ -73,20 +73,20 @@ SPDX-License-Identifier: MIT
                                 <property name="hexpand">True</property>
                             </object>
                             <packing>
-                                <property name="left_attach">1</property>
-                                <property name="top_attach">2</property>
+                                <property name="left-attach">1</property>
+                                <property name="top-attach">2</property>
                             </packing>
                         </child>
                         <child>
                             <object class="GtkLabel">
                                 <property name="visible">True</property>
                                 <property name="halign">start</property>
-                                <property name="margin_left">4</property>
+                                <property name="margin-left">4</property>
                                 <property name="label" translatable="yes">Type:</property>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">3</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">3</property>
                             </packing>
                         </child>
                         <child>
@@ -102,8 +102,8 @@ SPDX-License-Identifier: MIT
                                 </child>
                             </object>
                             <packing>
-                                <property name="left_attach">1</property>
-                                <property name="top_attach">3</property>
+                                <property name="left-attach">1</property>
+                                <property name="top-attach">3</property>
                             </packing>
                         </child>
                         <child>
@@ -116,8 +116,8 @@ SPDX-License-Identifier: MIT
                                 </attributes>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">4</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">4</property>
                                 <property name="width">2</property>
                             </packing>
                         </child>
@@ -125,12 +125,12 @@ SPDX-License-Identifier: MIT
                             <object class="GtkLabel" id="hostname_label">
                                 <property name="visible">True</property>
                                 <property name="halign">start</property>
-                                <property name="margin_left">4</property>
+                                <property name="margin-left">4</property>
                                 <property name="label" translatable="yes">Hostname:</property>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">5</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">5</property>
                             </packing>
                         </child>
                         <child>
@@ -139,20 +139,20 @@ SPDX-License-Identifier: MIT
                                 <property name="hexpand">True</property>
                             </object>
                             <packing>
-                                <property name="left_attach">1</property>
-                                <property name="top_attach">5</property>
+                                <property name="left-attach">1</property>
+                                <property name="top-attach">5</property>
                             </packing>
                         </child>
                         <child>
                             <object class="GtkLabel" id="username_label">
                                 <property name="visible">True</property>
                                 <property name="halign">start</property>
-                                <property name="margin_left">4</property>
+                                <property name="margin-left">4</property>
                                 <property name="label" translatable="yes">Username:</property>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">6</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">6</property>
                             </packing>
                         </child>
                         <child>
@@ -161,32 +161,32 @@ SPDX-License-Identifier: MIT
                                 <property name="hexpand">True</property>
                             </object>
                             <packing>
-                                <property name="left_attach">1</property>
-                                <property name="top_attach">6</property>
+                                <property name="left-attach">1</property>
+                                <property name="top-attach">6</property>
                             </packing>
                         </child>
                         <child>
                             <object class="GtkLabel" id="password_label">
                                 <property name="visible">True</property>
                                 <property name="halign">start</property>
-                                <property name="margin_left">4</property>
+                                <property name="margin-left">4</property>
                                 <property name="label" translatable="yes">Password:</property>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">7</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">7</property>
                             </packing>
                         </child>
                         <child>
                             <object class="GtkEntry" id="password_entry">
                                 <property name="visible">True</property>
                                 <property name="hexpand">True</property>
-                                <property name="input_purpose">password</property>
+                                <property name="input-purpose">password</property>
                                 <property name="visibility">False</property>
                             </object>
                             <packing>
-                                <property name="left_attach">1</property>
-                                <property name="top_attach">7</property>
+                                <property name="left-attach">1</property>
+                                <property name="top-attach">7</property>
                             </packing>
                         </child>
                         <child>
@@ -199,15 +199,15 @@ SPDX-License-Identifier: MIT
                                 </attributes>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">8</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">8</property>
                                 <property name="width">2</property>
                             </packing>
                         </child>
                         <child>
                             <object class="GtkScrolledWindow">
                                 <property name="visible">True</property>
-                                <property name="margin_left">4</property>
+                                <property name="margin-left">4</property>
                                 <property name="height-request">80</property>
                                 <child>
                                     <object class="GtkTextView" id="notes_text_view">
@@ -218,8 +218,8 @@ SPDX-License-Identifier: MIT
                                 </child>
                             </object>
                             <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">9</property>
+                                <property name="left-attach">0</property>
+                                <property name="top-attach">9</property>
                                 <property name="width">2</property>
                             </packing>
                         </child>
@@ -231,14 +231,14 @@ SPDX-License-Identifier: MIT
             <object class="GtkButton" id="cancel_button">
                 <property name="visible">True</property>
                 <property name="label">gtk-cancel</property>
-                <property name="use_stock">True</property>
+                <property name="use-stock">True</property>
             </object>
         </child>
         <child type="action">
             <object class="GtkButton" id="apply_button">
                 <property name="visible">True</property>
                 <property name="label">gtk-apply</property>
-                <property name="use_stock">True</property>
+                <property name="use-stock">True</property>
                 <property name="can-default">True</property>
             </object>
         </child>
