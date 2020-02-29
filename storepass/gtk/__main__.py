@@ -35,12 +35,8 @@ class _PasswordDialog(Gtk.Dialog):
 
     _password_entry = Gtk.Template.Child('password_entry')
 
-    def __init__(self, parent_window, filename):
+    def __init__(self, parent_window):
         super().__init__(parent=parent_window)
-        self._filename = filename
-
-    def get_filename(self):
-        return self._filename
 
     def get_password(self):
         return self._password_entry.get_text()
@@ -236,13 +232,16 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._clear_state()
 
         # Ask for the password via a dialog.
-        dialog = _PasswordDialog(self, filename)
-        dialog.connect('response',
-                       self._on_open_password_database_dialog_response)
+        dialog = _PasswordDialog(self)
+        dialog.connect(
+            'response', lambda dialog, response_id: self
+            ._on_open_password_database_dialog_response(
+                dialog, response_id, filename))
         dialog.show()
         dialog.present_with_time(Gdk.CURRENT_TIME)
 
-    def _on_open_password_database_dialog_response(self, dialog, response_id):
+    def _on_open_password_database_dialog_response(self, dialog, response_id,
+                                                   filename):
         """Process a response from a Password dialog (for database open)."""
 
         assert isinstance(dialog, _PasswordDialog)
@@ -251,7 +250,6 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        filename = dialog.get_filename()
         password = dialog.get_password()
         dialog.destroy()
 
@@ -345,13 +343,16 @@ class _MainWindow(Gtk.ApplicationWindow):
         """Save a password database to the specified file."""
 
         # Ask for the password via a dialog.
-        dialog = _PasswordDialog(self, filename)
-        dialog.connect('response',
-                       self._on_save_password_database_dialog_response)
+        dialog = _PasswordDialog(self)
+        dialog.connect(
+            'response', lambda dialog, response_id: self
+            ._on_save_password_database_dialog_response(
+                dialog, response_id, filaname))
         dialog.show()
         dialog.present_with_time(Gdk.CURRENT_TIME)
 
-    def _on_save_password_database_dialog_response(self, dialog, response_id):
+    def _on_save_password_database_dialog_response(self, dialog, response_id,
+                                                   filename):
         """Process a response from a Password dialog (for database save)."""
 
         assert isinstance(dialog, _PasswordDialog)
@@ -360,7 +361,6 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        filename = dialog.get_filename()
         password = dialog.get_password()
         dialog.destroy()
 
