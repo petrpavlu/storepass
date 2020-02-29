@@ -1,6 +1,29 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""
+Data model module.
+
+Class diagram:
+     ,-----------,    ,-------,
+     | Container |    | Entry |
+     '-----------'    '-------'
+         ^   ^          ^   ^
+         |   |          |   |
+     ,---'   +---,  ,---'   '---,
+     |           |  |           |
+  ,------,    ,--------,   ,---------,
+  | Root |    | Folder |   | Account |
+  '------'    '--------'   '---------'
+                             ^
+                             |
+       ,---------------------'
+       |
+  ,---------,
+  | Generic |
+  '---------'
+"""
+
 import storepass.exc
 
 
@@ -239,10 +262,15 @@ class Folder(Entry, Container):
             self._accept_children(visitor, parent_data)
 
 
-class Generic(Entry):
+class Account(Entry):
+    def __init__(self, name, description, updated, notes):
+        Entry.__init__(self, name, description, updated, notes)
+
+
+class Generic(Account):
     def __init__(self, name, description, updated, notes, hostname, username, \
         password):
-        Entry.__init__(self, name, description, updated, notes)
+        Account.__init__(self, name, description, updated, notes)
         self.hostname = hostname
         self.username = username
         self.password = password
