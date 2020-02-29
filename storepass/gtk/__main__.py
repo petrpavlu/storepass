@@ -130,8 +130,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Initialize the entries TreeView.
         self._entries_tree_store = Gtk.TreeStore(str, _EntryGObject)
         self._entries_tree_store.set_sort_column_id(
-                ENTRIES_TREEVIEW_NAME_COLUMN,
-                Gtk.SortType.ASCENDING)
+            ENTRIES_TREEVIEW_NAME_COLUMN, Gtk.SortType.ASCENDING)
         self._entries_tree_view.set_model(self._entries_tree_store)
 
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
@@ -527,7 +526,8 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Update the view.
         self._entries_tree_store.set_value(tree_store_iter,
-                ENTRIES_TREEVIEW_NAME_COLUMN, entry.name)
+                                           ENTRIES_TREEVIEW_NAME_COLUMN,
+                                           entry.name)
 
     def _on_account_edit_dialog_response(self, dialog, response_id, entry,
                                          tree_store_iter):
