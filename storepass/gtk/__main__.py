@@ -147,6 +147,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         edit_action.connect('activate', self._on_entry_edit)
         self.add_action(edit_action)
 
+        remove_action = Gio.SimpleAction.new('entry_remove', None)
+        remove_action.connect('activate', self._on_entry_remove)
+        self.add_action(remove_action)
+
         # Create an empty database storage and model.
         self._storage = None
         self._model = storepass.model.Model()
@@ -484,8 +488,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         row_ref = self._entries_tree_view_menu_row_ref.copy()
         tree_model = row_ref.get_model()
         assert tree_model == self._entries_tree_store
-        entry_path = row_ref.get_path()
-        entry = tree_model.get_value(tree_model.get_iter(entry_path),
+        entry_iter = tree_model.get_iter(row_ref.get_path())
+        entry = tree_model.get_value(entry_iter,
                                      _EntriesTreeStoreColumn.ENTRY).entry
 
         if isinstance(entry, storepass.model.Folder):
@@ -585,6 +589,21 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         dialog.destroy()
         self._replace_entry(tree_store_row_ref, old_entry, new_entry)
+
+    def _on_entry_remove(self, action, param):
+        assert self._entries_tree_view_menu_row_ref is not None
+        assert self._entries_tree_view_menu_row_ref.valid()
+
+        row_ref = self._entries_tree_view_menu_row_ref
+        tree_model = row_ref.get_model()
+        assert tree_model == self._entries_tree_store
+        entry_iter = tree_model.get_iter(row_ref.get_path())
+        entry = tree_model.get_value(entry_iter,
+                                     _EntriesTreeStoreColumn.ENTRY).entry
+
+        # TODO Show a confirmation dialog if removing a non-empty Folder.
+        entry.parent.remove_child(entry)
+        tree_model.remove(entry_iter)
 
 
 class _App(Gtk.Application):
