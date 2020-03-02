@@ -151,6 +151,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         remove_action.connect('activate', self._on_entry_remove)
         self.add_action(remove_action)
 
+        add_folder_action = Gio.SimpleAction.new('add_folder', None)
+        add_folder_action.connect('activate', self._on_add_folder)
+        self.add_action(add_folder_action)
+
         # Create an empty database storage and model.
         self._storage = None
         self._model = storepass.model.Model()
@@ -604,6 +608,69 @@ class _MainWindow(Gtk.ApplicationWindow):
         # TODO Show a confirmation dialog if removing a non-empty Folder.
         entry.parent.remove_child(entry)
         tree_model.remove(entry_iter)
+
+    def _on_add_folder(self, action, param):
+        entry = None
+        row_ref = None
+        if self._entries_tree_view_menu_row_ref is not None:
+            assert self._entries_tree_view_menu_row_ref.valid()
+
+            # TODO Move into an own method.
+            row_ref = self._entries_tree_view_menu_row_ref.copy()
+            tree_model = row_ref.get_model()
+            assert tree_model == self._entries_tree_store
+            entry_iter = tree_model.get_iter(row_ref.get_path())
+            entry = tree_model.get_value(entry_iter,
+                                         _EntriesTreeStoreColumn.ENTRY).entry
+
+            # TODO Check that the entry is a Folder, else reject the action. Do
+            # this when displaying the menu actually.
+
+        dialog = edit.FolderEditDialog(self, None)
+        dialog.connect(
+            'response',
+            lambda dialog, response_id: self._on_add_folder_dialog_response(
+                dialog, response_id, entry, row_ref))
+        dialog.show()
+
+    def _on_add_folder_dialog_response(self, dialog, response_id, parent,
+                                       tree_store_row_ref):
+        assert isinstance(dialog, edit.FolderEditDialog)
+        if isinstance(parent, storepass.model.Root):
+            assert tree_store_row_ref is None
+        else:
+            assert isinstance(parent, storepass.model.Folder)
+            assert tree_store_row_ref is not None
+            assert tree_store_row_ref.valid()
+
+        if response_id != Gtk.ResponseType.APPLY:
+            dialog.destroy()
+            return
+
+        # Obtain properties and create a new entry.
+        name = dialog.get_name()
+        if name is None:
+            self._show_error_dialog("Invalid folder name",
+                                    "Name cannot be empty.")
+            dialog.destroy()
+            return
+        new_entry = storepass.model.Folder(name, dialog.get_description(),
+                                           self._get_current_datetime(),
+                                           dialog.get_notes(), [])
+
+        dialog.destroy()
+        # TODO Error checking.
+        self._model.add_entry(parent, new_entry)
+
+        # Update the view.
+        # TODO Use a helper method to unwrap a tree store row reference.
+        tree_store = tree_store_row_ref.get_model()
+        assert tree_store == self._entries_tree_store
+        tree_store_path = tree_store_row_ref.get_path()
+        tree_store_iter = tree_store.get_iter(tree_store_path)
+        self._entries_tree_store.append(
+            tree_store_iter,
+            [new_entry.name, _EntryGObject(new_entry)])
 
 
 class _App(Gtk.Application):

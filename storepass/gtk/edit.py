@@ -35,6 +35,9 @@ class FolderEditDialog(Gtk.Dialog):
     def __init__(self, parent_window, entry):
         super().__init__(parent=parent_window)
 
+        if entry is None:
+            return
+
         self._name_entry.set_text(entry.name)
         self._description_entry.set_text(
             _normalize_none_to_empty(entry.description))
