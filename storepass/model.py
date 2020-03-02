@@ -136,7 +136,7 @@ class Container:
                 high = mid
         return low
 
-    def get_child(self, name):
+    def _get_child_full(self, name):
         """
         Search for a child with the given name. Returns a 2-item tuple
         consisting of the child object and its index if the name was found and
@@ -150,6 +150,15 @@ class Container:
                 return (child, index)
         return (None, index)
 
+    def get_child(self, name):
+        """
+        Search for a child with the given name. Returns a found entry if it
+        exists and None otherwise.
+        """
+
+        child, _ = self._get_child_full(name)
+        return child
+
     def add_child(self, child):
         """
         Add a new child object. Returns True if the insertion was successful and
@@ -158,7 +167,7 @@ class Container:
 
         assert child.parent is None
 
-        old_child, index = self.get_child(child.name)
+        old_child, index = self._get_child_full(child.name)
         if old_child is not None:
             return False
         self._children.insert(index, child)
@@ -170,13 +179,8 @@ class Container:
 
         assert child._parent == self
 
-        child2, index = self.get_child(child.name)
+        child2, index = self._get_child_full(child.name)
         assert child == child2
-
-        self.remove_child_at(index)
-
-    def remove_child_at(self, index):
-        """Delete a child at the given index."""
 
         self._children[index]._parent = None
         del self._children[index]
@@ -306,16 +310,16 @@ class Model:
 
         storage.write_tree(self._root, exclusive)
 
-    def get_entry_full(self, path_spec):
+    def get_entry(self, path_spec):
         """
-        Search for a specified entry. Returns a 3-item tuple consisting of the
-        found entry, its parent and entry's index in the parent's children if
-        the entry exists and throws ModelException otherwise.
+        Search for a specified entry. Returns a found entry if it exists and
+        throws ModelException otherwise.
+
+        If path_spec is empty then the Root object is returned.
         """
 
         parent = None
         entry = self._root
-        parent_index = 0
         for i, element in enumerate(path_spec):
             parent = entry
 
@@ -326,7 +330,7 @@ class Model:
                     f"Entry '{element_string}' (element #{i+1} in "
                     f"'{path_string}') has a non-folder type")
 
-            entry, parent_index = parent.get_child(element)
+            entry = parent.get_child(element)
             if entry is None:
                 element_string = path_element_to_string(element)
                 path_string = path_spec_to_string(path_spec)
@@ -334,39 +338,36 @@ class Model:
                     f"Entry '{element_string}' (element #{i+1} in "
                     f"'{path_string}') does not exist")
 
-        return entry, parent, parent_index
-
-    def get_entry(self, path_spec):
-        """Wrapper for get_entry_full() that returns only the found entry."""
-
-        entry, _, _ = self.get_entry_full(path_spec)
         return entry
 
-    def add_entry(self, parent_path_spec, entry):
+    def add_entry(self, parent, new_entry):
         """
-        Insert a new entry at the specified path. Throws ModelException if the
-        parent path is not valid or the entry already exists.
+        Add a new entry to the specified parent. Throws ModelException if an
+        entry with the same name already exists.
         """
 
-        parent_entry = self.get_entry(parent_path_spec)
-        if not parent_entry.add_child(entry):
-            path_string = path_element_to_string(parent_path_spec +
-                                                 [entry.name])
+        if not parent.add_child(new_entry):
+            parent_path_spec = parent.get_path() if not isinstance(
+                parent, Root) else []
+            path_string = path_spec_to_string(parent_path_spec +
+                                              [new_entry.name])
             raise storepass.exc.ModelException(
                 f"Entry '{path_string}' already exists")
 
-    def delete_entry(self, path_spec):
+    def remove_entry(self, entry):
         """
-        Delete a specified entry. Throws ModelException if the entry does not
-        exist or is a non-empty folder.
+        Remove a specified entry. Throws ModelException if the entry is a
+        non-empty folder.
         """
 
-        entry, parent, parent_index = self.get_entry_full(path_spec)
         if isinstance(entry, Container) and len(entry.children) > 0:
-            path_string = path_spec_to_string(path_spec)
+            path_string = path_spec_to_string(entry.get_path())
             raise storepass.exc.ModelException(
                 f"Entry '{path_string}' is not empty")
-        parent.remove_child_at(parent_index)
+
+        parent = entry.parent
+        assert parent is not None
+        parent.remove_child(entry)
 
     def replace_entry(self, old_entry, new_entry, move_children=True):
         """

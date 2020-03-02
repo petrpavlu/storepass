@@ -179,7 +179,8 @@ def _process_add_command(args, model):
 
     # Insert the new entry in the model.
     try:
-        model.add_entry(path_spec[:-1], entry)
+        parent_entry = model.get_entry(path_spec[:-1])
+        model.add_entry(parent_entry, entry)
     except storepass.exc.ModelException as e:
         _logger.error(e)
         return 1
@@ -243,7 +244,8 @@ def _process_delete_command(args, model):
     entry_name = args.entry[0]
     try:
         path_spec = storepass.model.path_string_to_spec(entry_name)
-        entry = model.delete_entry(path_spec)
+        entry = model.get_entry(path_spec)
+        model.remove_entry(entry)
     except storepass.exc.ModelException as e:
         _logger.error(e)
         return 1
