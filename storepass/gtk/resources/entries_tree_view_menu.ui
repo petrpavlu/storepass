@@ -20,6 +20,10 @@ SPDX-License-Identifier: MIT
                 <attribute name="label" translatable="yes">_Add Folder…</attribute>
                 <attribute name="action">win.add_folder</attribute>
             </item>
+            <item>
+                <attribute name="label" translatable="yes">_Add Account…</attribute>
+                <attribute name="action">win.add_account</attribute>
+            </item>
         </section>
     </menu>
 </interface>

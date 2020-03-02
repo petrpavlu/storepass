@@ -91,17 +91,23 @@ class AccountEditDialog(Gtk.Dialog):
     def __init__(self, parent_window, entry):
         super().__init__(parent=parent_window)
 
+        self._type_list_store = Gtk.ListStore(str, _AccountClassGObject)
+        self._type_list_store.append(
+            ["Generic",
+             _AccountClassGObject(storepass.model.Generic)])
+        self._type_combo_box.set_model(self._type_list_store)
+
+        if entry is None:
+            self._type_combo_box.set_active(0)
+            return
+
         self._name_entry.set_text(entry.name)
         self._description_entry.set_text(
             _normalize_none_to_empty(entry.description))
         self._notes_text_view.get_buffer().set_text(
             _normalize_none_to_empty(entry.notes))
 
-        self._type_list_store = Gtk.ListStore(str, _AccountClassGObject)
-        self._type_list_store.append(
-            ["Generic",
-             _AccountClassGObject(storepass.model.Generic)])
-        self._type_combo_box.set_model(self._type_list_store)
+        # TODO Select the correct type based on entry's type.
         self._type_combo_box.set_active(0)
 
         if isinstance(entry, storepass.model.Generic):
