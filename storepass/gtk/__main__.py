@@ -528,9 +528,10 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Update the view.
         tree_store = tree_store_row_ref.get_model()
+        assert tree_store == self._entries_tree_store
         tree_store_path = tree_store_row_ref.get_path()
         tree_store_iter = tree_store.get_iter(tree_store_path)
-        self._entries_tree_store.set_row(
+        tree_store.set_row(
             tree_store_iter,
             [new_entry.name, _EntryGObject(new_entry)])
 
