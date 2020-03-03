@@ -394,7 +394,8 @@ class Model:
             isinstance(new_entry, Folder):
             old_entry.move_children_to(new_entry)
         parent.remove_child(old_entry)
-        parent.add_child(new_entry)
+        res = parent.add_child(new_entry)
+        assert res is True
 
     def visit_all(self, visitor):
         """
