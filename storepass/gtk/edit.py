@@ -22,11 +22,11 @@ def _normalize_none_to_empty(text):
 
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources',
-                                  'folder_edit_dialog.ui'))
-class FolderEditDialog(Gtk.Dialog):
+                                  'edit_folder_dialog.ui'))
+class EditFolderDialog(Gtk.Dialog):
     """Dialog to edit folder properties."""
 
-    __gtype_name__ = "FolderEditDialog"
+    __gtype_name__ = "EditFolderDialog"
 
     _name_entry = Gtk.Template.Child('name_entry')
     _description_entry = Gtk.Template.Child('description_entry')
@@ -71,11 +71,11 @@ class _AccountListStoreColumn(enum.IntEnum):
 
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources',
-                                  'account_edit_dialog.ui'))
-class AccountEditDialog(Gtk.Dialog):
+                                  'edit_account_dialog.ui'))
+class EditAccountDialog(Gtk.Dialog):
     """Dialog to edit account properties."""
 
-    __gtype_name__ = "AccountEditDialog"
+    __gtype_name__ = "EditAccountDialog"
 
     _name_entry = Gtk.Template.Child('name_entry')
     _description_entry = Gtk.Template.Child('description_entry')

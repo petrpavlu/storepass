@@ -143,13 +143,13 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._entries_tree_view_menu.attach_to_widget(self._entries_tree_view)
         self._entries_tree_view_menu_row_ref = None
 
-        edit_action = Gio.SimpleAction.new('entry_edit', None)
-        edit_action.connect('activate', self._on_entry_edit)
-        self.add_action(edit_action)
+        edit_entry_action = Gio.SimpleAction.new('edit_entry', None)
+        edit_entry_action.connect('activate', self._on_edit_entry)
+        self.add_action(edit_entry_action)
 
-        remove_action = Gio.SimpleAction.new('entry_remove', None)
-        remove_action.connect('activate', self._on_entry_remove)
-        self.add_action(remove_action)
+        remove_entry_action = Gio.SimpleAction.new('remove_entry', None)
+        remove_entry_action.connect('activate', self._on_remove_entry)
+        self.add_action(remove_entry_action)
 
         add_folder_action = Gio.SimpleAction.new('add_folder', None)
         add_folder_action.connect('activate', self._on_add_folder)
@@ -489,7 +489,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             # Show the pop-up menu.
             self._entries_tree_view_menu.popup_at_pointer(event)
 
-    def _on_entry_edit(self, action, param):
+    def _on_edit_entry(self, action, param):
         assert self._entries_tree_view_menu_row_ref is not None
         assert self._entries_tree_view_menu_row_ref.valid()
 
@@ -501,16 +501,16 @@ class _MainWindow(Gtk.ApplicationWindow):
                                      _EntriesTreeStoreColumn.ENTRY).entry
 
         if isinstance(entry, storepass.model.Folder):
-            dialog = edit.FolderEditDialog(self, entry)
+            dialog = edit.EditFolderDialog(self, entry)
             dialog.connect(
                 'response', lambda dialog,
-                response_id: self._on_folder_edit_dialog_response(
+                response_id: self._on_edit_folder_dialog_response(
                     dialog, response_id, entry, row_ref))
         else:
-            dialog = edit.AccountEditDialog(self, entry)
+            dialog = edit.EditAccountDialog(self, entry)
             dialog.connect(
                 'response', lambda dialog,
-                response_id: self._on_account_edit_dialog_response(
+                response_id: self._on_edit_account_dialog_response(
                     dialog, response_id, entry, row_ref))
         dialog.show()
 
@@ -541,9 +541,9 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         return datetime.datetime.now(datetime.timezone.utc)
 
-    def _on_folder_edit_dialog_response(self, dialog, response_id, old_entry,
+    def _on_edit_folder_dialog_response(self, dialog, response_id, old_entry,
                                         tree_store_row_ref):
-        assert isinstance(dialog, edit.FolderEditDialog)
+        assert isinstance(dialog, edit.EditFolderDialog)
         assert isinstance(old_entry, storepass.model.Folder)
         assert tree_store_row_ref.valid()
 
@@ -565,9 +565,9 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.destroy()
         self._replace_entry(tree_store_row_ref, old_entry, new_entry)
 
-    def _on_account_edit_dialog_response(self, dialog, response_id, old_entry,
+    def _on_edit_account_dialog_response(self, dialog, response_id, old_entry,
                                          tree_store_row_ref):
-        assert isinstance(dialog, edit.AccountEditDialog)
+        assert isinstance(dialog, edit.EditAccountDialog)
         assert isinstance(old_entry, storepass.model.Account)
         assert tree_store_row_ref.valid()
 
@@ -598,7 +598,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.destroy()
         self._replace_entry(tree_store_row_ref, old_entry, new_entry)
 
-    def _on_entry_remove(self, action, param):
+    def _on_remove_entry(self, action, param):
         assert self._entries_tree_view_menu_row_ref is not None
         assert self._entries_tree_view_menu_row_ref.valid()
 
@@ -630,7 +630,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             # TODO Check that the entry is a Folder, else reject the action. Do
             # this when displaying the menu actually.
 
-        dialog = edit.FolderEditDialog(self, None)
+        dialog = edit.EditFolderDialog(self, None)
         dialog.connect(
             'response',
             lambda dialog, response_id: self._on_add_folder_dialog_response(
@@ -639,7 +639,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_add_folder_dialog_response(self, dialog, response_id, parent,
                                        tree_store_row_ref):
-        assert isinstance(dialog, edit.FolderEditDialog)
+        assert isinstance(dialog, edit.EditFolderDialog)
         if isinstance(parent, storepass.model.Root):
             assert tree_store_row_ref is None
         else:
@@ -693,7 +693,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             # TODO Check that the entry is a Folder, else reject the action. Do
             # this when displaying the menu actually.
 
-        dialog = edit.AccountEditDialog(self, None)
+        dialog = edit.EditAccountDialog(self, None)
         dialog.connect(
             'response',
             lambda dialog, response_id: self._on_add_account_dialog_response(
@@ -702,7 +702,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_add_account_dialog_response(self, dialog, response_id, parent,
                                         tree_store_row_ref):
-        assert isinstance(dialog, edit.AccountEditDialog)
+        assert isinstance(dialog, edit.EditAccountDialog)
         if isinstance(parent, storepass.model.Root):
             assert tree_store_row_ref is None
         else:

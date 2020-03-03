@@ -8,11 +8,11 @@ SPDX-License-Identifier: MIT
         <section>
             <item>
                 <attribute name="label" translatable="yes">_Edit…</attribute>
-                <attribute name="action">win.entry_edit</attribute>
+                <attribute name="action">win.edit_entry</attribute>
             </item>
             <item>
                 <attribute name="label" translatable="yes">_Remove</attribute>
-                <attribute name="action">win.entry_remove</attribute>
+                <attribute name="action">win.remove_entry</attribute>
             </item>
         </section>
         <section>

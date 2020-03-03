@@ -4,7 +4,7 @@ Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 SPDX-License-Identifier: MIT
 -->
 <interface>
-    <template class="AccountEditDialog" parent="GtkDialog">
+    <template class="EditAccountDialog" parent="GtkDialog">
         <property name="title" translatable="yes">Edit Account</property>
         <property name="modal">False</property>
         <property name="default-width">600</property>
