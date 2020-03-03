@@ -383,7 +383,7 @@ class Model:
         assert parent is not None
 
         if old_entry.name != new_entry.name:
-            child, _ = parent.get_child(new_entry.name)
+            child = parent.get_child(new_entry.name)
             if child is not None:
                 path_string = path_spec_to_string(parent.get_path() +
                                                   [new_entry.name])
