@@ -542,11 +542,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Obtain updated properties and create a new entry.
         name = dialog.get_name()
-        if name is None:
-            util.show_error_dialog(self, "Invalid folder name",
-                                   "Name cannot be empty.")
-            dialog.destroy()
-            return
+        assert name is not None
         new_entry = storepass.model.Folder(name, dialog.get_description(),
                                            self._get_current_datetime(),
                                            dialog.get_notes(), [])
@@ -566,11 +562,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Obtain updated properties and create a new entry.
         name = dialog.get_name()
-        if name is None:
-            util.show_error_dialog(self, "Invalid account name",
-                                   "Name cannot be empty.")
-            dialog.destroy()
-            return
+        assert name is not None
         description = dialog.get_description()
         updated = self._get_current_datetime()
         notes = dialog.get_notes()
@@ -642,11 +634,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Obtain properties and create a new entry.
         name = dialog.get_name()
-        if name is None:
-            util.show_error_dialog(self, "Invalid folder name",
-                                   "Name cannot be empty.")
-            dialog.destroy()
-            return
+        assert name is not None
         new_entry = storepass.model.Folder(name, dialog.get_description(),
                                            self._get_current_datetime(),
                                            dialog.get_notes(), [])
@@ -705,11 +693,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Obtain updated properties and create a new entry.
         name = dialog.get_name()
-        if name is None:
-            util.show_error_dialog(self, "Invalid account name",
-                                   "Name cannot be empty.")
-            dialog.destroy()
-            return
+        assert name is not None
         description = dialog.get_description()
         updated = self._get_current_datetime()
         notes = dialog.get_notes()

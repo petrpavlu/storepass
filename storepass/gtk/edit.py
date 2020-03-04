@@ -10,6 +10,7 @@ from gi.repository import GObject
 from gi.repository import Gtk
 
 import storepass.model
+from storepass.gtk import util
 
 
 def _normalize_empty_to_none(text):
@@ -35,6 +36,8 @@ class EditFolderDialog(Gtk.Dialog):
     def __init__(self, parent_window, entry):
         super().__init__(parent=parent_window)
 
+        self.connect('response', self._on_response)
+
         if entry is None:
             return
 
@@ -43,6 +46,19 @@ class EditFolderDialog(Gtk.Dialog):
             _normalize_none_to_empty(entry.description))
         self._notes_text_view.get_buffer().set_text(
             _normalize_none_to_empty(entry.notes))
+
+    def _on_response(self, dialog, response_id):
+        assert dialog == self
+
+        if response_id != Gtk.ResponseType.APPLY or \
+            self._name_entry.get_text() != "":
+            return
+
+        # Report an error about the empty name and stop the response signal.
+        self.stop_emission_by_name('response')
+        self._name_entry.grab_focus()
+        util.show_error_dialog(self, "Invalid folder name",
+                               "Name cannot be empty.")
 
     def get_name(self):
         return _normalize_empty_to_none(self._name_entry.get_text())
@@ -97,6 +113,8 @@ class EditAccountDialog(Gtk.Dialog):
              _AccountClassGObject(storepass.model.Generic)])
         self._type_combo_box.set_model(self._type_list_store)
 
+        self.connect('response', self._on_response)
+
         if entry is None:
             self._type_combo_box.set_active(0)
             return
@@ -119,6 +137,19 @@ class EditAccountDialog(Gtk.Dialog):
         if isinstance(entry, storepass.model.Generic):
             self._password_entry.set_text(
                 _normalize_none_to_empty(entry.password))
+
+    def _on_response(self, dialog, response_id):
+        assert dialog == self
+
+        if response_id != Gtk.ResponseType.APPLY or \
+            self._name_entry.get_text() != "":
+            return
+
+        # Report an error about the empty name and stop the response signal.
+        self.stop_emission_by_name('response')
+        self._name_entry.grab_focus()
+        util.show_error_dialog(self, "Invalid account name",
+                               "Name cannot be empty.")
 
     @Gtk.Template.Callback("on_type_combo_box_changed")
     def _on_type_combo_box_changed(self, combo_box):
