@@ -239,10 +239,9 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Ask for the password via a dialog.
         dialog = _PasswordDialog(self)
-        dialog.connect(
-            'response', lambda dialog, response_id: self
-            ._on_open_password_database_dialog_response(
-                dialog, response_id, filename))
+        dialog.connect('response',
+                       self._on_open_password_database_dialog_response,
+                       filename)
         dialog.show()
         dialog.present_with_time(Gdk.CURRENT_TIME)
 
@@ -352,10 +351,9 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Ask for the password via a dialog.
         dialog = _PasswordDialog(self)
-        dialog.connect(
-            'response', lambda dialog, response_id: self
-            ._on_save_password_database_dialog_response(
-                dialog, response_id, filaname))
+        dialog.connect('response',
+                       self._on_save_password_database_dialog_response,
+                       filename)
         dialog.show()
         dialog.present_with_time(Gdk.CURRENT_TIME)
 
@@ -491,16 +489,12 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         if isinstance(entry, storepass.model.Folder):
             dialog = edit.EditFolderDialog(self, entry)
-            dialog.connect(
-                'response', lambda dialog,
-                response_id: self._on_edit_folder_dialog_response(
-                    dialog, response_id, entry, row_ref))
+            dialog.connect('response', self._on_edit_folder_dialog_response,
+                           entry, row_ref)
         else:
             dialog = edit.EditAccountDialog(self, entry)
-            dialog.connect(
-                'response', lambda dialog,
-                response_id: self._on_edit_account_dialog_response(
-                    dialog, response_id, entry, row_ref))
+            dialog.connect('response', self._on_edit_account_dialog_response,
+                           entry, row_ref)
         dialog.show()
 
     def _replace_entry(self, tree_store_row_ref, old_entry, new_entry):
@@ -612,10 +606,8 @@ class _MainWindow(Gtk.ApplicationWindow):
             # this when displaying the menu actually.
 
         dialog = edit.EditFolderDialog(self, None)
-        dialog.connect(
-            'response',
-            lambda dialog, response_id: self._on_add_folder_dialog_response(
-                dialog, response_id, entry, row_ref))
+        dialog.connect('response', self._on_add_folder_dialog_response, entry,
+                       row_ref)
         dialog.show()
 
     def _on_add_folder_dialog_response(self, dialog, response_id, parent,
@@ -671,10 +663,8 @@ class _MainWindow(Gtk.ApplicationWindow):
             # this when displaying the menu actually.
 
         dialog = edit.EditAccountDialog(self, None)
-        dialog.connect(
-            'response',
-            lambda dialog, response_id: self._on_add_account_dialog_response(
-                dialog, response_id, entry, row_ref))
+        dialog.connect('response', self._on_add_account_dialog_response, entry,
+                       row_ref)
         dialog.show()
 
     def _on_add_account_dialog_response(self, dialog, response_id, parent,
