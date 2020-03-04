@@ -21,6 +21,7 @@ import storepass.exc
 import storepass.model
 import storepass.storage
 from storepass.gtk import edit
+from storepass.gtk import util
 
 
 # Note: Keep these constants in sync with the ui files.
@@ -175,17 +176,6 @@ class _MainWindow(Gtk.ApplicationWindow):
         if os.path.exists(default_database):
             self._open_password_database(default_database)
 
-    def _show_error_dialog(self, primary_text, secondary_text):
-        """Create and display an error dialog."""
-
-        dialog = Gtk.MessageDialog(
-            self, Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-            Gtk.MessageType.ERROR, Gtk.ButtonsType.OK, primary_text)
-        dialog.format_secondary_text(secondary_text)
-        dialog.connect('response',
-                       lambda dialog, response_id: dialog.destroy())
-        dialog.show()
-
     def _clear_state(self):
         """Clear the current state. The result is a blank database."""
 
@@ -287,8 +277,8 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._clear_state()
 
             # Show a dialog with the error.
-            self._show_error_dialog(
-                "Error loading password database",
+            util.show_error_dialog(
+                self, "Error loading password database",
                 f"Failed to load password database '{filename}': {e}.")
             return
 
@@ -395,9 +385,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         try:
             self._model.save(self._storage)
         except storepass.exc.StorageWriteException as e:
-            # Show a dialog with the error.
-            self._show_error_dialog(
-                "Error saving password database",
+            util.show_error_dialog(
+                self, "Error saving password database",
                 f"Failed to save password database '{filename}': {e}.")
 
     def _populate_tree_view(self):
@@ -522,8 +511,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         try:
             self._model.replace_entry(old_entry, new_entry)
         except storepass.exc.ModelException as e:
-            # Show a dialog with the error.
-            self._show_error_dialog("Error updating entry", f"{e}.")
+            util.show_error_dialog(self, "Error updating entry", f"{e}.")
             return
 
         # Update the view.
@@ -555,8 +543,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Obtain updated properties and create a new entry.
         name = dialog.get_name()
         if name is None:
-            self._show_error_dialog("Invalid folder name",
-                                    "Name cannot be empty.")
+            util.show_error_dialog(self, "Invalid folder name",
+                                   "Name cannot be empty.")
             dialog.destroy()
             return
         new_entry = storepass.model.Folder(name, dialog.get_description(),
@@ -579,8 +567,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Obtain updated properties and create a new entry.
         name = dialog.get_name()
         if name is None:
-            self._show_error_dialog("Invalid account name",
-                                    "Name cannot be empty.")
+            util.show_error_dialog(self, "Invalid account name",
+                                   "Name cannot be empty.")
             dialog.destroy()
             return
         description = dialog.get_description()
@@ -655,8 +643,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Obtain properties and create a new entry.
         name = dialog.get_name()
         if name is None:
-            self._show_error_dialog("Invalid folder name",
-                                    "Name cannot be empty.")
+            util.show_error_dialog(self, "Invalid folder name",
+                                   "Name cannot be empty.")
             dialog.destroy()
             return
         new_entry = storepass.model.Folder(name, dialog.get_description(),
@@ -718,8 +706,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Obtain updated properties and create a new entry.
         name = dialog.get_name()
         if name is None:
-            self._show_error_dialog("Invalid account name",
-                                    "Name cannot be empty.")
+            util.show_error_dialog(self, "Invalid account name",
+                                   "Name cannot be empty.")
             dialog.destroy()
             return
         description = dialog.get_description()
