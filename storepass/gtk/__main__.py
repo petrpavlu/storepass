@@ -404,7 +404,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     @Gtk.Template.Callback("on_entries_tree_view_selection_changed")
     def _on_entries_tree_view_selection_changed(self, tree_selection):
-        tree_model, entry_iter = tree_selection.get_selected()
+        tree_store, entry_iter = tree_selection.get_selected()
         if entry_iter is None:
             self._update_entry_property(self._entry_name_box,
                                         self._entry_name_label, None, False)
@@ -427,7 +427,7 @@ class _MainWindow(Gtk.ApplicationWindow):
                                         None, True)
             return
 
-        entry = tree_model.get_value(entry_iter,
+        entry = tree_store.get_value(entry_iter,
                                      _EntriesTreeStoreColumn.ENTRY).entry
 
         # Show the panel with details of the entry.
