@@ -493,11 +493,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         assert self._entries_tree_view_menu_row_ref is not None
         assert self._entries_tree_view_menu_row_ref.valid()
 
-        # Make a private copy of the tree row reference object to pass to the
-        # response handler.
-        tree_row_ref = self._entries_tree_view_menu_row_ref.copy()
-
         # Get the selected entry.
+        tree_row_ref = self._entries_tree_view_menu_row_ref
         tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
         assert tree_store == self._entries_tree_store
         entry = tree_store.get_value(entry_iter,
@@ -610,11 +607,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         if self._entries_tree_view_menu_row_ref is not None:
             assert self._entries_tree_view_menu_row_ref.valid()
 
-            # Make a private copy of the tree row reference object to pass to
-            # the response handler.
-            tree_row_ref = self._entries_tree_view_menu_row_ref.copy()
-
             # Get the selected entry.
+            tree_row_ref = self._entries_tree_view_menu_row_ref
             tree_store, entry_iter = self._unwrap_tree_row_reference(
                 tree_row_ref)
             assert tree_store == self._entries_tree_store
@@ -667,11 +661,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         if self._entries_tree_view_menu_row_ref is not None:
             assert self._entries_tree_view_menu_row_ref.valid()
 
-            # Make a private copy of the tree row reference object to pass to
-            # the response handler.
-            tree_row_ref = self._entries_tree_view_menu_row_ref.copy()
-
             # Get the selected entry.
+            tree_row_ref = self._entries_tree_view_menu_row_ref
             tree_store, entry_iter = self._unwrap_tree_row_reference(
                 tree_row_ref)
             assert tree_store == self._entries_tree_store
