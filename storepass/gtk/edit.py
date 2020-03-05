@@ -1,6 +1,7 @@
 # Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+import datetime
 import enum
 import gi
 import importlib.resources
@@ -19,6 +20,12 @@ def _normalize_empty_to_none(text):
 
 def _normalize_none_to_empty(text):
     return text if text is not None else ""
+
+
+def _get_current_datetime():
+    """Obtain the current date+time in the UTC timezone."""
+
+    return datetime.datetime.now(datetime.timezone.utc)
 
 
 @Gtk.Template.from_string(
@@ -60,17 +67,20 @@ class EditFolderDialog(Gtk.Dialog):
         util.show_error_dialog(self, "Invalid folder name",
                                "Name cannot be empty.")
 
-    def get_name(self):
-        return _normalize_empty_to_none(self._name_entry.get_text())
+    def get_entry(self):
+        """Create a new folder based on the information input by the user."""
 
-    def get_description(self):
-        return _normalize_empty_to_none(self._description_entry.get_text())
-
-    def get_notes(self):
+        name = _normalize_empty_to_none(self._name_entry.get_text())
+        assert name is not None
+        description = _normalize_empty_to_none(
+            self._description_entry.get_text())
         text_buffer = self._notes_text_view.get_buffer()
         text = text_buffer.get_text(text_buffer.get_start_iter(),
                                     text_buffer.get_end_iter(), True)
-        return _normalize_empty_to_none(text)
+        notes = _normalize_empty_to_none(text)
+
+        return storepass.model.Folder(name, description,
+                                      _get_current_datetime(), notes, [])
 
 
 class _AccountClassGObject(GObject.Object):
@@ -177,30 +187,37 @@ class EditAccountDialog(Gtk.Dialog):
         self._password_label.set_visible(show_password)
         self._password_entry.set_visible(show_password)
 
-    def get_name(self):
-        return _normalize_empty_to_none(self._name_entry.get_text())
+    def get_entry(self):
+        """Create a new account based on the information input by the user."""
 
-    def get_description(self):
-        return _normalize_empty_to_none(self._description_entry.get_text())
-
-    def get_notes(self):
+        # Get common properties.
+        name = _normalize_empty_to_none(self._name_entry.get_text())
+        assert name is not None
+        description = _normalize_empty_to_none(
+            self._description_entry.get_text())
+        updated = _get_current_datetime()
         text_buffer = self._notes_text_view.get_buffer()
         text = text_buffer.get_text(text_buffer.get_start_iter(),
                                     text_buffer.get_end_iter(), True)
-        return _normalize_empty_to_none(text)
+        notes = _normalize_empty_to_none(text)
 
-    def get_account_type(self):
+        # Get the account type.
         active_iter = self._type_combo_box.get_active_iter()
         assert active_iter is not None
         account_class = self._type_combo_box.get_model().get_value(
-            active_iter, _AccountListStoreColumn.ACCOUNT_CLASS)
-        return account_class.type_
+            active_iter, _AccountListStoreColumn.ACCOUNT_CLASS).type_
 
-    def get_hostname(self):
-        return _normalize_empty_to_none(self._hostname_entry.get_text())
+        # Create a new account.
+        if account_class == storepass.model.Generic:
+            hostname = _normalize_empty_to_none(
+                self._hostname_entry.get_text())
+            username = _normalize_empty_to_none(
+                self._username_entry.get_text())
+            password = _normalize_empty_to_none(
+                self._password_entry.get_text())
+            entry = storepass.model.Generic(name, description, updated, notes,
+                                            hostname, username, password)
+        else:
+            assert 0 and "Unhandled entry type!"
 
-    def get_username(self):
-        return _normalize_empty_to_none(self._username_entry.get_text())
-
-    def get_password(self):
-        return _normalize_empty_to_none(self._password_entry.get_text())
+        return entry

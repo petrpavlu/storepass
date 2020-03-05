@@ -1,7 +1,6 @@
 # Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-import datetime
 import enum
 import gi
 import importlib.resources
@@ -530,11 +529,6 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # TODO Update the main panel with detailed information.
 
-    def _get_current_datetime(self):
-        """Obtain the current date+time in the UTC timezone."""
-
-        return datetime.datetime.now(datetime.timezone.utc)
-
     def _on_edit_folder_dialog_response(self, dialog, response_id, old_entry,
                                         tree_row_ref):
         assert isinstance(dialog, edit.EditFolderDialog)
@@ -545,14 +539,10 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Obtain updated properties and create a new entry.
-        name = dialog.get_name()
-        assert name is not None
-        new_entry = storepass.model.Folder(name, dialog.get_description(),
-                                           self._get_current_datetime(),
-                                           dialog.get_notes(), [])
-
+        # Obtain the newly defined folder.
+        new_entry = dialog.get_entry()
         dialog.destroy()
+
         self._replace_entry(tree_row_ref, old_entry, new_entry)
 
     def _on_edit_account_dialog_response(self, dialog, response_id, old_entry,
@@ -565,23 +555,10 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Obtain updated properties and create a new entry.
-        name = dialog.get_name()
-        assert name is not None
-        description = dialog.get_description()
-        updated = self._get_current_datetime()
-        notes = dialog.get_notes()
-
-        account_type = dialog.get_account_type()
-        if account_type == storepass.model.Generic:
-            new_entry = storepass.model.Generic(name, description, updated,
-                                                notes, dialog.get_hostname(),
-                                                dialog.get_username(),
-                                                dialog.get_password())
-        else:
-            assert 0 and "Unhandled entry type!"
-
+        # Obtain the newly defined account.
+        new_entry = dialog.get_entry()
         dialog.destroy()
+
         self._replace_entry(tree_row_ref, old_entry, new_entry)
 
     def _on_remove_entry(self, action, param):
@@ -637,14 +614,10 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Obtain properties and create a new entry.
-        name = dialog.get_name()
-        assert name is not None
-        new_entry = storepass.model.Folder(name, dialog.get_description(),
-                                           self._get_current_datetime(),
-                                           dialog.get_notes(), [])
-
+        # Obtain the newly defined folder.
+        new_entry = dialog.get_entry()
         dialog.destroy()
+
         # TODO Error checking.
         self._model.add_entry(parent, new_entry)
 
@@ -691,23 +664,10 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Obtain updated properties and create a new entry.
-        name = dialog.get_name()
-        assert name is not None
-        description = dialog.get_description()
-        updated = self._get_current_datetime()
-        notes = dialog.get_notes()
-
-        account_type = dialog.get_account_type()
-        if account_type == storepass.model.Generic:
-            new_entry = storepass.model.Generic(name, description, updated,
-                                                notes, dialog.get_hostname(),
-                                                dialog.get_username(),
-                                                dialog.get_password())
-        else:
-            assert 0 and "Unhandled entry type!"
-
+        # Obtain the newly defined account.
+        new_entry = dialog.get_entry()
         dialog.destroy()
+
         # TODO Error checking.
         self._model.add_entry(parent, new_entry)
 
