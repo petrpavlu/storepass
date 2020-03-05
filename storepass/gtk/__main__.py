@@ -624,7 +624,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Update the view.
         tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
         assert tree_store == self._entries_tree_store
-        self._entries_tree_store.append(
+        tree_store.append(
             entry_iter,
             [new_entry.name, _EntryGObject(new_entry)])
 
@@ -674,7 +674,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Update the view.
         tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
         assert tree_store == self._entries_tree_store
-        self._entries_tree_store.append(
+        tree_store.append(
             entry_iter,
             [new_entry.name, _EntryGObject(new_entry)])
 
