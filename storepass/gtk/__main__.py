@@ -488,6 +488,26 @@ class _MainWindow(Gtk.ApplicationWindow):
         iter_ = store.get_iter(tree_row_ref.get_path())
         return store, iter_
 
+    def _replace_entry(self, tree_row_ref, old_entry, new_entry):
+        """Replace a previous entry in the model with a new one."""
+
+        assert tree_row_ref.valid()
+
+        try:
+            self._model.replace_entry(old_entry, new_entry)
+        except storepass.exc.ModelException as e:
+            util.show_error_dialog(self, "Error updating entry", f"{e}.")
+            return
+
+        # Update the view.
+        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
+        assert tree_store == self._entries_tree_store
+        tree_store.set_row(
+            entry_iter,
+            [new_entry.name, _EntryGObject(new_entry)])
+
+        # TODO Update the main panel with detailed information.
+
     def _on_edit_entry(self, action, param):
         assert self._entries_tree_view_menu_row_ref is not None
         assert self._entries_tree_view_menu_row_ref.valid()
@@ -509,26 +529,6 @@ class _MainWindow(Gtk.ApplicationWindow):
                            entry, tree_row_ref)
         dialog.show()
 
-    def _replace_entry(self, tree_row_ref, old_entry, new_entry):
-        """Replace a previous entry in the model with a new one."""
-
-        assert tree_row_ref.valid()
-
-        try:
-            self._model.replace_entry(old_entry, new_entry)
-        except storepass.exc.ModelException as e:
-            util.show_error_dialog(self, "Error updating entry", f"{e}.")
-            return
-
-        # Update the view.
-        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
-        assert tree_store == self._entries_tree_store
-        tree_store.set_row(
-            entry_iter,
-            [new_entry.name, _EntryGObject(new_entry)])
-
-        # TODO Update the main panel with detailed information.
-
     def _on_edit_folder_dialog_response(self, dialog, response_id, old_entry,
                                         tree_row_ref):
         assert isinstance(dialog, edit.EditFolderDialog)
@@ -539,10 +539,9 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Obtain the newly defined folder.
+        # Obtain the newly defined folder and replace the old one.
         new_entry = dialog.get_entry()
         dialog.destroy()
-
         self._replace_entry(tree_row_ref, old_entry, new_entry)
 
     def _on_edit_account_dialog_response(self, dialog, response_id, old_entry,
@@ -555,10 +554,9 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Obtain the newly defined account.
+        # Obtain the newly defined account and replace the old one.
         new_entry = dialog.get_entry()
         dialog.destroy()
-
         self._replace_entry(tree_row_ref, old_entry, new_entry)
 
     def _on_remove_entry(self, action, param):
