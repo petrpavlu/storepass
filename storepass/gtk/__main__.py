@@ -578,6 +578,24 @@ class _MainWindow(Gtk.ApplicationWindow):
         entry.parent.remove_child(entry)
         tree_store.remove(entry_iter)
 
+    def _add_entry(self, tree_row_ref, parent, new_entry):
+        """Add a new entry in the model."""
+
+        assert tree_row_ref.valid()
+
+        try:
+            self._model.add_entry(parent, new_entry)
+        except storepass.exc.ModelException as e:
+            util.show_error_dialog(self, "Error adding entry", f"{e}.")
+            return
+
+        # Update the view.
+        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
+        assert tree_store == self._entries_tree_store
+        tree_store.append(
+            entry_iter,
+            [new_entry.name, _EntryGObject(new_entry)])
+
     def _on_add_folder(self, action, param):
         entry = None
         tree_row_ref = None
@@ -614,19 +632,10 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Obtain the newly defined folder.
+        # Obtain the newly defined folder and add it.
         new_entry = dialog.get_entry()
         dialog.destroy()
-
-        # TODO Error checking.
-        self._model.add_entry(parent, new_entry)
-
-        # Update the view.
-        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
-        assert tree_store == self._entries_tree_store
-        tree_store.append(
-            entry_iter,
-            [new_entry.name, _EntryGObject(new_entry)])
+        self._add_entry(tree_row_ref, parent, new_entry)
 
     def _on_add_account(self, action, param):
         entry = None
@@ -664,19 +673,10 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
             return
 
-        # Obtain the newly defined account.
+        # Obtain the newly defined account and add it.
         new_entry = dialog.get_entry()
         dialog.destroy()
-
-        # TODO Error checking.
-        self._model.add_entry(parent, new_entry)
-
-        # Update the view.
-        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
-        assert tree_store == self._entries_tree_store
-        tree_store.append(
-            entry_iter,
-            [new_entry.name, _EntryGObject(new_entry)])
+        self._add_entry(tree_row_ref, parent, new_entry)
 
 
 class _App(Gtk.Application):
