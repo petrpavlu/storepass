@@ -627,12 +627,8 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _on_add_folder_dialog_response(self, dialog, response_id, parent,
                                        tree_row_ref):
         assert isinstance(dialog, edit.EditFolderDialog)
-        if isinstance(parent, storepass.model.Root):
-            assert tree_row_ref is None
-        else:
-            assert isinstance(parent, storepass.model.Folder)
-            assert tree_row_ref is not None
-            assert tree_row_ref.valid()
+        assert tree_row_ref is not None
+        assert tree_row_ref.valid()
 
         if response_id != Gtk.ResponseType.APPLY:
             dialog.destroy()
@@ -668,12 +664,8 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _on_add_account_dialog_response(self, dialog, response_id, parent,
                                         tree_row_ref):
         assert isinstance(dialog, edit.EditAccountDialog)
-        if isinstance(parent, storepass.model.Root):
-            assert tree_row_ref is None
-        else:
-            assert isinstance(parent, storepass.model.Folder)
-            assert tree_row_ref is not None
-            assert tree_row_ref.valid()
+        assert tree_row_ref is not None
+        assert tree_row_ref.valid()
 
         if response_id != Gtk.ResponseType.APPLY:
             dialog.destroy()
