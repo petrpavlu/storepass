@@ -130,10 +130,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         self.add_action(save_as_action)
 
         # Initialize the entries TreeView.
-        self._entries_tree_store = Gtk.TreeStore(str, _EntryGObject)
-        self._entries_tree_store.set_sort_column_id(
+        tree_store = Gtk.TreeStore(str, _EntryGObject)
+        tree_store.set_sort_column_id(
             _EntriesTreeStoreColumn.NAME, Gtk.SortType.ASCENDING)
-        self._entries_tree_view.set_model(self._entries_tree_store)
+        self._entries_tree_view.set_model(tree_store)
 
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
                                                  'entries_tree_view_menu.ui')
@@ -180,7 +180,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         self._storage = None
         self._model = storepass.model.Model()
-        self._entries_tree_store.clear()
+        self._entries_tree_view.get_model().clear()
 
     def _on_new(self, action, param):
         """
@@ -387,7 +387,8 @@ class _MainWindow(Gtk.ApplicationWindow):
                 f"Failed to save password database '{filename}': {e}.")
 
     def _populate_tree_view(self):
-        self._model.visit_all(TreeStorePopulator(self._entries_tree_store))
+        tree_store = self._entries_tree_view.get_model()
+        self._model.visit_all(TreeStorePopulator(tree_store))
 
     def _update_entry_property(self, box_widget, label_widget, text,
                                hide_if_empty):
@@ -501,7 +502,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Update the view.
         tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
-        assert tree_store == self._entries_tree_store
+        assert tree_store == self._entries_tree_view.get_model()
         tree_store.set_row(
             entry_iter,
             [new_entry.name, _EntryGObject(new_entry)])
@@ -515,7 +516,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Get the selected entry.
         tree_row_ref = self._entries_tree_view_menu_row_ref
         tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
-        assert tree_store == self._entries_tree_store
+        assert tree_store == self._entries_tree_view.get_model()
         entry = tree_store.get_value(entry_iter,
                                      _EntriesTreeStoreColumn.ENTRY).entry
 
@@ -566,7 +567,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Get the selected entry.
         tree_store, entry_iter = self._unwrap_tree_row_reference(
             self._entries_tree_view_menu_row_ref)
-        assert tree_store == self._entries_tree_store
+        assert tree_store == self._entries_tree_view.get_model()
         entry = tree_store.get_value(entry_iter,
                                      _EntriesTreeStoreColumn.ENTRY).entry
 
@@ -589,7 +590,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Update the view.
         tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
-        assert tree_store == self._entries_tree_store
+        assert tree_store == self._entries_tree_view.get_model()
         tree_store.append(
             entry_iter,
             [new_entry.name, _EntryGObject(new_entry)])
@@ -604,7 +605,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             tree_row_ref = self._entries_tree_view_menu_row_ref
             tree_store, entry_iter = self._unwrap_tree_row_reference(
                 tree_row_ref)
-            assert tree_store == self._entries_tree_store
+            assert tree_store == self._entries_tree_view.get_model()
             entry = tree_store.get_value(entry_iter,
                                          _EntriesTreeStoreColumn.ENTRY).entry
 
@@ -645,7 +646,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             tree_row_ref = self._entries_tree_view_menu_row_ref
             tree_store, entry_iter = self._unwrap_tree_row_reference(
                 tree_row_ref)
-            assert tree_store == self._entries_tree_store
+            assert tree_store == self._entries_tree_view.get_model()
             entry = tree_store.get_value(entry_iter,
                                          _EntriesTreeStoreColumn.ENTRY).entry
 
