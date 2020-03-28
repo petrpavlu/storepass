@@ -70,7 +70,8 @@ class TreeStorePopulator(storepass.model.ModelVisitor):
 
     def visit_root(self, root):
         return self._tree_store.append(
-            None, ["Password Store", _EntryGObject(root)])
+            None,
+            ["Password Database", _EntryGObject(root)])
 
     def visit_folder(self, folder):
         parent_iter = self.get_path_data(folder.parent)
@@ -135,8 +136,8 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Initialize the entries TreeView.
         tree_store = Gtk.TreeStore(str, _EntryGObject)
-        tree_store.set_sort_column_id(
-            _EntriesTreeStoreColumn.NAME, Gtk.SortType.ASCENDING)
+        tree_store.set_sort_column_id(_EntriesTreeStoreColumn.NAME,
+                                      Gtk.SortType.ASCENDING)
         self._entries_tree_view.set_model(tree_store)
         self._entries_tree_view_column.set_cell_data_func(
             self._entries_tree_view_icon_renderer, self._map_entry_icon)
@@ -417,7 +418,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Expand the root node.
         root_iter = tree_store.get_iter_first()
         assert root_iter is not None
-        self._entries_tree_view.expand_row(tree_store.get_path(root_iter), False)
+        self._entries_tree_view.expand_row(tree_store.get_path(root_iter),
+                                           False)
 
     def _update_entry_property(self, box_widget, label_widget, text,
                                hide_if_empty):
