@@ -89,6 +89,9 @@ class _MainWindow(Gtk.ApplicationWindow):
     __gtype_name__ = "MainWindow"
 
     _entries_tree_view = Gtk.Template.Child('entries_tree_view')
+    _entries_tree_view_column = Gtk.Template.Child('entries_tree_view_column')
+    _entries_tree_view_icon_renderer = Gtk.Template.Child(
+        'entries_tree_view_icon_renderer')
     _entry_name_box = Gtk.Template.Child('entry_name_box')
     _entry_name_label = Gtk.Template.Child('entry_name_label')
     _entry_description_box = Gtk.Template.Child('entry_description_box')
@@ -135,6 +138,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         tree_store.set_sort_column_id(
             _EntriesTreeStoreColumn.NAME, Gtk.SortType.ASCENDING)
         self._entries_tree_view.set_model(tree_store)
+        self._entries_tree_view_column.set_cell_data_func(
+            self._entries_tree_view_icon_renderer, self._map_entry_icon)
 
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
                                                  'entries_tree_view_menu.ui')
@@ -182,6 +187,25 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._storage = None
         self._model = storepass.model.Model()
         self._entries_tree_view.get_model().clear()
+
+    def _map_entry_icon(self, tree_column, cell, tree_model, iter_, data):
+        """
+        Set an icon name for each item in the entries TreeView based on its
+        type. This is a Gtk.TreeCellDataFunc callback.
+        """
+
+        assert tree_column == self._entries_tree_view_column
+        assert cell == self._entries_tree_view_icon_renderer
+        assert tree_model == self._entries_tree_view.get_model()
+
+        entry = tree_model.get_value(iter_,
+                                     _EntriesTreeStoreColumn.ENTRY).entry
+        if isinstance(entry, storepass.model.Root):
+            cell.props.icon_name = 'x-office-address-book'
+        elif isinstance(entry, storepass.model.Folder):
+            cell.props.icon_name = 'folder'
+        else:
+            cell.props.icon_name = 'x-office-document'
 
     def _on_new(self, action, param):
         """
