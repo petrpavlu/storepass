@@ -549,7 +549,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         entry = tree_store.get_value(entry_iter,
                                      _EntriesTreeStoreColumn.ENTRY).entry
 
-        if isinstance(entry, storepass.model.Folder):
+        if isinstance(entry, storepass.model.Root):
+            dialog = edit.EditDatabaseDialog(self, self._storage.password)
+            dialog.connect('response', self._on_edit_database_dialog_response)
+        elif isinstance(entry, storepass.model.Folder):
             dialog = edit.EditFolderDialog(self, entry)
             dialog.connect('response', self._on_edit_folder_dialog_response,
                            entry, tree_row_ref)
@@ -558,6 +561,19 @@ class _MainWindow(Gtk.ApplicationWindow):
             dialog.connect('response', self._on_edit_account_dialog_response,
                            entry, tree_row_ref)
         dialog.show()
+
+    def _on_edit_database_dialog_response(self, dialog, response_id):
+        assert isinstance(dialog, edit.EditDatabaseDialog)
+
+        if response_id != Gtk.ResponseType.APPLY:
+            dialog.destroy()
+            return
+
+        # Obtain a new password and assign it to the storage.
+        new_password = dialog.get_password()
+        assert new_password is not None
+        dialog.destroy()
+        self._storage.password = new_password
 
     def _on_edit_folder_dialog_response(self, dialog, response_id, old_entry,
                                         tree_row_ref):

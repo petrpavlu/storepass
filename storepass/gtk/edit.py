@@ -30,6 +30,42 @@ def _get_current_datetime():
 
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources',
+                                  'edit_database_dialog.ui'))
+class EditDatabaseDialog(Gtk.Dialog):
+    """Dialog to edit database properties."""
+
+    __gtype_name__ = "EditDatabaseDialog"
+
+    _password_entry = Gtk.Template.Child('password_entry')
+
+    def __init__(self, parent_window, password):
+        super().__init__(parent=parent_window)
+
+        self.connect('response', self._on_response)
+
+        self._password_entry.set_text(password)
+
+    def _on_response(self, dialog, response_id):
+        assert dialog == self
+
+        if response_id != Gtk.ResponseType.APPLY or \
+            self._password_entry.get_text() != "":
+            return
+
+        # Report an error about the empty password and stop the response signal.
+        self.stop_emission_by_name('response')
+        self._password_entry.grab_focus()
+        util.show_error_dialog(self, "Invalid password",
+                               "Password cannot be empty.")
+
+    def get_password(self):
+        """Return a password input by the user."""
+
+        return self._password_entry.get_text()
+
+
+@Gtk.Template.from_string(
+    importlib.resources.read_text('storepass.gtk.resources',
                                   'edit_folder_dialog.ui'))
 class EditFolderDialog(Gtk.Dialog):
     """Dialog to edit folder properties."""

@@ -259,22 +259,14 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 class Storage:
     """Password database file reader/writer."""
     def __init__(self, filename, password):
-        self._filename = filename
-        self._password = password
-
-    @property
-    def filename(self):
-        return self._filename
-
-    @property
-    def password(self):
-        return self._password
+        self.filename = filename
+        self.password = password
 
     def _get_real_password(self):
-        if callable(self._password):
-            return self._password()
+        if callable(self.password):
+            return self.password()
         else:
-            return self._password
+            return self.password
 
     def _parse_header(self, header):
         """Verify validity of a password database header."""
@@ -306,7 +298,7 @@ class Storage:
         """
 
         try:
-            with open(self._filename, 'rb') as fh:
+            with open(self.filename, 'rb') as fh:
                 raw_content = fh.read()
         except Exception as e:
             raise storepass.exc.StorageReadException(e) from e
@@ -459,7 +451,7 @@ class Storage:
             return open(filename, 'wb')
 
         try:
-            with open_for_writing(self._filename, exclusive) as fh:
+            with open_for_writing(self.filename, exclusive) as fh:
                 fh.write(raw_content)
         except Exception as e:
             raise storepass.exc.StorageWriteException(e) from e
