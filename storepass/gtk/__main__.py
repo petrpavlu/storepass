@@ -236,8 +236,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             "Open File",
             self,
             Gtk.FileChooserAction.OPEN,
-            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK,
-             Gtk.ResponseType.OK),
+            ("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK),
             modal=True)
         dialog.connect('response', self._on_open_dialog_response)
         dialog.show()
@@ -345,8 +344,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             "Save As",
             self,
             Gtk.FileChooserAction.SAVE,
-            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK,
-             Gtk.ResponseType.OK),
+            ("_Cancel", Gtk.ResponseType.CANCEL, "_Ok", Gtk.ResponseType.OK),
             modal=True)
         dialog.connect('response', self._on_save_as_dialog_response)
         dialog.show()

@@ -230,15 +230,15 @@ SPDX-License-Identifier: MIT
         <child type="action">
             <object class="GtkButton" id="cancel_button">
                 <property name="visible">True</property>
-                <property name="label">gtk-cancel</property>
-                <property name="use-stock">True</property>
+                <property name="label" translatable="yes">_Cancel</property>
+                <property name="use-underline">True</property>
             </object>
         </child>
         <child type="action">
             <object class="GtkButton" id="apply_button">
                 <property name="visible">True</property>
-                <property name="label">gtk-apply</property>
-                <property name="use-stock">True</property>
+                <property name="label" translatable="yes">_Apply</property>
+                <property name="use-underline">True</property>
                 <property name="can-default">True</property>
             </object>
         </child>
