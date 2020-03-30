@@ -554,7 +554,13 @@ class _MainWindow(Gtk.ApplicationWindow):
             entry_iter,
             [new_entry.name, _EntryGObject(new_entry)])
 
-        # TODO Update the main panel with detailed information.
+        # Update the main information panel if the changed entry is currently
+        # selected.
+        tree_selection = self._entries_tree_view.get_selection()
+        _, selected_iter = tree_selection.get_selected()
+        selected_path = tree_store.get_path(selected_iter)
+        if selected_path == tree_row_ref.get_path():
+            self._on_entries_tree_view_selection_changed(tree_selection)
 
     def _on_edit_entry(self, action, param):
         assert self._entries_tree_view_menu_row_ref is not None
