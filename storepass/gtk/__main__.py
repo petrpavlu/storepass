@@ -93,6 +93,8 @@ class _MainWindow(Gtk.ApplicationWindow):
     _entries_tree_view_column = Gtk.Template.Child('entries_tree_view_column')
     _entries_tree_view_icon_renderer = Gtk.Template.Child(
         'entries_tree_view_icon_renderer')
+    _db_filename_box = Gtk.Template.Child('db_filename_box')
+    _db_filename_label = Gtk.Template.Child('db_filename_label')
     _entry_name_box = Gtk.Template.Child('entry_name_box')
     _entry_name_label = Gtk.Template.Child('entry_name_label')
     _entry_description_box = Gtk.Template.Child('entry_description_box')
@@ -435,17 +437,32 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     @Gtk.Template.Callback("on_entries_tree_view_selection_changed")
     def _on_entries_tree_view_selection_changed(self, tree_selection):
+        """
+        Handle a changed selection in the entries TreeView by updating the
+        main information panel and displaying details of a selected entry.
+        """
+
         tree_store, entry_iter = tree_selection.get_selected()
-        if entry_iter is None:
+        entry = tree_store.get_value(
+            entry_iter, _EntriesTreeStoreColumn.ENTRY
+        ).entry if entry_iter is not None else None
+
+        # Handle the root selection by displaying database properties.
+        db_filename = self._storage.filename if entry is not None and isinstance(
+            entry, storepass.model.Root) else None
+        self._update_entry_property(self._db_filename_box,
+                                    self._db_filename_label, db_filename, True)
+
+        if entry is None or isinstance(entry, storepass.model.Root):
             self._update_entry_property(self._entry_name_box,
-                                        self._entry_name_label, None, False)
+                                        self._entry_name_label, None, True)
             self._update_entry_property(self._entry_description_box,
                                         self._entry_description_label, None,
-                                        False)
+                                        True)
             self._update_entry_property(self._entry_updated_box,
-                                        self._entry_updated_label, None, False)
+                                        self._entry_updated_label, None, True)
             self._update_entry_property(self._entry_notes_box,
-                                        self._entry_notes_label, None, False)
+                                        self._entry_notes_label, None, True)
 
             self._update_entry_property(self._entry_generic_hostname_box,
                                         self._entry_generic_hostname_label,
@@ -458,10 +475,9 @@ class _MainWindow(Gtk.ApplicationWindow):
                                         None, True)
             return
 
-        entry = tree_store.get_value(entry_iter,
-                                     _EntriesTreeStoreColumn.ENTRY).entry
+        # Show information for a password entry.
+        assert isinstance(entry, storepass.model.Entry)
 
-        # Show the panel with details of the entry.
         self._update_entry_property(self._entry_name_box,
                                     self._entry_name_label, entry.name, False)
         self._update_entry_property(self._entry_description_box,
