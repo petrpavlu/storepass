@@ -539,6 +539,7 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _replace_entry(self, tree_row_ref, old_entry, new_entry):
         """Replace a previous entry in the model with a new one."""
 
+        assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
         try:
@@ -579,11 +580,11 @@ class _MainWindow(Gtk.ApplicationWindow):
         elif isinstance(entry, storepass.model.Folder):
             dialog = edit.EditFolderDialog(self, entry)
             dialog.connect('response', self._on_edit_folder_dialog_response,
-                           entry, tree_row_ref)
+                           tree_row_ref, entry)
         else:
             dialog = edit.EditAccountDialog(self, entry)
             dialog.connect('response', self._on_edit_account_dialog_response,
-                           entry, tree_row_ref)
+                           tree_row_ref, entry)
         dialog.show()
 
     def _on_edit_database_dialog_response(self, dialog, response_id):
@@ -599,11 +600,12 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.destroy()
         self._storage.password = new_password
 
-    def _on_edit_folder_dialog_response(self, dialog, response_id, old_entry,
-                                        tree_row_ref):
+    def _on_edit_folder_dialog_response(self, dialog, response_id,
+                                        tree_row_ref, old_entry):
         assert isinstance(dialog, edit.EditFolderDialog)
-        assert isinstance(old_entry, storepass.model.Folder)
+        assert tree_row_ref is not None
         assert tree_row_ref.valid()
+        assert isinstance(old_entry, storepass.model.Folder)
 
         if response_id != Gtk.ResponseType.APPLY:
             dialog.destroy()
@@ -614,11 +616,12 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.destroy()
         self._replace_entry(tree_row_ref, old_entry, new_entry)
 
-    def _on_edit_account_dialog_response(self, dialog, response_id, old_entry,
-                                         tree_row_ref):
+    def _on_edit_account_dialog_response(self, dialog, response_id,
+                                         tree_row_ref, old_entry):
         assert isinstance(dialog, edit.EditAccountDialog)
-        assert isinstance(old_entry, storepass.model.Account)
+        assert tree_row_ref is not None
         assert tree_row_ref.valid()
+        assert isinstance(old_entry, storepass.model.Account)
 
         if response_id != Gtk.ResponseType.APPLY:
             dialog.destroy()
@@ -649,6 +652,7 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _add_entry(self, tree_row_ref, parent, new_entry):
         """Add a new entry in the model."""
 
+        assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
         try:
@@ -682,12 +686,12 @@ class _MainWindow(Gtk.ApplicationWindow):
             # this when displaying the menu actually.
 
         dialog = edit.EditFolderDialog(self, None)
-        dialog.connect('response', self._on_add_folder_dialog_response, entry,
-                       tree_row_ref)
+        dialog.connect('response', self._on_add_folder_dialog_response,
+                       tree_row_ref, entry)
         dialog.show()
 
-    def _on_add_folder_dialog_response(self, dialog, response_id, parent,
-                                       tree_row_ref):
+    def _on_add_folder_dialog_response(self, dialog, response_id, tree_row_ref,
+                                       parent):
         assert isinstance(dialog, edit.EditFolderDialog)
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
@@ -719,12 +723,12 @@ class _MainWindow(Gtk.ApplicationWindow):
             # this when displaying the menu actually.
 
         dialog = edit.EditAccountDialog(self, None)
-        dialog.connect('response', self._on_add_account_dialog_response, entry,
-                       tree_row_ref)
+        dialog.connect('response', self._on_add_account_dialog_response,
+                       tree_row_ref, entry)
         dialog.show()
 
-    def _on_add_account_dialog_response(self, dialog, response_id, parent,
-                                        tree_row_ref):
+    def _on_add_account_dialog_response(self, dialog, response_id,
+                                        tree_row_ref, parent):
         assert isinstance(dialog, edit.EditAccountDialog)
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
