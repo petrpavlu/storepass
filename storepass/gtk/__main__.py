@@ -189,7 +189,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         self._storage = None
         self._model = storepass.model.Model()
-        self._entries_tree_view.get_model().clear()
+        self._populate_tree_view()
 
     def _map_entry_icon(self, tree_column, cell, tree_model, iter_, data):
         """
@@ -217,7 +217,6 @@ class _MainWindow(Gtk.ApplicationWindow):
         """
 
         self._clear_state()
-        self._populate_tree_view()
 
     def _on_open(self, action, param):
         """
@@ -294,20 +293,19 @@ class _MainWindow(Gtk.ApplicationWindow):
         it into the program.
         """
 
-        self._storage = storepass.storage.Storage(filename, password)
-        self._model = storepass.model.Model()
+        storage = storepass.storage.Storage(filename, password)
+        model = storepass.model.Model()
         try:
-            self._model.load(self._storage)
+            model.load(storage)
         except storepass.exc.StorageReadException as e:
-            # Reset back to the clear state.
-            self._clear_state()
-
             # Show a dialog with the error.
             util.show_error_dialog(
                 self, "Error loading password database",
                 f"Failed to load password database '{filename}': {e}.")
             return
 
+        self._storage = storage
+        self._model = model
         self._populate_tree_view()
 
     def _on_save(self, action, param):
@@ -415,6 +413,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _populate_tree_view(self):
         tree_store = self._entries_tree_view.get_model()
+        tree_store.clear()
         self._model.visit_all(TreeStorePopulator(tree_store))
 
         # Expand the root node.
