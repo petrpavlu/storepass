@@ -5,7 +5,7 @@ SPDX-License-Identifier: MIT
 -->
 <interface>
     <template class="EditFolderDialog" parent="GtkDialog">
-        <property name="title" translatable="yes">Edit Folder</property>
+        <property name="title">[Add/Edit Folder]</property>
         <property name="modal">False</property>
         <property name="default-width">600</property>
         <property name="border-width">4</property>
@@ -19,10 +19,10 @@ SPDX-License-Identifier: MIT
                         <property name="row-spacing">5</property>
                         <property name="column-spacing">5</property>
                         <child>
-                            <object class="GtkLabel">
+                            <object class="GtkLabel" id="modify_folder_label">
                                 <property name="visible">True</property>
                                 <property name="halign">start</property>
-                                <property name="label" translatable="yes">Edit Folder</property>
+                                <property name="label">[Add/Edit Folder]</property>
                                 <attributes>
                                     <attribute name="weight" value="bold"/>
                                 </attributes>
