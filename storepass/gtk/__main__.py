@@ -447,8 +447,13 @@ class _MainWindow(Gtk.ApplicationWindow):
         ).entry if entry_iter is not None else None
 
         # Handle the root selection by displaying database properties.
-        db_filename = self._storage.filename if entry is not None and isinstance(
-            entry, storepass.model.Root) else None
+        if entry is not None and isinstance(entry, storepass.model.Root):
+            if self._storage is not None:
+                db_filename = self._storage.filename
+            else:
+                db_filename = "<unsaved>"
+        else:
+            db_filename = None
         self._update_entry_property(self._db_filename_box,
                                     self._db_filename_label, db_filename, True)
 
