@@ -151,6 +151,8 @@ class _MainWindow(Gtk.ApplicationWindow):
             builder.get_object('entries_tree_view_menu'))
         self._entries_tree_view_menu.attach_to_widget(self._entries_tree_view)
         self._entries_tree_view_menu_row_ref = None
+        self._entries_tree_view_menu.connect(
+            'selection-done', self._on_entries_tree_view_menu_selection_done)
 
         edit_entry_action = Gio.SimpleAction.new('edit_entry', None)
         edit_entry_action.connect('activate', self._on_edit_entry)
@@ -534,6 +536,20 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Show the context menu.
         self._entries_tree_view_menu.popup_at_pointer(event)
+
+    def _on_entries_tree_view_menu_selection_done(self, menu_shell):
+        """
+        Handle a completed selection in the entries tree view menu by resetting
+        the current tree view row reference. This provides accurate tracking by
+        the _entries_tree_view_menu_row_ref variable.
+
+        Note that the selection-done signal is emitted after a menu action is
+        performed and the signal is invoked even if the menu was cancelled.
+        """
+
+        assert menu_shell == self._entries_tree_view_menu
+
+        self._entries_tree_view_menu_row_ref = None
 
     def _unwrap_tree_row_reference(self, tree_row_ref):
         """
