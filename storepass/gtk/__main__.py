@@ -697,21 +697,18 @@ class _MainWindow(Gtk.ApplicationWindow):
             [new_entry.name, _EntryGObject(new_entry)])
 
     def _on_add_folder(self, action, param):
-        entry = None
-        tree_row_ref = None
-        if self._entries_tree_view_menu_row_ref is not None:
-            assert self._entries_tree_view_menu_row_ref.valid()
+        assert self._entries_tree_view_menu_row_ref is not None
+        assert self._entries_tree_view_menu_row_ref.valid()
 
-            # Get the selected entry.
-            tree_row_ref = self._entries_tree_view_menu_row_ref
-            tree_store, entry_iter = self._unwrap_tree_row_reference(
-                tree_row_ref)
-            assert tree_store == self._entries_tree_view.get_model()
-            entry = tree_store.get_value(entry_iter,
-                                         _EntriesTreeStoreColumn.ENTRY).entry
+        # Get the selected entry.
+        tree_row_ref = self._entries_tree_view_menu_row_ref
+        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
+        assert tree_store == self._entries_tree_view.get_model()
+        entry = tree_store.get_value(entry_iter,
+                                     _EntriesTreeStoreColumn.ENTRY).entry
 
-            # TODO Check that the entry is a Folder, else reject the action. Do
-            # this when displaying the menu actually.
+        # TODO Check that the entry is a Folder/Root, else search for its
+        # parent.
 
         dialog = edit.EditFolderDialog(self, None)
         dialog.connect('response', self._on_add_folder_dialog_response,
@@ -734,21 +731,18 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._add_entry(tree_row_ref, parent, new_entry)
 
     def _on_add_account(self, action, param):
-        entry = None
-        tree_row_ref = None
-        if self._entries_tree_view_menu_row_ref is not None:
-            assert self._entries_tree_view_menu_row_ref.valid()
+        assert self._entries_tree_view_menu_row_ref is not None
+        assert self._entries_tree_view_menu_row_ref.valid()
 
-            # Get the selected entry.
-            tree_row_ref = self._entries_tree_view_menu_row_ref
-            tree_store, entry_iter = self._unwrap_tree_row_reference(
-                tree_row_ref)
-            assert tree_store == self._entries_tree_view.get_model()
-            entry = tree_store.get_value(entry_iter,
-                                         _EntriesTreeStoreColumn.ENTRY).entry
+        # Get the selected entry.
+        tree_row_ref = self._entries_tree_view_menu_row_ref
+        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
+        assert tree_store == self._entries_tree_view.get_model()
+        entry = tree_store.get_value(entry_iter,
+                                     _EntriesTreeStoreColumn.ENTRY).entry
 
-            # TODO Check that the entry is a Folder, else reject the action. Do
-            # this when displaying the menu actually.
+        # TODO Check that the entry is a Folder/Root, else search for its
+        # parent.
 
         dialog = edit.EditAccountDialog(self, None)
         dialog.connect('response', self._on_add_account_dialog_response,
