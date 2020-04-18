@@ -564,6 +564,37 @@ class _MainWindow(Gtk.ApplicationWindow):
         iter_ = store.get_iter(tree_row_ref.get_path())
         return store, iter_
 
+    def _get_entries_tree_view_menu_associated_entry(self, get_container):
+        """
+        Obtain the entry associated with the (opened) entries tree view menu. If
+        get_container is True and the entry is not a Container then look up and
+        return its parent.
+        """
+
+        assert self._entries_tree_view_menu_row_ref is not None
+        assert self._entries_tree_view_menu_row_ref.valid()
+
+        # Get the selected entry.
+        tree_row_ref = self._entries_tree_view_menu_row_ref
+        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
+        assert tree_store == self._entries_tree_view.get_model()
+        entry = tree_store.get_value(entry_iter,
+                                     _EntriesTreeStoreColumn.ENTRY).entry
+
+        # Look up the closest Container if the caller requires this type (for
+        # example, because it is an add operation).
+        if get_container and not isinstance(entry, storepass.model.Container):
+            entry_iter = tree_store.iter_parent(entry_iter)
+            assert entry_iter is not None
+
+            tree_row_ref = Gtk.TreeRowReference(
+                tree_store, tree_store.get_path(entry_iter))
+            entry = tree_store.get_value(entry_iter,
+                                         _EntriesTreeStoreColumn.ENTRY).entry
+            assert isinstance(entry, storepass.model.Container)
+
+        return tree_row_ref, entry
+
     def _replace_entry(self, tree_row_ref, old_entry, new_entry):
         """Replace a previous entry in the model with a new one."""
 
@@ -592,15 +623,9 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._on_entries_tree_view_selection_changed(tree_selection)
 
     def _on_edit_entry(self, action, param):
-        assert self._entries_tree_view_menu_row_ref is not None
-        assert self._entries_tree_view_menu_row_ref.valid()
-
-        # Get the selected entry.
-        tree_row_ref = self._entries_tree_view_menu_row_ref
-        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
-        assert tree_store == self._entries_tree_view.get_model()
-        entry = tree_store.get_value(entry_iter,
-                                     _EntriesTreeStoreColumn.ENTRY).entry
+        # Get the selected entry (do not require a Container).
+        tree_row_ref, entry = \
+            self._get_entries_tree_view_menu_associated_entry(False)
 
         if isinstance(entry, storepass.model.Root):
             dialog = edit.EditDatabaseDialog(self, self._storage.password)
@@ -661,15 +686,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._replace_entry(tree_row_ref, old_entry, new_entry)
 
     def _on_remove_entry(self, action, param):
-        assert self._entries_tree_view_menu_row_ref is not None
-        assert self._entries_tree_view_menu_row_ref.valid()
-
-        # Get the selected entry.
-        tree_store, entry_iter = self._unwrap_tree_row_reference(
-            self._entries_tree_view_menu_row_ref)
-        assert tree_store == self._entries_tree_view.get_model()
-        entry = tree_store.get_value(entry_iter,
-                                     _EntriesTreeStoreColumn.ENTRY).entry
+        # Get the selected entry (do not require a Container).
+        tree_row_ref, entry = \
+            self._get_entries_tree_view_menu_associated_entry(False)
+        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
 
         # TODO Show a confirmation dialog if removing a non-empty Folder.
 
@@ -697,18 +717,9 @@ class _MainWindow(Gtk.ApplicationWindow):
             [new_entry.name, _EntryGObject(new_entry)])
 
     def _on_add_folder(self, action, param):
-        assert self._entries_tree_view_menu_row_ref is not None
-        assert self._entries_tree_view_menu_row_ref.valid()
-
-        # Get the selected entry.
-        tree_row_ref = self._entries_tree_view_menu_row_ref
-        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
-        assert tree_store == self._entries_tree_view.get_model()
-        entry = tree_store.get_value(entry_iter,
-                                     _EntriesTreeStoreColumn.ENTRY).entry
-
-        # TODO Check that the entry is a Folder/Root, else search for its
-        # parent.
+        # Get the selected entry (lookup the closest Container).
+        tree_row_ref, entry = \
+            self._get_entries_tree_view_menu_associated_entry(True)
 
         dialog = edit.EditFolderDialog(self, None)
         dialog.connect('response', self._on_add_folder_dialog_response,
@@ -731,18 +742,9 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._add_entry(tree_row_ref, parent, new_entry)
 
     def _on_add_account(self, action, param):
-        assert self._entries_tree_view_menu_row_ref is not None
-        assert self._entries_tree_view_menu_row_ref.valid()
-
-        # Get the selected entry.
-        tree_row_ref = self._entries_tree_view_menu_row_ref
-        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
-        assert tree_store == self._entries_tree_view.get_model()
-        entry = tree_store.get_value(entry_iter,
-                                     _EntriesTreeStoreColumn.ENTRY).entry
-
-        # TODO Check that the entry is a Folder/Root, else search for its
-        # parent.
+        # Get the selected entry (lookup the closest Container).
+        tree_row_ref, entry = \
+            self._get_entries_tree_view_menu_associated_entry(True)
 
         dialog = edit.EditAccountDialog(self, None)
         dialog.connect('response', self._on_add_account_dialog_response,
