@@ -685,17 +685,63 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.destroy()
         self._replace_entry(tree_row_ref, old_entry, new_entry)
 
+    def _remove_entry(self, tree_row_ref, entry):
+        """
+        Remove an entry from the model. If the entry is the Root then the
+        whole database is cleared.
+        """
+
+        assert tree_row_ref is not None
+        assert tree_row_ref.valid()
+
+        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
+
+        if isinstance(entry, storepass.model.Root):
+            child_iter = tree_store.iter_children(entry_iter)
+            while child_iter is not None:
+                child_entry = tree_store.get_value(
+                    child_iter, _EntriesTreeStoreColumn.ENTRY).entry
+                entry.remove_child(child_entry)
+                child_iter = child_iter if tree_store.remove(
+                    child_iter) else None
+        else:
+            entry.parent.remove_child(entry)
+            tree_store.remove(entry_iter)
+
+    def _on_remove_confirmation_dialog_response(self, dialog, response_id,
+                                                tree_row_ref, entry):
+        """
+        Handle a response from a dialog displayed to confirm removal of an
+        entry. If the user confirmed the operation the entry is removed.
+        """
+
+        if response_id == Gtk.ResponseType.OK:
+            self._remove_entry(tree_row_ref, entry)
+
+        dialog.destroy()
+
     def _on_remove_entry(self, action, param):
         # Get the selected entry (do not require a Container).
         tree_row_ref, entry = \
             self._get_entries_tree_view_menu_associated_entry(False)
-        tree_store, entry_iter = self._unwrap_tree_row_reference(tree_row_ref)
 
-        # TODO Show a confirmation dialog if removing a non-empty Folder.
-
-        # Remove the entry.
-        entry.parent.remove_child(entry)
-        tree_store.remove(entry_iter)
+        # Remove the entry. However, if it is a Container that is not empty then
+        # first prompt the user for a confirmation of the removal.
+        if isinstance(entry, storepass.model.Root) and len(entry.children) > 0:
+            util.show_confirmation_dialog(
+                self, "Remove all entries",
+                "Operation will remove all entries from the database.",
+                "Remove", self._on_remove_confirmation_dialog_response,
+                tree_row_ref, entry)
+        elif isinstance(entry, storepass.model.Folder) and \
+             len(entry.children) > 0:
+            util.show_confirmation_dialog(
+                self, "Remove a non-empty folder",
+                f"Folder '{entry.name}' is not empty.", "Remove",
+                self._on_remove_confirmation_dialog_response, tree_row_ref,
+                entry)
+        else:
+            self._remove_entry(tree_row_ref, entry)
 
     def _add_entry(self, tree_row_ref, parent, new_entry):
         """Add a new entry in the model."""
