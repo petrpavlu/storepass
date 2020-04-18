@@ -136,7 +136,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         save_as_action.connect('activate', self._on_save_as)
         self.add_action(save_as_action)
 
-        # Initialize the entries TreeView.
+        # Initialize the entries tree view.
         tree_store = Gtk.TreeStore(str, _EntryGObject)
         tree_store.set_sort_column_id(_EntriesTreeStoreColumn.NAME,
                                       Gtk.SortType.ASCENDING)
@@ -193,7 +193,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _map_entry_icon(self, tree_column, cell, tree_model, iter_, data):
         """
-        Set an icon name for each item in the entries TreeView based on its
+        Set an icon name for each item in the entries tree view based on its
         type. This is a Gtk.TreeCellDataFunc callback.
         """
 
@@ -434,10 +434,10 @@ class _MainWindow(Gtk.ApplicationWindow):
             label_widget.set_text("")
             label_widget.hide()
 
-    @Gtk.Template.Callback("on_entries_tree_view_selection_changed")
+    @Gtk.Template.Callback('on_entries_tree_view_selection_changed')
     def _on_entries_tree_view_selection_changed(self, tree_selection):
         """
-        Handle a changed selection in the entries TreeView by updating the
+        Handle a changed selection in the entries tree view by updating the
         main information panel and displaying details of a selected entry.
         """
 
@@ -511,21 +511,29 @@ class _MainWindow(Gtk.ApplicationWindow):
                                     self._entry_generic_password_label,
                                     password, True)
 
-    @Gtk.Template.Callback("on_entries_tree_view_button_press_event")
+    @Gtk.Template.Callback('on_entries_tree_view_button_press_event')
     def _on_entries_tree_view_button_press_event(self, widget, event):
+        """
+        Handle a button press event inside the entries tree view by displaying
+        a context menu if the right mouse button was pressed.
+        """
+
         assert widget == self._entries_tree_view
 
-        if event.type == Gdk.EventType.BUTTON_PRESS and \
-            event.button == Gdk.BUTTON_SECONDARY:
-            # Record the pointed-at row.
-            path_info = widget.get_path_at_pos(event.x, event.y)
-            if path_info is None:
-                return
-            self._entries_tree_view_menu_row_ref = Gtk.TreeRowReference(
-                widget.get_model(), path_info[0])
+        # Ignore events that are not a right mouse button press.
+        if event.type != Gdk.EventType.BUTTON_PRESS or \
+            event.button != Gdk.BUTTON_SECONDARY:
+            return
 
-            # Show the pop-up menu.
-            self._entries_tree_view_menu.popup_at_pointer(event)
+        # Record the pointed-at row.
+        path_info = widget.get_path_at_pos(event.x, event.y)
+        if path_info is None:
+            return
+        self._entries_tree_view_menu_row_ref = Gtk.TreeRowReference(
+            widget.get_model(), path_info[0])
+
+        # Show the context menu.
+        self._entries_tree_view_menu.popup_at_pointer(event)
 
     def _unwrap_tree_row_reference(self, tree_row_ref):
         """
