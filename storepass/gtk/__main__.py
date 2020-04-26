@@ -750,8 +750,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
-        tree_store, entry_iter, parent = self._unwrap_entries_tree_row_reference(
-            tree_row_ref)
+        tree_store, parent_iter, parent = \
+            self._unwrap_entries_tree_row_reference(tree_row_ref)
         assert tree_store == self._entries_tree_view.get_model()
 
         try:
@@ -761,9 +761,14 @@ class _MainWindow(Gtk.ApplicationWindow):
             return
 
         # Update the view.
-        tree_store.append(
-            entry_iter,
+        entry_iter = tree_store.append(
+            parent_iter,
             [new_entry.name, _EntryGObject(new_entry)])
+
+        # Select the newly added entry.
+        self._entries_tree_view.expand_to_path(tree_store.get_path(entry_iter))
+        tree_selection = self._entries_tree_view.get_selection()
+        tree_selection.select_iter(entry_iter)
 
     def _on_add_folder(self, action, param):
         # Get the selected entry (lookup the closest Container).
