@@ -578,8 +578,8 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Get the selected entry.
         tree_row_ref = self._entries_tree_view_menu_row_ref
-        tree_store, entry_iter, entry = self._unwrap_entries_tree_row_reference(
-            tree_row_ref)
+        tree_store, entry_iter, entry = \
+            self._unwrap_entries_tree_row_reference(tree_row_ref)
         assert tree_store == self._entries_tree_view.get_model()
 
         # Look up the closest Container if the caller requires this type (for
@@ -602,8 +602,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
-        tree_store, entry_iter, old_entry = self._unwrap_entries_tree_row_reference(
-            tree_row_ref)
+        tree_store, entry_iter, old_entry = \
+            self._unwrap_entries_tree_row_reference(tree_row_ref)
         assert tree_store == self._entries_tree_view.get_model()
 
         try:
@@ -612,7 +612,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             util.show_error_dialog(self, "Error updating entry", f"{e}.")
             return
 
-        # Update the view.
+        # Update the GTK model.
         tree_store.set_row(
             entry_iter,
             [new_entry.name, _EntryGObject(new_entry)])
@@ -695,8 +695,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
-        tree_store, entry_iter, entry = self._unwrap_entries_tree_row_reference(
-            tree_row_ref)
+        tree_store, entry_iter, entry = \
+            self._unwrap_entries_tree_row_reference(tree_row_ref)
 
         if isinstance(entry, storepass.model.Root):
             child_iter = tree_store.iter_children(entry_iter)
@@ -760,7 +760,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             util.show_error_dialog(self, "Error adding entry", f"{e}.")
             return
 
-        # Update the view.
+        # Update the GTK model.
         entry_iter = tree_store.append(
             parent_iter,
             [new_entry.name, _EntryGObject(new_entry)])
