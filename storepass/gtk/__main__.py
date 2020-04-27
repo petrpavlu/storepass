@@ -173,6 +173,9 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Create an empty database storage and model.
         self._storage = storepass.storage.Storage(None, None)
         self._model = storepass.model.Model()
+        self._has_unsaved_changes = False
+
+        self._update_title()
 
     def run_default_actions(self):
         """
@@ -186,11 +189,45 @@ class _MainWindow(Gtk.ApplicationWindow):
         if os.path.exists(default_database):
             self._open_password_database(default_database)
 
+    def _get_db_filename(self):
+        """
+        Return a database filename, or "<unsaved>" if it has not been saved yet.
+        """
+
+        return self._storage.filename if self._storage.filename is not None \
+            else "<unsaved>"
+
+    def _update_title(self):
+        """
+        Update the window title. This method should be called any time the
+        database filename is changed or the self._has_unsaved_changes flag
+        changes its state.
+        """
+
+        unsaved_flag = "*" if self._has_unsaved_changes else ""
+        filename = self._get_db_filename()
+        self.set_title(f"{unsaved_flag}{filename} - StorePass")
+
+    def _record_modification(self):
+        """
+        Record that the database has been modified since the last save and
+        update the window title.
+        """
+
+        if self._has_unsaved_changes:
+            return
+
+        self._has_unsaved_changes = True
+        self._update_title()
+
     def _clear_state(self):
         """Clear the current state. The result is a blank database."""
 
         self._storage = storepass.storage.Storage(None, None)
         self._model = storepass.model.Model()
+        self._has_unsaved_changes = False
+
+        self._update_title()
         self._populate_tree_view()
 
     def _map_entry_icon(self, tree_column, cell, tree_model, iter_, data):
@@ -308,6 +345,9 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         self._storage = storage
         self._model = model
+        self._has_unsaved_changes = False
+
+        self._update_title()
         self._populate_tree_view()
 
     def _on_save(self, action, param):
@@ -323,6 +363,8 @@ class _MainWindow(Gtk.ApplicationWindow):
             return
 
         self._model.save(self._storage)
+        self._has_unsaved_changes = False
+        self._update_title()
 
     def _on_save_as(self, action, param):
         """
@@ -408,10 +450,13 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._storage = storepass.storage.Storage(filename, password)
         try:
             self._model.save(self._storage)
+            self._has_unsaved_changes = False
         except storepass.exc.StorageWriteException as e:
             util.show_error_dialog(
                 self, "Error saving password database",
                 f"Failed to save password database '{filename}': {e}.")
+
+        self._update_title()
 
     def _populate_tree_view(self):
         tree_store = self._entries_tree_view.get_model()
@@ -450,10 +495,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Handle the root selection by displaying database properties.
         if entry is not None and isinstance(entry, storepass.model.Root):
-            if self._storage.filename is not None:
-                db_filename = self._storage.filename
-            else:
-                db_filename = "<unsaved>"
+            db_filename = self._get_db_filename()
         else:
             db_filename = None
         self._update_entry_property(self._db_filename_box,
@@ -625,6 +667,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         if selected_path == tree_row_ref.get_path():
             self._on_entries_tree_view_selection_changed(tree_selection)
 
+        self._record_modification()
+
     def _on_edit_entry(self, action, param):
         # Get the selected entry (do not require a Container).
         tree_row_ref, entry = \
@@ -710,6 +754,8 @@ class _MainWindow(Gtk.ApplicationWindow):
             entry.parent.remove_child(entry)
             tree_store.remove(entry_iter)
 
+        self._record_modification()
+
     def _on_remove_confirmation_dialog_response(self, dialog, response_id,
                                                 tree_row_ref):
         """
@@ -769,6 +815,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._entries_tree_view.expand_to_path(tree_store.get_path(entry_iter))
         tree_selection = self._entries_tree_view.get_selection()
         tree_selection.select_iter(entry_iter)
+
+        self._record_modification()
 
     def _on_add_folder(self, action, param):
         # Get the selected entry (lookup the closest Container).
