@@ -198,6 +198,9 @@ class Root(Container):
     def __init__(self, children):
         Container.__init__(self, children)
 
+    def get_path(self):
+        return []
+
     def __str__(self, indent=""):
         res = indent + "Root:"
         for child in self._children:
