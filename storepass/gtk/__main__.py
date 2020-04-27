@@ -171,7 +171,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self.add_action(add_account_action)
 
         # Create an empty database storage and model.
-        self._storage = None
+        self._storage = storepass.storage.Storage(None, None)
         self._model = storepass.model.Model()
 
     def run_default_actions(self):
@@ -189,7 +189,7 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _clear_state(self):
         """Clear the current state. The result is a blank database."""
 
-        self._storage = None
+        self._storage = storepass.storage.Storage(None, None)
         self._model = storepass.model.Model()
         self._populate_tree_view()
 
@@ -318,7 +318,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Redirect to the Save As action if this is a new database and its
         # filename has not been specified yet.
-        if self._storage is None:
+        if self._storage.filename is None:
             self._on_save_as(action, param)
             return
 
@@ -367,7 +367,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Continue the process of opening the file. If the database already has
         # a password specified then proceed to saving it, else first prompt for
         # the password.
-        if self._storage is not None:
+        if self._storage.password is not None:
             self._save_as_password_database2(filename, self._storage.password)
         else:
             self._save_as_password_database(filename)
@@ -450,7 +450,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Handle the root selection by displaying database properties.
         if entry is not None and isinstance(entry, storepass.model.Root):
-            if self._storage is not None:
+            if self._storage.filename is not None:
                 db_filename = self._storage.filename
             else:
                 db_filename = "<unsaved>"
