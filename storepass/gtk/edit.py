@@ -43,7 +43,7 @@ class EditDatabaseDialog(Gtk.Dialog):
 
         self.connect('response', self._on_response)
 
-        self._password_entry.set_text(password)
+        self._password_entry.set_text(_normalize_none_to_empty(password))
 
     def _on_response(self, dialog, response_id):
         assert dialog == self
