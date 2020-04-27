@@ -639,7 +639,11 @@ class _MainWindow(Gtk.ApplicationWindow):
         return tree_row_ref, entry
 
     def _replace_entry(self, tree_row_ref, new_entry):
-        """Replace a previous entry in the model with a new one."""
+        """
+        Replace a previous entry in the model with a new one. Returns True if
+        the the entry has been successfully updated, otherwise an error dialog
+        is displayed and False is returned.
+        """
 
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
@@ -652,7 +656,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._model.replace_entry(old_entry, new_entry)
         except storepass.exc.ModelException as e:
             util.show_error_dialog(self, "Error updating entry", f"{e}.")
-            return
+            return False
 
         # Update the GTK model.
         tree_store.set_row(
@@ -668,6 +672,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._on_entries_tree_view_selection_changed(tree_selection)
 
         self._record_modification()
+        return True
 
     def _on_edit_entry(self, action, param):
         # Get the selected entry (do not require a Container).
@@ -712,8 +717,10 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Obtain the newly defined folder and replace the old one.
         new_entry = dialog.get_entry()
+        if not self._replace_entry(tree_row_ref, new_entry):
+            return
+
         dialog.destroy()
-        self._replace_entry(tree_row_ref, new_entry)
 
     def _on_edit_account_dialog_response(self, dialog, response_id,
                                          tree_row_ref):
@@ -727,8 +734,10 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Obtain the newly defined account and replace the old one.
         new_entry = dialog.get_entry()
+        if not self._replace_entry(tree_row_ref, new_entry):
+            return
+
         dialog.destroy()
-        self._replace_entry(tree_row_ref, new_entry)
 
     def _remove_entry(self, tree_row_ref):
         """
@@ -791,7 +800,11 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._remove_entry(tree_row_ref)
 
     def _add_entry(self, tree_row_ref, new_entry):
-        """Add a new entry in the model."""
+        """
+        Add a new entry in the model. Returns True if the new entry has been
+        successfully added, otherwise an error dialog is displayed and False is
+        returned.
+        """
 
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
@@ -804,7 +817,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._model.add_entry(parent, new_entry)
         except storepass.exc.ModelException as e:
             util.show_error_dialog(self, "Error adding entry", f"{e}.")
-            return
+            return False
 
         # Update the GTK model.
         entry_iter = tree_store.append(
@@ -817,6 +830,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         tree_selection.select_iter(entry_iter)
 
         self._record_modification()
+        return True
 
     def _on_add_folder(self, action, param):
         # Get the selected entry (lookup the closest Container).
@@ -840,8 +854,10 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Obtain the newly defined folder and add it.
         new_entry = dialog.get_entry()
+        if not self._add_entry(tree_row_ref, new_entry):
+            return
+
         dialog.destroy()
-        self._add_entry(tree_row_ref, new_entry)
 
     def _on_add_account(self, action, param):
         # Get the selected entry (lookup the closest Container).
@@ -865,8 +881,10 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Obtain the newly defined account and add it.
         new_entry = dialog.get_entry()
+        if not self._add_entry(tree_row_ref, new_entry):
+            return
+
         dialog.destroy()
-        self._add_entry(tree_row_ref, new_entry)
 
 
 class _App(Gtk.Application):
