@@ -228,8 +228,8 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _update_title(self):
         """
-        Update the window title. This method should be called any time the
-        database filename is changed or the self._has_unsaved_changes flag
+        Update the window title. This method should be called every time when
+        the database filename is changed or the self._has_unsaved_changes flag
         changes its state.
         """
 
@@ -420,7 +420,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         filename = dialog.get_filename()
         dialog.destroy()
 
-        # Continue the process of opening the file. If the database already has
+        # Continue the process of saving the file. If the database already has
         # a password specified then proceed to saving it, else first prompt for
         # the password.
         if self._storage.password is not None:
