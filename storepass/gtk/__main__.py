@@ -62,7 +62,7 @@ class _EntryGObject(GObject.Object):
         self.entry = entry
 
 
-class TreeStorePopulator(storepass.model.ModelVisitor):
+class EntriesTreeStorePopulator(storepass.model.ModelVisitor):
     def __init__(self, tree_store):
         super().__init__()
 
@@ -136,11 +136,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         save_as_action.connect('activate', self._on_save_as)
         self.add_action(save_as_action)
 
-        # Initialize the entries tree view.
-        tree_store = Gtk.TreeStore(str, _EntryGObject)
-        tree_store.set_sort_column_id(_EntriesTreeStoreColumn.NAME,
-                                      Gtk.SortType.ASCENDING)
-        self._entries_tree_view.set_model(tree_store)
+        # Register icon mapping function for the entries tree view.
         self._entries_tree_view_column.set_cell_data_func(
             self._entries_tree_view_icon_renderer, self._map_entry_icon)
 
@@ -170,10 +166,43 @@ class _MainWindow(Gtk.ApplicationWindow):
         add_account_action.connect('activate', self._on_add_account)
         self.add_action(add_account_action)
 
-        # Create an empty database storage and model.
-        self._storage = storepass.storage.Storage(None, None)
-        self._model = storepass.model.Model()
+        # "Declare" object's variables. Actual initial values are set in
+        # _clear_state() -> _set_new_database().
+        self._storage = None
+        self._model = None
         self._has_unsaved_changes = False
+
+        # Create an empty database storage and model.
+        self._clear_state()
+
+    def _clear_state(self):
+        """Clear the current state. The result is a blank database."""
+
+        storage = storepass.storage.Storage(None, None)
+        model = storepass.model.Model()
+        self._set_new_database(storage, model)
+
+    def _set_new_database(self, storage, model):
+        """
+        Set a new storage + model and prepare the UI for the new model.
+        """
+
+        self._storage = storage
+        self._model = model
+        self._has_unsaved_changes = False
+
+        # Initialize a new GTK TreeStore model matching the StorePass model.
+        tree_store = Gtk.TreeStore(str, _EntryGObject)
+        tree_store.set_sort_column_id(_EntriesTreeStoreColumn.NAME,
+                                      Gtk.SortType.ASCENDING)
+        self._entries_tree_view.set_model(tree_store)
+        self._model.visit_all(EntriesTreeStorePopulator(tree_store))
+
+        # Expand the root node.
+        root_iter = tree_store.get_iter_first()
+        assert root_iter is not None
+        self._entries_tree_view.expand_row(tree_store.get_path(root_iter),
+                                           False)
 
         self._update_title()
 
@@ -219,16 +248,6 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         self._has_unsaved_changes = True
         self._update_title()
-
-    def _clear_state(self):
-        """Clear the current state. The result is a blank database."""
-
-        self._storage = storepass.storage.Storage(None, None)
-        self._model = storepass.model.Model()
-        self._has_unsaved_changes = False
-
-        self._update_title()
-        self._populate_tree_view()
 
     def _map_entry_icon(self, tree_column, cell, tree_model, iter_, data):
         """
@@ -343,12 +362,7 @@ class _MainWindow(Gtk.ApplicationWindow):
                 f"Failed to load password database '{filename}': {e}.")
             return
 
-        self._storage = storage
-        self._model = model
-        self._has_unsaved_changes = False
-
-        self._update_title()
-        self._populate_tree_view()
+        self._set_new_database(storage, model)
 
     def _on_save(self, action, param):
         """
@@ -457,17 +471,6 @@ class _MainWindow(Gtk.ApplicationWindow):
                 f"Failed to save password database '{filename}': {e}.")
 
         self._update_title()
-
-    def _populate_tree_view(self):
-        tree_store = self._entries_tree_view.get_model()
-        tree_store.clear()
-        self._model.visit_all(TreeStorePopulator(tree_store))
-
-        # Expand the root node.
-        root_iter = tree_store.get_iter_first()
-        assert root_iter is not None
-        self._entries_tree_view.expand_row(tree_store.get_path(root_iter),
-                                           False)
 
     def _update_entry_property(self, box_widget, label_widget, text,
                                hide_if_empty):
