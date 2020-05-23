@@ -159,17 +159,24 @@ class Container:
         child, _ = self._get_child_full(name)
         return child
 
-    def add_child(self, child):
+    def add_child(self, child, is_move=False):
         """
         Add a new child object. Returns True if the insertion was successful and
         False if a child with the same name already exists.
         """
 
-        assert child.parent is None
+        assert (child.parent is not None) == is_move
 
         old_child, index = self._get_child_full(child.name)
         if old_child is not None:
             return False
+
+        # Adding a new child is possible. If this is a move then tell the
+        # previous parent that the child should be detached.
+        if is_move:
+            child._parent.remove_child(child)
+            assert child._parent is None
+
         self._children.insert(index, child)
         child._parent = self
         return True
@@ -350,6 +357,18 @@ class Model:
             parent_path_spec = parent.get_path()
             path_string = path_spec_to_string(parent_path_spec +
                                               [new_entry.name])
+            raise storepass.exc.ModelException(
+                f"Entry '{path_string}' already exists")
+
+    def move_entry(self, entry, new_parent):
+        """
+        Move a previously added entry under a new parent. Throws ModelException
+        if an entry with the same name already exists.
+        """
+
+        if not new_parent.add_child(entry, is_move=True):
+            parent_path_spec = new_parent.get_path()
+            path_string = path_spec_to_string(parent_path_spec + [entry.name])
             raise storepass.exc.ModelException(
                 f"Entry '{path_string}' already exists")
 
