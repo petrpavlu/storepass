@@ -84,6 +84,43 @@ class EntriesTreeStorePopulator(storepass.model.ModelVisitor):
             parent_iter, [generic.name, _EntryGObject(generic)])
 
 
+class EntriesTreeStore(Gtk.TreeStore, Gtk.TreeDragSource, Gtk.TreeDragDest):
+    """
+    Wrapper for Gtk.TreeStore to allow implementing Gtk.TreeDragSource and
+    Gtk.TreeDragDest interfaces at the same logical level where the TreeStore is
+    allocated.
+    """
+    def __init__(self, column_types, do_drag_data_delete, do_drag_data_get,
+                 do_row_draggable, do_drag_data_received,
+                 do_row_drop_possible):
+        super().__init__(*column_types)
+        self._do_drag_data_delete = do_drag_data_delete
+        self._do_drag_data_get = do_drag_data_get
+        self._do_row_draggable = do_row_draggable
+        self._do_drag_data_received = do_drag_data_received
+        self._do_row_drop_possible = do_row_drop_possible
+
+    def do_drag_data_delete(self, path):
+        """Override for Gtk.TreeDragSource.do_drag_data_delete()."""
+        return self._do_drag_data_delete(self, path)
+
+    def do_drag_data_get(self, path, selection_data):
+        """Override for Gtk.TreeDragSource.do_drag_data_get()."""
+        return self._do_drag_data_get(self, path, selection_data)
+
+    def do_row_draggable(self, path):
+        """Override for Gtk.TreeDragSource.do_row_draggable()."""
+        return self._do_row_draggable(self, path)
+
+    def do_drag_data_received(self, dest_path, selection_data):
+        """Override for Gtk.TreeDragDest.do_drag_data_received()."""
+        return self._do_drag_data_received(self, dest_path, selection_data)
+
+    def do_row_drop_possible(self, dest_path, selection_data):
+        """Override for Gtk.TreeDragDest.do_row_drop_possible()."""
+        return self._do_row_drop_possible(self, dest_path, selection_data)
+
+
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources', 'main_window.ui'))
 class _MainWindow(Gtk.ApplicationWindow):
@@ -140,6 +177,13 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._entries_tree_view_column.set_cell_data_func(
             self._entries_tree_view_icon_renderer, self._map_entry_icon)
 
+        # Set up drag-and-drop for the entries tree view.
+        target_list = [('GTK_TREE_MODEL_ROW', Gtk.TargetFlags.SAME_WIDGET, 0)]
+        self._entries_tree_view.enable_model_drag_source(
+            Gdk.ModifierType.BUTTON1_MASK, target_list, Gdk.DragAction.MOVE)
+        self._entries_tree_view.enable_model_drag_dest(target_list,
+                                                       Gdk.DragAction.MOVE)
+
         menu_xml = importlib.resources.read_text('storepass.gtk.resources',
                                                  'entries_tree_view_menu.ui')
         builder = Gtk.Builder.new_from_string(menu_xml, -1)
@@ -191,8 +235,26 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._model = model
         self._has_unsaved_changes = False
 
-        # Initialize a new GTK TreeStore model matching the StorePass model.
-        tree_store = Gtk.TreeStore(str, _EntryGObject)
+        # Initialize a new GTK TreeStore model matching the StorePass model and
+        # register drag-and-drop support.
+        #
+        # Note that GTK provides two interfaces that can be used for
+        # drag-and-drop in the entries tree view. The low-level one is at the
+        # Gtk.Widget level and involves the drag-data-get and drag-data-received
+        # signals. The higher-level one is at the Gtk.TreeStore level and relies
+        # on the Gtk.TreeDragSource and Gtk.TreeDragDest interfaces.
+        #
+        # Unfortunately, both these ways are somewhat akward to use in
+        # StorePass, due to some limitations. The code then opts for using the
+        # higher-level interface but wires the Gtk.TreeDrag(Source|Dest)
+        # interfaces to hook them to callbacks in this class, so the code can
+        # update both the Gtk.TreeStore and StorePass models at the same time.
+        tree_store = EntriesTreeStore(
+            (str, _EntryGObject), self._entries_tree_store_do_drag_data_delete,
+            self._entries_tree_store_do_drag_data_get,
+            self._entries_tree_store_do_row_draggable,
+            self._entries_tree_store_do_drag_data_received,
+            self._entries_tree_store_do_row_drop_possible)
         tree_store.set_sort_column_id(_EntriesTreeStoreColumn.NAME,
                                       Gtk.SortType.ASCENDING)
         self._entries_tree_view.set_model(tree_store)
@@ -217,6 +279,168 @@ class _MainWindow(Gtk.ApplicationWindow):
                                         '.storepass.db')
         if os.path.exists(default_database):
             self._open_password_database(default_database)
+
+    def _safe_get_tree_model_iter(self, tree_model, path):
+        """
+        Obtain an iterator pointing to a given path, or None if the path does
+        not exist.
+        """
+
+        try:
+            return tree_model.get_iter(path)
+        except ValueError:
+            return None
+
+    def _entries_tree_store_do_drag_data_delete(self, tree_store, path):
+        """
+        Handle a callback to delete an entries-tree-store row at a given path.
+        """
+
+        assert tree_store == self._entries_tree_view.get_model()
+
+        # A moved row should be already removed from its original position in
+        # _entries_tree_store_do_drag_data_received().
+        iter_ = self._safe_get_tree_model_iter(tree_store, path)
+        assert iter_ == None
+
+        return False
+
+    def _entries_tree_store_do_drag_data_get(self, tree_store, path,
+                                             selection_data):
+        """
+        Fill in selection_data with a GTK_TREE_MODEL_ROW representation of an
+        entries-tree-store row at a given path.
+        """
+
+        assert tree_store == self._entries_tree_view.get_model()
+
+        return Gtk.tree_set_row_drag_data(selection_data, tree_store, path)
+
+    def _entries_tree_store_do_row_draggable(self, tree_store, path):
+        """
+        Return whether a particular entries-tree-store row can be used as the
+        source of a drag-and-drop operation.
+        """
+
+        assert tree_store == self._entries_tree_view.get_model()
+
+        # Make all entries are draggable with the exception of the Root node.
+        root_iter = tree_store.get_iter_first()
+        assert root_iter is not None
+        return path != tree_store.get_path(root_iter)
+
+    def _entries_tree_store_do_drag_data_received(self, tree_store, dest_path,
+                                                  selection_data):
+        """
+        Handle a callback to insert an entries-tree-store row before a given
+        dest_path.
+        """
+
+        assert tree_store == self._entries_tree_view.get_model()
+
+        # Get information about the source.
+        valid, source_tree_model, source_path = Gtk.tree_get_row_drag_data(
+            selection_data)
+        if not valid:
+            return False
+        assert source_tree_model == tree_store
+
+        # Obtain the source entry.
+        source_iter = self._safe_get_tree_model_iter(tree_store, source_path)
+        if source_iter is None:
+            return False
+        source_entry = tree_store.get_value(
+            source_iter, _EntriesTreeStoreColumn.ENTRY).entry
+
+        # Obtain the destination entry. Look up the closest parent container.
+        if dest_path.get_depth() <= 1:
+            return False
+        res = dest_path.up()
+        assert res is True
+
+        dest_iter = self._safe_get_tree_model_iter(tree_store, dest_path)
+        if dest_iter is None:
+            return False
+
+        # Note: The following loop can have only one or two iterations. Either
+        # dest_iter already points to a parent Container, or if this is a drop
+        # on top of a non-Container row (the path is in form "X:0") then
+        # dest_iter first points to this node and its parent is then the
+        # destination.
+        while True:
+            dest_entry = tree_store.get_value(
+                dest_iter, _EntriesTreeStoreColumn.ENTRY).entry
+            if isinstance(dest_entry, storepass.model.Container):
+                break
+
+            assert dest_path.get_depth() > 1
+            res = dest_path.up()
+            assert res is True
+
+            dest_iter = tree_store.iter_parent(dest_iter)
+            assert dest_iter is not None
+
+        # Bail out if the entry is dropped at the same parent or is moved to its
+        # own child Container.
+        source_parent_path = source_path.copy()
+        res = source_parent_path.up()
+        assert res is True
+        if source_parent_path == dest_path or dest_path.is_descendant(
+                source_path):
+            return False
+
+        # Move the entry. Note that a drag_data_received() handler should
+        # strictly speaking make a copy of the dragged item and its source
+        # should be then removed by a drag_data_delete() handler. However, this
+        # would require excessive copying when a whole subtree is moved. Since
+        # the drag-and-drop functionality is in this case limited only to a
+        # single widget (the entries tree view), it can be optimized to a move
+        # operation.
+        try:
+            self._model.move_entry(source_entry, dest_entry)
+        except storepass.exc.ModelException as e:
+            util.show_error_dialog(self, "Error moving entry", f"{e}.")
+            return False
+
+        # Update the GTK model.
+        tree_store.remove(source_iter)
+        entry_iter = tree_store.append(
+            dest_iter,
+            [source_entry.name, _EntryGObject(source_entry)])
+
+        # Select the newly added entry.
+        self._entries_tree_view.expand_to_path(tree_store.get_path(entry_iter))
+        tree_selection = self._entries_tree_view.get_selection()
+        tree_selection.select_iter(entry_iter)
+
+        self._record_modification()
+        return True
+
+    def _entries_tree_store_do_row_drop_possible(self, tree_store, dest_path,
+                                                 selection_data):
+        """
+        Return whether a drop of an entries-tree-store row is possible before
+        a given dest_path.
+        """
+
+        assert tree_store == self._entries_tree_view.get_model()
+
+        # Allow drops at all rows and instead sort out invalid conditions in
+        # _entries_tree_store_do_drag_data_received(). Unfortunately, it does
+        # not look possible to limit drops only into Container's. The problem is
+        # that while GTK tracks whether a drop is before, after or into a row
+        # and this is used for highlighting a drop destination, the information
+        # is not available in this function. The passed dest_path value
+        # (Gtk.TreePath) conflates the mentioned cases and so limiting the
+        # selection using this value always causes accepting at least two drop
+        # types and therefore unexpected highlighting.
+        #
+        # Note also that dest_path does not have to exist. If a drop is on top
+        # of a leaf node, the path should contain an extra '0' element to
+        # indicate that this is a drop into it, or in other words that this is a
+        # drop before the first (non-existent) sub-node of this node. This case
+        # should be accepted as such.
+        return True
 
     def _get_db_filename(self):
         """
