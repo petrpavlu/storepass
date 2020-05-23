@@ -1041,7 +1041,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         assert tree_store == self._entries_tree_view.get_model()
 
         try:
-            self._model.add_entry(parent, new_entry)
+            self._model.add_entry(new_entry, parent)
         except storepass.exc.ModelException as e:
             util.show_error_dialog(self, "Error adding entry", f"{e}.")
             return False

@@ -180,7 +180,7 @@ def _process_add_command(args, model):
     # Insert the new entry in the model.
     try:
         parent_entry = model.get_entry(path_spec[:-1])
-        model.add_entry(parent_entry, entry)
+        model.add_entry(entry, parent_entry)
     except storepass.exc.ModelException as e:
         _logger.error(e)
         return 1

@@ -347,9 +347,9 @@ class Model:
 
         return entry
 
-    def add_entry(self, parent, new_entry):
+    def add_entry(self, new_entry, parent):
         """
-        Add a new entry to the specified parent. Throws ModelException if an
+        Add a new entry under a specified parent. Throws ModelException if an
         entry with the same name already exists.
         """
 
