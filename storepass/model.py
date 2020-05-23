@@ -232,12 +232,9 @@ class Entry:
         return self._name
 
     def get_path(self):
-        res = []
-        entry = self
-        while entry is not None and not isinstance(entry, Root):
-            res.insert(0, entry.name)
-            entry = entry._parent
-        return res
+        if self._parent is None:
+            return [self.name]
+        return [self.name] + self._parent.get_path()
 
     def inline_str(self):
         return f"name={self.name}, description={self.description}, updated={self.updated}, notes={self.notes}"
@@ -350,8 +347,7 @@ class Model:
         """
 
         if not parent.add_child(new_entry):
-            parent_path_spec = parent.get_path() if not isinstance(
-                parent, Root) else []
+            parent_path_spec = parent.get_path()
             path_string = path_spec_to_string(parent_path_spec +
                                               [new_entry.name])
             raise storepass.exc.ModelException(
