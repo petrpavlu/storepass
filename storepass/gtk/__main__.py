@@ -412,8 +412,8 @@ class _MainWindow(Gtk.ApplicationWindow):
             dest_iter = tree_store.iter_parent(dest_iter)
             assert dest_iter is not None
 
-        # Bail out if the entry is dropped at the same parent or is moved to its
-        # own child Container.
+        # Silently bail out if the entry is dropped at the same parent or is
+        # moved to its own child Container.
         source_parent_path = source_path.copy()
         res = source_parent_path.up()
         assert res is True
@@ -1066,12 +1066,12 @@ class _MainWindow(Gtk.ApplicationWindow):
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
-        tree_store, parent_iter, parent = \
+        tree_store, parent_iter, parent_entry = \
             self._unwrap_entries_tree_row_reference(tree_row_ref)
         assert tree_store == self._entries_tree_view.get_model()
 
         try:
-            self._model.add_entry(new_entry, parent)
+            self._model.add_entry(new_entry, parent_entry)
         except storepass.exc.ModelException as e:
             util.show_error_dialog(self, "Error adding entry", f"{e}.")
             return False

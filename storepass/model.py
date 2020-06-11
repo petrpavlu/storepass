@@ -24,7 +24,7 @@ Class diagram:
   '---------'
 
 All Entry's must hold a valid name identifying the Folder/Account. The name is
-set when the entry is created and remains constant during the lifetime of the
+set when the entry is created and remains constant during a lifetime of the
 object.
 """
 
