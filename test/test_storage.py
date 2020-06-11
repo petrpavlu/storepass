@@ -7,16 +7,16 @@ import os
 import storepass.exc
 import storepass.model
 import storepass.storage
-from . import helpers
+from . import util
 
 DEFAULT_PASSWORD = 'qwerty'
 
 
-class TestStorage(helpers.StorePassTestCase):
+class TestStorage(util.StorePassTestCase):
     def test_read_plain(self):
         """Check that the plain reader can output raw database content."""
 
-        helpers.write_password_db(self.dbname, DEFAULT_PASSWORD, 'RAW CONTENT')
+        util.write_password_db(self.dbname, DEFAULT_PASSWORD, 'RAW CONTENT')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         data = storage.read_plain()
@@ -36,7 +36,7 @@ class TestStorage(helpers.StorePassTestCase):
         (minimum corner case).
         """
 
-        helpers.write_file(self.dbname, b'')
+        util.write_file(self.dbname, b'')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -51,7 +51,7 @@ class TestStorage(helpers.StorePassTestCase):
         (maximum corner case).
         """
 
-        helpers.write_file(self.dbname,
+        util.write_file(self.dbname,
                            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
@@ -67,7 +67,7 @@ class TestStorage(helpers.StorePassTestCase):
         (minimum corner case).
         """
 
-        helpers.write_file(
+        util.write_file(
             self.dbname, b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
@@ -83,7 +83,7 @@ class TestStorage(helpers.StorePassTestCase):
         (maximum corner case).
         """
 
-        helpers.write_file(
+        util.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12')
@@ -101,7 +101,7 @@ class TestStorage(helpers.StorePassTestCase):
         rejected (minimum corner case).
         """
 
-        helpers.write_file(
+        util.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13')
@@ -120,7 +120,7 @@ class TestStorage(helpers.StorePassTestCase):
         rejected (maximum corner case).
         """
 
-        helpers.write_file(
+        util.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -139,7 +139,7 @@ class TestStorage(helpers.StorePassTestCase):
         Check that a file with a misaligned encrypted data is sensibly rejected.
         """
 
-        helpers.write_file(
+        util.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -158,7 +158,7 @@ class TestStorage(helpers.StorePassTestCase):
         rejected.
         """
 
-        helpers.write_file(
+        util.write_file(
             self.dbname,
             b'\xff\xff\xff\xff\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -178,7 +178,7 @@ class TestStorage(helpers.StorePassTestCase):
         sensibly rejected.
         """
 
-        helpers.write_file(
+        util.write_file(
             self.dbname,
             b'rvl\x00\xff\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -197,7 +197,7 @@ class TestStorage(helpers.StorePassTestCase):
         sensibly rejected.
         """
 
-        helpers.write_file(
+        util.write_file(
             self.dbname,
             b'rvl\x00\x02\xff\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -216,7 +216,7 @@ class TestStorage(helpers.StorePassTestCase):
         sensibly rejected.
         """
 
-        helpers.write_file(
+        util.write_file(
             self.dbname,
             b'rvl\x00\x02\x00\x06\x07\x08\xff\xff\xff\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -236,7 +236,7 @@ class TestStorage(helpers.StorePassTestCase):
         reported.
         """
 
-        helpers.write_password_db(self.dbname, 'a', 'RAW CONTENT')
+        util.write_password_db(self.dbname, 'a', 'RAW CONTENT')
 
         storage = storepass.storage.Storage(self.dbname, 'b')
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -249,7 +249,7 @@ class TestStorage(helpers.StorePassTestCase):
         rejected.
         """
 
-        helpers.write_password_db(self.dbname,
+        util.write_password_db(self.dbname,
                                   DEFAULT_PASSWORD,
                                   '',
                                   compress=False)
@@ -265,7 +265,7 @@ class TestStorage(helpers.StorePassTestCase):
         length) is sensibly rejected.
         """
 
-        helpers.write_password_db(
+        util.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
             '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x11',
@@ -285,7 +285,7 @@ class TestStorage(helpers.StorePassTestCase):
         bytes) is sensibly rejected.
         """
 
-        helpers.write_password_db(
+        util.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
             '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x02',
@@ -304,7 +304,7 @@ class TestStorage(helpers.StorePassTestCase):
         Check that a file with wrongly compressed data is sensibly rejected.
         """
 
-        helpers.write_password_db(
+        util.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
             '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x01',
@@ -322,7 +322,7 @@ class TestStorage(helpers.StorePassTestCase):
         Check that a file with wrongly encoded data is sensibly rejected.
         """
 
-        helpers.write_password_db(self.dbname, DEFAULT_PASSWORD, b'\xff')
+        util.write_password_db(self.dbname, DEFAULT_PASSWORD, b'\xff')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -335,9 +335,9 @@ class TestStorage(helpers.StorePassTestCase):
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
 
-        helpers.write_password_db(
+        util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            helpers.dedent('''\
+            util.dedent('''\
                 <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata version="0.4.14" dataversion="1">
                 \t<entry type="generic">
@@ -376,7 +376,7 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         storage.write_plain('RAW CONTENT')
 
-        data = helpers.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
+        data = util.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
         self.assertEqual(data, 'RAW CONTENT')
 
     def test_write_invalid_file(self):
@@ -399,10 +399,10 @@ class TestStorage(helpers.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         storage.write_tree(root)
 
-        data = helpers.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
+        data = util.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
         self.assertEqual(
             data,
-            helpers.dedent('''\
+            util.dedent('''\
                 <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
