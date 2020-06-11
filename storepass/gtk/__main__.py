@@ -12,6 +12,11 @@ from gi.repository import Gtk
 
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
+try:
+    from gi.repository import GdkX11
+    gdk_x11_available = True
+except ImportError:
+    gdk_x11_available = False
 
 from gi.repository import GLib
 from gi.repository import GObject
@@ -278,8 +283,34 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Try to open the default password database.
         default_database = os.path.join(os.path.expanduser('~'),
                                         '.storepass.db')
-        if os.path.exists(default_database):
-            self._open_password_database(default_database)
+        if not os.path.exists(default_database):
+            return
+
+        # Consider opening of the default database as a user activity in the
+        # main window and reflect it in the _NET_WM_USER_TIME application window
+        # property.
+        #
+        # This avoids a focus issue during the start-up when the application
+        # first displays the main window followed by immediately showing a
+        # password dialog. Without adjusting _NET_WM_USER_TIME, it is possible
+        # that the main window ends up being wrongly focused instead of the
+        # dialog.
+        #
+        # The problem occurs with some window managers (namely Openbox) when the
+        # application is started from a terminal. In such a case, no
+        # DESKTOP_STARTUP_ID environment variable is set which results in
+        # _NET_WM_USER_TIME for the main window initially getting set to 0 by
+        # Gtk. When a password dialog then tries to steal the focus, a window
+        # manager can consider the no-activity in the main window as if no
+        # window that the application has is used and disallows the dialog from
+        # getting the focus.
+        if gdk_x11_available:
+            gdk_window = self.get_window()
+            if isinstance(gdk_window, GdkX11.X11Window):
+                gdk_window.set_user_time(
+                    GdkX11.x11_get_server_time(gdk_window))
+
+        self._open_password_database(default_database)
 
     def _safe_get_tree_model_iter(self, tree_model, path):
         """
@@ -552,7 +583,6 @@ class _MainWindow(Gtk.ApplicationWindow):
                        self._on_open_password_database_dialog_response,
                        filename)
         dialog.show()
-        dialog.present_with_time(Gdk.CURRENT_TIME)
 
     def _on_open_password_database_dialog_response(self, dialog, response_id,
                                                    filename):
@@ -662,7 +692,6 @@ class _MainWindow(Gtk.ApplicationWindow):
                        self._on_save_password_database_dialog_response,
                        filename)
         dialog.show()
-        dialog.present_with_time(Gdk.CURRENT_TIME)
 
     def _on_save_password_database_dialog_response(self, dialog, response_id,
                                                    filename):
