@@ -77,6 +77,7 @@ class EditFolderDialog(Gtk.Dialog):
     _name_entry = Gtk.Template.Child('name_entry')
     _description_entry = Gtk.Template.Child('description_entry')
     _notes_text_view = Gtk.Template.Child('notes_text_view')
+    _apply_button = Gtk.Template.Child('apply_button')
 
     def __init__(self, parent_window, entry):
         super().__init__(parent=parent_window)
@@ -86,10 +87,12 @@ class EditFolderDialog(Gtk.Dialog):
         if entry is None:
             self.set_title("Add Folder")
             self._modify_folder_label.set_text("Add Folder")
+            self._apply_button.set_label("_Add")
             return
 
         self.set_title("Edit Folder")
         self._modify_folder_label.set_text("Edit Folder")
+        self._apply_button.set_label("_Apply")
 
         self._name_entry.set_text(entry.name)
         self._description_entry.set_text(
@@ -157,6 +160,7 @@ class EditAccountDialog(Gtk.Dialog):
     _username_entry = Gtk.Template.Child('username_entry')
     _password_label = Gtk.Template.Child('password_label')
     _password_entry = Gtk.Template.Child('password_entry')
+    _apply_button = Gtk.Template.Child('apply_button')
 
     def __init__(self, parent_window, entry):
         super().__init__(parent=parent_window)
@@ -172,11 +176,13 @@ class EditAccountDialog(Gtk.Dialog):
         if entry is None:
             self.set_title("Add Account")
             self._modify_account_label.set_text("Add Account")
+            self._apply_button.set_label("_Add")
             self._type_combo_box.set_active(0)
             return
 
         self.set_title("Edit Account")
         self._modify_account_label.set_text("Edit Account")
+        self._apply_button.set_label("_Apply")
 
         self._name_entry.set_text(entry.name)
         self._description_entry.set_text(
