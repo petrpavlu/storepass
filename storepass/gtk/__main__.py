@@ -573,7 +573,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._open_password_database(filename)
 
     def _open_password_database(self, filename):
-        """Open a password database specified by the filename."""
+        """
+        Open a password database specified by the filename. A dialog is shown to
+        prompt for its master password.
+        """
 
         self._clear_state()
 
@@ -608,10 +611,10 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         storage = storepass.storage.Storage(filename, password)
         model = storepass.model.Model()
+
         try:
             model.load(storage)
         except storepass.exc.StorageReadException as e:
-            # Show a dialog with the error.
             util.show_error_dialog(
                 self, "Error loading password database",
                 f"Failed to load password database '{filename}': {e}.")
@@ -631,7 +634,15 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._on_save_as(action, param)
             return
 
-        self._model.save(self._storage)
+        try:
+            self._model.save(self._storage)
+        except storepass.exc.StoreWriteException as e:
+            filename = self._storage.filename
+            util.show_error_dialog(
+                self, "Error saving password database",
+                f"Failed to save password database '{filename}': {e}.")
+            return
+
         self._has_unsaved_changes = False
         self._update_title()
 
@@ -684,7 +695,10 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._save_as_password_database(filename)
 
     def _save_as_password_database(self, filename):
-        """Save a password database to the specified file."""
+        """
+        Save a password database to the specified file. A dialog is shown to
+        prompt for its master password.
+        """
 
         # Ask for the password via a dialog.
         dialog = _PasswordDialog(self)
@@ -715,15 +729,19 @@ class _MainWindow(Gtk.ApplicationWindow):
         it into a file.
         """
 
-        self._storage = storepass.storage.Storage(filename, password)
+        storage = storepass.storage.Storage(filename, password)
+
         try:
-            self._model.save(self._storage)
-            self._has_unsaved_changes = False
+            self._model.save(storage)
         except storepass.exc.StorageWriteException as e:
             util.show_error_dialog(
                 self, "Error saving password database",
                 f"Failed to save password database '{filename}': {e}.")
+            return
 
+        self._storage = storage
+
+        self._has_unsaved_changes = False
         self._update_title()
 
     def _update_entry_property(self, box_widget, label_widget, text,
