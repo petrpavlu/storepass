@@ -29,12 +29,6 @@ from storepass.gtk import edit
 from storepass.gtk import util
 
 
-# Note: Keep these constants in sync with the ui files.
-class _EntriesTreeStoreColumn(enum.IntEnum):
-    NAME = 0
-    ENTRY = 1
-
-
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources',
                                   'password_dialog.ui'))
@@ -59,6 +53,12 @@ class _AboutDialog(Gtk.AboutDialog):
     """About application dialog."""
 
     __gtype_name__ = "AboutDialog"
+
+
+# Note: Keep these constants in sync with the ui files.
+class _EntriesTreeStoreColumn(enum.IntEnum):
+    NAME = 0
+    ENTRY = 1
 
 
 class _EntryGObject(GObject.Object):
