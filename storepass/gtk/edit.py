@@ -7,8 +7,9 @@ import gi
 import importlib.resources
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import GObject
 from gi.repository import Gtk
+
+from gi.repository import GObject
 
 import storepass.model
 from storepass.gtk import util

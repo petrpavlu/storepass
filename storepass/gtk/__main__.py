@@ -7,14 +7,15 @@ import importlib.resources
 import os
 import sys
 
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
 
-gi.require_version('Gtk', '3.0')
 from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gio
-from gi.repository import Gtk
 
 import storepass.exc
 import storepass.model
