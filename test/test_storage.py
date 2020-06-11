@@ -332,6 +332,20 @@ class TestStorage(util.StorePassTestCase):
             "Error decoding payload: 'utf-8' codec can't decode byte 0xff in "
             "position 0: invalid start byte")
 
+    def test_read_wrong_xml(self):
+        """
+        Check that a file with not well-formed XML is sensibly rejected.
+        """
+
+        util.write_password_db(self.dbname, DEFAULT_PASSWORD, '</xml>')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Error parsing XML payload: not well-formed (invalid token): line 1, column 1")
+
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
 

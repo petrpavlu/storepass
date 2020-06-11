@@ -20,8 +20,11 @@ class _XMLToModelConvertor:
         pass
 
     def process(self, xml_data):
-        # TODO Implement proper error checking.
-        root_elem = ET.fromstring(xml_data)
+        try:
+            root_elem = ET.fromstring(xml_data)
+        except ET.ParseError as e:
+            raise storepass.exc.StorageReadException(
+                f"Error parsing XML payload: {e}")
 
         return self._parse_root(root_elem)
 
