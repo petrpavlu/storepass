@@ -52,7 +52,7 @@ class TestStorage(util.StorePassTestCase):
         """
 
         util.write_file(self.dbname,
-                           b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
+                        b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -67,8 +67,8 @@ class TestStorage(util.StorePassTestCase):
         (minimum corner case).
         """
 
-        util.write_file(
-            self.dbname, b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
+        util.write_file(self.dbname,
+                        b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -251,9 +251,9 @@ class TestStorage(util.StorePassTestCase):
         """
 
         util.write_password_db(self.dbname,
-                                  DEFAULT_PASSWORD,
-                                  '',
-                                  compress=False)
+                               DEFAULT_PASSWORD,
+                               '',
+                               compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -345,7 +345,8 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Error parsing XML payload: not well-formed (invalid token): line 1, column 1")
+            "Error parsing XML payload: not well-formed (invalid token): line 1, column 1"
+        )
 
     def test_read_wrong_root_element(self):
         """
