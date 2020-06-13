@@ -45,7 +45,7 @@ class _XMLToModelConvertor:
                 f"Invalid root element '{xml_elem.tag}', expected "
                 f"'revelationdata'")
 
-        # Validate <revelationdata> attributes.
+        # Note: The 'version' attribute is ignored.
         self._validate_element_attributes(xml_elem, ('version', 'dataversion'))
 
         dataversion = xml_elem.get('dataversion')
@@ -57,6 +57,52 @@ class _XMLToModelConvertor:
         children = self._parse_subelements(iter(list(xml_elem)))
         return storepass.model.Root(children)
 
+    def _parse_updated(self, xml_elem):
+        """Parse a <updated> element."""
+
+        updated = xml_elem.text
+        if updated is None:
+            raise storepass.exc.StorageReadException(
+                f"Element 'updated' has invalid value '': string is empty")
+        if not updated.isdigit():
+            raise storepass.exc.StorageReadException(
+                f"Element 'updated' has invalid value '{updated}': string "
+                f"contains a non-digit character")
+
+        updated_int = int(updated)
+
+        try:
+            return datetime.datetime.fromtimestamp(updated_int,
+                                                   datetime.timezone.utc)
+        except (OverflowError, OSError) as e:
+            raise storepass.exc.StorageReadException(
+                f"Element 'updated' has invalid value '{updated}': {e}") from e
+
+    class _EntryProperties:
+        def __init__(self):
+            self.name = None
+            self.description = None
+            self.updated = None
+            self.notes = None
+
+    def _parse_entry_properties(self, xml_elem, props):
+        """
+        Parse a common property element <name>, <description>, <updated> or
+        <notes>.
+        """
+
+        self._validate_element_attributes(xml_elem, ())
+
+        if xml_elem.tag == 'name':
+            props.name = xml_elem.text
+        elif xml_elem.tag == 'description':
+            props.description = xml_elem.text
+        elif xml_elem.tag == 'updated':
+            props.updated = self._parse_updated(xml_elem)
+        else:
+            assert xml_elem.tag == 'notes'
+            props.notes = xml_elem.text
+
     def _parse_subelements(self, xml_elem_iter):
         """Parse sub-elements of a folder-like element."""
 
@@ -66,6 +112,8 @@ class _XMLToModelConvertor:
                 raise storepass.exc.StorageReadException(
                     f"Unrecognized element '{xml_elem.tag}', expected 'entry'")
 
+            self._validate_element_attributes(xml_elem, ('type'))
+
             type_ = xml_elem.get('type')
             if type_ == 'folder':
                 folder = self._parse_folder(xml_elem)
@@ -74,19 +122,11 @@ class _XMLToModelConvertor:
                 generic = self._parse_generic(xml_elem)
                 children.append(generic)
             else:
-                # TODO type_ can be None?
                 raise storepass.exc.StorageReadException(
                     f"Unrecognized type attribute '{type_}', expected 'folder' or 'generic'"
                 )
 
         return children
-
-    def _parse_updated(self, xml_elem):
-        """Parse a <updated> element."""
-
-        # TODO Error checking.
-        updated = int(xml_elem.text)
-        return datetime.datetime.fromtimestamp(updated, datetime.timezone.utc)
 
     def _parse_folder(self, xml_elem):
         """Parse a <entry type='folder'> element."""
@@ -94,12 +134,8 @@ class _XMLToModelConvertor:
         assert xml_elem.tag == 'entry'
         assert xml_elem.get('type') == 'folder'
 
+        props = self._EntryProperties()
         xml_subelem_iter = iter(list(xml_elem))
-
-        name = None
-        description = None
-        updated = None
-        notes = None
 
         for xml_subelem in xml_subelem_iter:
             if xml_subelem.tag == 'entry':
@@ -109,22 +145,16 @@ class _XMLToModelConvertor:
                                                    xml_subelem_iter)
                 break
 
-            if xml_subelem.tag == 'name':
-                name = xml_subelem.text
-            elif xml_subelem.tag == 'description':
-                description = xml_subelem.text
-            elif xml_subelem.tag == 'updated':
-                updated = self._parse_updated(xml_subelem)
-            elif xml_subelem.tag == 'notes':
-                notes = xml_subelem.text
+            if xml_subelem.tag in ('name', 'description', 'updated', 'notes'):
+                self._parse_entry_properties(xml_subelem, props)
             else:
                 raise storepass.exc.StorageReadException(
-                    f"Unrecognized property element '{xml_subelem.tag}'")
+                    f"Unrecognized folder sub-element '{xml_subelem.tag}'")
 
         children = self._parse_subelements(xml_subelem_iter)
 
-        return storepass.model.Folder(name, description, updated, notes,
-                                      children)
+        return storepass.model.Folder(props.name, props.description,
+                                      props.updated, props.notes, children)
 
     def _parse_generic(self, xml_elem):
         """Parse a <entry type='generic'> element."""
@@ -132,25 +162,17 @@ class _XMLToModelConvertor:
         assert xml_elem.tag == 'entry'
         assert xml_elem.get('type') == 'generic'
 
-        name = None
-        description = None
-        updated = None
-        notes = None
+        props = self._EntryProperties()
         username = None
         password = None
         hostname = None
 
         for xml_subelem in list(xml_elem):
-            if xml_subelem.tag == 'name':
-                name = xml_subelem.text
-            elif xml_subelem.tag == 'description':
-                description = xml_subelem.text
-            elif xml_subelem.tag == 'updated':
-                updated = self._parse_updated(xml_subelem)
-            elif xml_subelem.tag == 'notes':
-                notes = xml_subelem.text
+            if xml_subelem.tag in ('name', 'description', 'updated', 'notes'):
+                self._parse_entry_properties(xml_subelem, props)
             elif xml_subelem.tag == 'field':
-                # TODO More checking.
+                self._validate_element_attributes(xml_subelem, ('id'))
+
                 id_ = xml_subelem.get('id')
                 if id_ == 'generic-hostname':
                     hostname = xml_subelem.text
@@ -159,15 +181,16 @@ class _XMLToModelConvertor:
                 elif id_ == 'generic-password':
                     password = xml_subelem.text
                 else:
-                    # TODO Handle None type.
                     raise storepass.exc.StorageReadException(
-                        f"Unrecognized generic id attribute '{id_}'")
+                        f"Element 'field' has unrecognized generic id "
+                        f"attribute '{id_}'")
             else:
                 raise storepass.exc.StorageReadException(
-                    f"Unrecognized property element '{xml_subelem.tag}'")
+                    f"Unrecognized generic sub-element '{xml_subelem.tag}'")
 
-        return storepass.model.Generic(name, description, updated, notes,
-                                       hostname, username, password)
+        return storepass.model.Generic(props.name, props.description,
+                                       props.updated, props.notes, hostname,
+                                       username, password)
 
 
 class _ModelToXMLConvertor(storepass.model.ModelVisitor):

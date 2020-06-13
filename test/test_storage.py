@@ -396,6 +396,184 @@ class TestStorage(util.StorePassTestCase):
             str(cm.exception),
             "Unsupported XML data version, expected '1' but found '2'")
 
+    def test_read_wrong_entry_attribute(self):
+        """
+        Check that a file with an unexpected <entry> attribute is sensibly
+        rejected.
+        """
+
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry invalid-attr="invalid-value">
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element 'entry' has unrecognized attribute 'invalid-attr'")
+
+    def test_read_folder_entry(self):
+        """Check parsing of a single folder entry."""
+
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.Folder)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.children, [])
+
+    def test_read_wrong_folder_entry_property(self):
+        """
+        Check that a file with an unexpected sub-element property for
+        <entry type="folder"> is sensibly rejected.
+        """
+
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<invalid-property>invalid-value</invalid-property>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(str(cm.exception),
+                         "Unrecognized folder sub-element 'invalid-property'")
+
+    def test_read_wrong_name_attribute(self):
+        """
+        Check that a file with an unexpected <name> attribute is sensibly
+        rejected.
+        """
+
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<name invalid-attribute="invalid-value">E1</name>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element 'name' has unrecognized attribute 'invalid-attribute'")
+
+    def test_read_wrong_updated_value(self):
+        """
+        Check that a file with an invalid <updated> value is sensibly rejected.
+        """
+
+        # Empty value is rejected.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<updated></updated>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element 'updated' has invalid value '': string is empty")
+
+        # Non-digit value is rejected.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<updated>invalid-value</updated>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element 'updated' has invalid value 'invalid-value': string contains a non-digit character"
+        )
+
+        # Negative value is rejected.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<updated>-1</updated>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element 'updated' has invalid value '-1': string contains a non-digit character"
+        )
+
+        # Overflow value is rejected.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<updated>100020003000400050006000700090000000</updated>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element 'updated' has invalid value '100020003000400050006000700090000000': timestamp out of range for platform time_t"
+        )
+
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
 
@@ -433,6 +611,76 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(child_0.hostname, "E1 hostname")
         self.assertEqual(child_0.username, "E1 username")
         self.assertEqual(child_0.password, "E1 password")
+
+    def test_read_wrong_generic_entry_property(self):
+        """
+        Check that a file with an unexpected sub-element property for
+        <entry type="generic"> is sensibly rejected.
+        """
+
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="generic">
+                \t\t<invalid-property>invalid-value</invalid-property>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Unrecognized generic sub-element 'invalid-property'")
+
+    def test_read_wrong_generic_field_attribute(self):
+        """
+        Check that a file with an unexpected generic-entry <field> attribute is
+        sensibly rejected.
+        """
+
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="generic">
+                \t\t<field invalid-attribute="invalid-value">E1 field</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element 'field' has unrecognized attribute 'invalid-attribute'")
+
+    def test_read_wrong_generic_field_id(self):
+        """
+        Check that a file with an unexpected generic-entry <field> id attribute
+        is sensibly rejected.
+        """
+
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="generic">
+                \t\t<field id="invalid-id">E1 field</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element 'field' has unrecognized generic id attribute 'invalid-id'"
+        )
 
     def test_write_plain(self):
         """Check that the plain writer can save raw database content."""
