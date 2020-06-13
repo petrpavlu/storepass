@@ -28,15 +28,31 @@ class _XMLToModelConvertor:
 
         return self._parse_root(root_elem)
 
+    def _validate_element_attributes(self, xml_elem, accepted_attributes):
+        """Check that the element has no unexpected attribute."""
+
+        for attrib in xml_elem.attrib:
+            if attrib not in accepted_attributes:
+                raise storepass.exc.StorageReadException(
+                    f"Element '{xml_elem.tag}' has unrecognized attribute "
+                    f"'{attrib}'")
+
     def _parse_root(self, xml_elem):
         """Parse the root <revelationdata> element."""
 
         if xml_elem.tag != 'revelationdata':
             raise storepass.exc.StorageReadException(
-                f"Invalid root element '{xml_elem.tag}', expected " \
+                f"Invalid root element '{xml_elem.tag}', expected "
                 f"'revelationdata'")
 
-        # TODO Validate that the element has no unrecognized attributes.
+        # Validate <revelationdata> attributes.
+        self._validate_element_attributes(xml_elem, ('version', 'dataversion'))
+
+        dataversion = xml_elem.get('dataversion')
+        if dataversion != '1':
+            raise storepass.exc.StorageReadException(
+                f"Unsupported XML data version, expected '1' but found "
+                f"'{dataversion}'")
 
         children = self._parse_subelements(iter(list(xml_elem)))
         return storepass.model.Root(children)
@@ -282,7 +298,7 @@ class Storage:
                 f"{header[0:4]}")
         if header[4:5] != b'\x02':
             raise storepass.exc.StorageReadException(
-                f"Unsupported data version, expected b'2' but found "
+                f"Unsupported envelope data version, expected b'2' but found "
                 f"{header[4:5]}")
         if header[5:6] != b'\x00':
             raise storepass.exc.StorageReadException(

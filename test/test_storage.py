@@ -189,7 +189,8 @@ class TestStorage(util.StorePassTestCase):
             storage.read_plain()
         self.assertEqual(
             str(cm.exception),
-            "Unsupported data version, expected b'2' but found b'\\xff'")
+            "Unsupported envelope data version, expected b'2' but found b'\\xff'"
+        )
 
     def test_read_header_padding(self):
         """
@@ -345,6 +346,55 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(
             str(cm.exception),
             "Error parsing XML payload: not well-formed (invalid token): line 1, column 1")
+
+    def test_read_wrong_root_element(self):
+        """
+        Check that a file with an unexpected root element is sensibly rejected.
+        """
+
+        util.write_password_db(self.dbname, DEFAULT_PASSWORD, '<data/>')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Invalid root element 'data', expected 'revelationdata'")
+
+    def test_read_wrong_root_attribute(self):
+        """
+        Check that a file with an unexpected <revelationdata> attribute is
+        sensibly rejected.
+        """
+
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            '<revelationdata invalid-attr="invalid-value"></revelationdata>')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element 'revelationdata' has unrecognized attribute 'invalid-attr'"
+        )
+
+    def test_read_wrong_root_dataversion(self):
+        """
+        Check that a file with an unexpected 'dataversion' attribute is sensibly
+        rejected.
+        """
+
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            '<revelationdata dataversion="2"></revelationdata>')
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Unsupported XML data version, expected '1' but found '2'")
 
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
