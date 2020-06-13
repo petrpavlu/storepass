@@ -225,14 +225,9 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
         # Convert ElementTree representation to a XML document.
         self._indent_xml(self._xml_root)
-        data = ET.tostring(self._xml_root, encoding='unicode')
-
-        # Add XML declaration if it is missing.
-        # TODO Use xml_declaration=True in Python 3.8.
-        if data[:6] != '<?xml ':
-            data = '<?xml version="1.0" encoding="utf-8"?>\n' + data
-
-        return data
+        return ET.tostring(self._xml_root,
+                           encoding='unicode',
+                           xml_declaration=True)
 
     def visit_root(self, root):
         """Create XML representation for the data root."""

@@ -135,7 +135,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
+                    <?xml version='1.0' encoding='UTF-8'?>
                     <revelationdata dataversion="1" />
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -201,7 +201,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
                     \t\t<name>E1 name</name>
@@ -243,7 +243,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
                     \t\t<name>E1 name</name>
@@ -289,7 +289,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
@@ -378,7 +378,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    ^<\\?xml version="1\\.0" encoding="utf-8"\\?>
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
@@ -464,7 +464,7 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
+                <?xml version='1.0' encoding='UTF-8'?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -493,7 +493,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
+                    <?xml version='1.0' encoding='UTF-8'?>
                     <revelationdata dataversion="1" />
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -507,7 +507,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -554,7 +553,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
+                    <?xml version='1.0' encoding='UTF-8'?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
@@ -591,7 +590,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -627,7 +625,6 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    <?xml version="1.0" encoding="utf-8"?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
                     \t\t<name>E1 name</name>
@@ -646,7 +643,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -675,7 +671,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -710,7 +705,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -742,7 +736,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -783,7 +776,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -816,7 +808,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -864,7 +855,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -906,7 +896,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -942,7 +931,6 @@ class TestCLI(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>

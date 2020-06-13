@@ -580,8 +580,7 @@ class TestStorage(util.StorePassTestCase):
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
-                <revelationdata version="0.4.14" dataversion="1">
+                <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
                 \t\t<description>E1 description</description>
@@ -715,7 +714,7 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(
             data,
             util.dedent('''\
-                <?xml version="1.0" encoding="utf-8"?>
+                <?xml version='1.0' encoding='UTF-8'?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
