@@ -24,7 +24,7 @@ class _XMLToModelConvertor:
             root_elem = ET.fromstring(xml_data)
         except ET.ParseError as e:
             raise storepass.exc.StorageReadException(
-                f"Error parsing XML payload: {e}")
+                f"Error parsing XML payload: {e}") from e
 
         return self._parse_root(root_elem)
 
