@@ -10,7 +10,7 @@ setuptools.setup(
     name='storepass',
     version='1.0.0',
     author='Petr Pavlu',
-    author_email='petr.pavlu@outlook.com',
+    author_email='setup@dagobah.cz',
     description='StorePass Password Manager',
     long_description=long_description,
     long_description_content_type='text/markdown',
