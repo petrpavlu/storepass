@@ -23,8 +23,12 @@ setuptools.setup(
     python_requires='>=3.6',
     entry_points={
         'console_scripts': [
-            'storepass = storepass.cli.__main__:main',
+            'storepass-cli = storepass.cli.__main__:main',
+        ],
+        'gui_scripts': [
+            'storepass-gtk = storepass.gtk.__main__:main',
         ],
     },
     packages=setuptools.find_packages(exclude=['test']),
+    package_data={'storepass.gtk.resources': ['*.ui']},
 )
