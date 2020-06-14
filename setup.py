@@ -26,5 +26,5 @@ setuptools.setup(
             'storepass = storepass.cli.__main__:main',
         ],
     },
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=['test']),
 )
