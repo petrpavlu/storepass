@@ -27,5 +27,4 @@ setuptools.setup(
         ],
     },
     packages=setuptools.find_packages(),
-    data_files=[('', ['COPYING'])],
 )
