@@ -33,8 +33,8 @@ logging.addLevelName(logging.DEBUG, "debug")
 
 
 # Create a custom stderr logger. It is same as a handler that would be created
-# by the logging module by default, but references sys.stderr at the time when a
-# message is printed, which allows sys.stderr to be correctly overwritten in
+# by the logging module by default, but references sys.stderr at the time when
+# a message is printed, which allows sys.stderr to be correctly overwritten in
 # unit tests.
 class _StderrHandler(logging.Handler):
     def emit(self, record):

@@ -96,8 +96,8 @@ class EntriesTreeStorePopulator(storepass.model.ModelVisitor):
 class EntriesTreeStore(Gtk.TreeStore, Gtk.TreeDragSource, Gtk.TreeDragDest):
     """
     Wrapper for Gtk.TreeStore to allow implementing Gtk.TreeDragSource and
-    Gtk.TreeDragDest interfaces at the same logical level where the TreeStore is
-    allocated.
+    Gtk.TreeDragDest interfaces at the same logical level where the TreeStore
+    is allocated.
     """
     def __init__(self, column_types, do_drag_data_delete, do_drag_data_get,
                  do_row_draggable, do_drag_data_received,
@@ -170,8 +170,9 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._entries_tree_view)
         self._entries_tree_view_column = util.Hint.GtkTreeViewColumn(
             self._entries_tree_view_column)
-        self._entries_tree_view_icon_renderer = util.Hint.GtkCellRendererPixbuf(
-            self._entries_tree_view_icon_renderer)
+        self._entries_tree_view_icon_renderer = \
+            util.Hint.GtkCellRendererPixbuf(
+                self._entries_tree_view_icon_renderer)
         self._db_filename_box = util.Hint.GtkBox(self._db_filename_box)
         self._db_filename_label = util.Hint.GtkLabel(self._db_filename_label)
         self._entry_name_box = util.Hint.GtkBox(self._entry_name_box)
@@ -282,9 +283,10 @@ class _MainWindow(Gtk.ApplicationWindow):
         #
         # Note that GTK provides two interfaces that can be used for
         # drag-and-drop in the entries tree view. The low-level one is at the
-        # Gtk.Widget level and involves the drag-data-get and drag-data-received
-        # signals. The higher-level one is at the Gtk.TreeStore level and relies
-        # on the Gtk.TreeDragSource and Gtk.TreeDragDest interfaces.
+        # Gtk.Widget level and involves the drag-data-get and
+        # drag-data-received signals. The higher-level one is at the
+        # Gtk.TreeStore level and relies on the Gtk.TreeDragSource and
+        # Gtk.TreeDragDest interfaces.
         #
         # Unfortunately, both these ways are somewhat akward to use in
         # StorePass, due to some limitations. The code then opts for using the
@@ -323,8 +325,8 @@ class _MainWindow(Gtk.ApplicationWindow):
             return
 
         # Consider opening of the default database as a user activity in the
-        # main window and reflect it in the _NET_WM_USER_TIME application window
-        # property.
+        # main window and reflect it in the _NET_WM_USER_TIME application
+        # window property.
         #
         # This avoids a focus issue during the start-up when the application
         # first displays the main window followed by immediately showing a
@@ -332,8 +334,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         # that the main window ends up being wrongly focused instead of the
         # dialog.
         #
-        # The problem occurs with some window managers (namely Openbox) when the
-        # application is started from a terminal. In such a case, no
+        # The problem occurs with some window managers (namely Openbox) when
+        # the application is started from a terminal. In such a case, no
         # DESKTOP_STARTUP_ID environment variable is set which results in
         # _NET_WM_USER_TIME for the main window initially getting set to 0 by
         # Gtk. When a password dialog then tries to steal the focus, a window
@@ -495,24 +497,25 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         # Allow drops at all rows and instead sort out invalid conditions in
         # _entries_tree_store_do_drag_data_received(). Unfortunately, it does
-        # not look possible to limit drops only into Container's. The problem is
-        # that while GTK tracks whether a drop is before, after or into a row
-        # and this is used for highlighting a drop destination, the information
-        # is not available in this function. The passed dest_path value
-        # (Gtk.TreePath) conflates the mentioned cases and so limiting the
-        # selection using this value always causes accepting at least two drop
-        # types and therefore unexpected highlighting.
+        # not look possible to limit drops only into Container's. The problem
+        # is that while GTK tracks whether a drop is before, after or into a
+        # row and this is used for highlighting a drop destination, the
+        # information is not available in this function. The passed dest_path
+        # value (Gtk.TreePath) conflates the mentioned cases and so limiting
+        # the selection using this value always causes accepting at least two
+        # drop types and therefore unexpected highlighting.
         #
         # Note also that dest_path does not have to exist. If a drop is on top
         # of a leaf node, the path should contain an extra '0' element to
-        # indicate that this is a drop into it, or in other words that this is a
-        # drop before the first (non-existent) sub-node of this node. This case
-        # should be accepted as such.
+        # indicate that this is a drop into it, or in other words that this is
+        # a drop before the first (non-existent) sub-node of this node. This
+        # case should be accepted as such.
         return True
 
     def _get_db_filename(self):
         """
-        Return a database filename, or "<unsaved>" if it has not been saved yet.
+        Return a database filename, or "<unsaved>" if it has not been saved
+        yet.
         """
 
         return self._storage.filename if self._storage.filename is not None \
@@ -610,8 +613,8 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _open_password_database(self, filename):
         """
-        Open a password database specified by the filename. A dialog is shown to
-        prompt for its master password.
+        Open a password database specified by the filename. A dialog is shown
+        to prompt for its master password.
         """
 
         self._clear_state()
@@ -907,8 +910,8 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _unwrap_entries_tree_row_reference(self, tree_row_ref):
         """
         Obtain a model that a specified row reference is currently monitoring,
-        an iterator that the reference points to and an actual entry object. The
-        row reference must be valid.
+        an iterator that the reference points to and an actual entry object.
+        The row reference must be valid.
         """
 
         assert tree_row_ref is not None
@@ -921,9 +924,9 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _get_entries_tree_view_menu_associated_entry(self, get_container):
         """
-        Obtain the entry associated with the (opened) entries tree view menu. If
-        get_container is True and the entry is not a Container then look up and
-        return its parent.
+        Obtain the entry associated with the (opened) entries tree view menu.
+        If get_container is True and the entry is not a Container then look up
+        and return its parent.
         """
 
         assert self._entries_tree_view_menu_row_ref is not None
@@ -1093,8 +1096,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         tree_row_ref, entry = \
             self._get_entries_tree_view_menu_associated_entry(False)
 
-        # Remove the entry. However, if it is a Container that is not empty then
-        # first prompt the user for a confirmation of the removal.
+        # Remove the entry. However, if it is a Container that is not empty
+        # then first prompt the user for a confirmation of the removal.
         if isinstance(entry, storepass.model.Root) and len(entry.children) > 0:
             util.show_confirmation_dialog(
                 self, "Remove all entries",

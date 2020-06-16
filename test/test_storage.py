@@ -136,7 +136,8 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_encrypted_alignment(self):
         """
-        Check that a file with a misaligned encrypted data is sensibly rejected.
+        Check that a file with a misaligned encrypted data is sensibly
+        rejected.
         """
 
         util.write_file(
@@ -154,8 +155,8 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_header_magic(self):
         """
-        Check that a file with an invalid magic number in its header is sensibly
-        rejected.
+        Check that a file with an invalid magic number in its header is
+        sensibly rejected.
         """
 
         util.write_file(
@@ -189,8 +190,8 @@ class TestStorage(util.StorePassTestCase):
             storage.read_plain()
         self.assertEqual(
             str(cm.exception),
-            "Unsupported envelope data version, expected b'2' but found b'\\xff'"
-        )
+            "Unsupported envelope data version, expected b'2' but found "
+            "b'\\xff'")
 
     def test_read_header_padding(self):
         """
@@ -345,8 +346,8 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Error parsing XML payload: not well-formed (invalid token): line 1, column 1"
-        )
+            "Error parsing XML payload: not well-formed (invalid token): "
+            "line 1, column 1")
 
     def test_read_wrong_root_element(self):
         """
@@ -377,13 +378,13 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Element '/revelationdata' has unrecognized attribute 'invalid-attr'"
-        )
+            "Element '/revelationdata' has unrecognized attribute "
+            "'invalid-attr'")
 
     def test_read_wrong_root_dataversion(self):
         """
-        Check that a file with an unexpected 'dataversion' attribute is sensibly
-        rejected.
+        Check that a file with an unexpected 'dataversion' attribute is
+        sensibly rejected.
         """
 
         util.write_password_db(
@@ -395,8 +396,8 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Unsupported XML data version, expected attribute '/revelationdata/@dataversion' to be '1' but found '2'"
-        )
+            "Unsupported XML data version, expected attribute "
+            "'/revelationdata/@dataversion' to be '1' but found '2'")
 
     def test_read_wrong_entry_attribute(self):
         """
@@ -418,8 +419,8 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Element '/revelationdata/entry[1]' has unrecognized attribute 'invalid-attr'"
-        )
+            "Element '/revelationdata/entry[1]' has unrecognized attribute "
+            "'invalid-attr'")
 
     def test_read_folder_entry(self):
         """Check parsing of a single folder entry."""
@@ -472,9 +473,8 @@ class TestStorage(util.StorePassTestCase):
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             _ = storage.read_tree()
         self.assertEqual(
-            str(cm.exception),
-            "Unrecognized sub-folder element '/revelationdata/entry[1]/invalid-property'"
-        )
+            str(cm.exception), "Unrecognized sub-folder element "
+            "'/revelationdata/entry[1]/invalid-property'")
 
     def test_read_wrong_name_attribute(self):
         """
@@ -497,8 +497,8 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Element '/revelationdata/entry[1]/name' has unrecognized attribute 'invalid-attribute'"
-        )
+            "Element '/revelationdata/entry[1]/name' has unrecognized "
+            "attribute 'invalid-attribute'")
 
     def test_read_wrong_updated_value(self):
         """
@@ -521,8 +521,8 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Element '/revelationdata/entry[1]/updated' has invalid value '': string is empty"
-        )
+            "Element '/revelationdata/entry[1]/updated' has invalid value '': "
+            "string is empty")
 
         # Non-digit value is rejected.
         util.write_password_db(
@@ -540,8 +540,8 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Element '/revelationdata/entry[1]/updated' has invalid value 'invalid-value': string contains a non-digit character"
-        )
+            "Element '/revelationdata/entry[1]/updated' has invalid value "
+            "'invalid-value': string contains a non-digit character")
 
         # Negative value is rejected.
         util.write_password_db(
@@ -559,8 +559,8 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Element '/revelationdata/entry[1]/updated' has invalid value '-1': string contains a non-digit character"
-        )
+            "Element '/revelationdata/entry[1]/updated' has invalid value "
+            "'-1': string contains a non-digit character")
 
         # Overflow value is rejected.
         util.write_password_db(
@@ -578,8 +578,9 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Element '/revelationdata/entry[1]/updated' has invalid value '100020003000400050006000700090000000': timestamp out of range for platform time_t"
-        )
+            "Element '/revelationdata/entry[1]/updated' has invalid value "
+            "'100020003000400050006000700090000000': timestamp out of range "
+            "for platform time_t")
 
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
@@ -638,9 +639,8 @@ class TestStorage(util.StorePassTestCase):
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             _ = storage.read_tree()
         self.assertEqual(
-            str(cm.exception),
-            "Unrecognized sub-generic element '/revelationdata/entry[1]/invalid-property'"
-        )
+            str(cm.exception), "Unrecognized sub-generic element "
+            "'/revelationdata/entry[1]/invalid-property'")
 
     def test_read_wrong_generic_field_attribute(self):
         """
@@ -663,8 +663,8 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Element '/revelationdata/entry[1]/field' has unrecognized attribute 'invalid-attribute'"
-        )
+            "Element '/revelationdata/entry[1]/field' has unrecognized "
+            "attribute 'invalid-attribute'")
 
     def test_read_wrong_generic_field_id(self):
         """
@@ -687,8 +687,9 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Attribute '/revelationdata/entry[1]/field/@id' has unrecognized value 'invalid-id', expected 'generic-hostname', 'generic-username' or 'generic-password'"
-        )
+            "Attribute '/revelationdata/entry[1]/field/@id' has "
+            "unrecognized value 'invalid-id', expected 'generic-hostname', "
+            "'generic-username' or 'generic-password'")
 
     def test_write_plain(self):
         """Check that the plain writer can save raw database content."""

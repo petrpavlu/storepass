@@ -390,8 +390,8 @@ class Storage:
         salt = raw_content[12:20]
         if len(raw_content) < 36:
             raise storepass.exc.StorageReadException(
-                f"Initialization vector is incomplete, expected '16' bytes but "
-                f"found '{len(raw_content)-20}'")
+                f"Initialization vector is incomplete, expected '16' bytes "
+                f"but found '{len(raw_content)-20}'")
         init_vector = raw_content[20:36]
 
         encrypted_data = raw_content[36:]
@@ -431,8 +431,8 @@ class Storage:
         padlen = compressed_data[-1]
         if padlen > 16:
             raise storepass.exc.StorageReadException(
-                f"Compressed data have incorrect padding, length '{padlen}' is "
-                f"bigger than '16' bytes")
+                f"Compressed data have incorrect padding, length '{padlen}' "
+                f"is bigger than '16' bytes")
         actual_padding = compressed_data[-padlen:]
         expected_padding = padlen * padlen.to_bytes(1, 'little')
         if actual_padding != expected_padding:
@@ -462,8 +462,9 @@ class Storage:
         structure.
         """
 
-        # Read and decrypt the file. Request the data to be returned as bytes so
-        # ElementTree can handle decoding according to the XML specification.
+        # Read and decrypt the file. Request the data to be returned as bytes
+        # so ElementTree can handle decoding according to the XML
+        # specification.
         xml_data = self.read_plain(raw_bytes=False)
 
         xml_to_model = _XMLToModelConvertor()
@@ -533,8 +534,8 @@ class Storage:
     def write_tree(self, root, exclusive=False):
         """
         Convert a password tree structure into a XML representation, encrypt it
-        and save into the password database. The exclusive argument has the same
-        meaning as in the method write_plain().
+        and save into the password database. The exclusive argument has the
+        same meaning as in the method write_plain().
         """
 
         model_to_xml = _ModelToXMLConvertor()

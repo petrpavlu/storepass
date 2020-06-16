@@ -56,7 +56,8 @@ class EditDatabaseDialog(Gtk.Dialog):
             self._password_entry.get_text() != "":
             return
 
-        # Report an error about the empty password and stop the response signal.
+        # Report an error about the empty password and stop the response
+        # signal.
         self.stop_emission_by_name('response')
         self._password_entry.grab_focus()
         util.show_error_dialog(self, "Invalid password",

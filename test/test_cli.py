@@ -211,7 +211,8 @@ class TestCLI(util.StorePassTestCase):
 
     def test_add_generic(self):
         """
-        Check that a complete generic entry can be added to a password database.
+        Check that a complete generic entry can be added to a password
+        database.
         """
 
         # Create a new empty password database.

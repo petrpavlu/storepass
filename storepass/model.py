@@ -161,8 +161,8 @@ class Container:
 
     def add_child(self, child, is_move=False):
         """
-        Add a new child object. Returns True if the insertion was successful and
-        False if a child with the same name already exists.
+        Add a new child object. Returns True if the insertion was successful
+        and False if a child with the same name already exists.
         """
 
         assert (child.parent is not None) == is_move
@@ -244,7 +244,8 @@ class Entry:
         return [self.name] + self._parent.get_path()
 
     def inline_str(self):
-        return f"name={self.name}, description={self.description}, updated={self.updated}, notes={self.notes}"
+        return (f"name={self.name}, description={self.description}, "
+                f"updated={self.updated}, notes={self.notes}")
 
     def __str__(self):
         return "Entry(" + self.inline_str() + ")"
@@ -297,7 +298,8 @@ class Generic(Account):
 
     def __str__(self, indent=""):
         parent = super().inline_str()
-        return indent + f"Generic({parent}, hostname={self.hostname}, username={self.username}, password={self.password})"
+        return (indent + f"Generic({parent}, hostname={self.hostname}, "
+                f"username={self.username}, password={self.password})")
 
     def accept(self, visitor, single=False):
         visitor.visit_generic(self)
@@ -389,12 +391,12 @@ class Model:
 
     def replace_entry(self, old_entry, new_entry, move_children=True):
         """
-        Replace a specified entry with another one. Throws ModelException if the
-        new entry has a same name as an already existing entry and it is not the
-        old entry.
+        Replace a specified entry with another one. Throws ModelException if
+        the new entry has a same name as an already existing entry and it is
+        not the old entry.
 
-        If move_children is True and the entries are both Folder's then the code
-        moves all children rooted at the old entry to the new one.
+        If move_children is True and the entries are both Folder's then the
+        code moves all children rooted at the old entry to the new one.
         """
 
         parent = old_entry.parent
