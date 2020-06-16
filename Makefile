@@ -6,7 +6,7 @@ PYTHON_FILES = storepass-cli.py storepass-gtk.py storepass test setup.py
 .PHONY: error
 error:
 	@echo "Please choose one of the following targets:" \
-	    "check, coverage, dist, format, lint"
+	    "check, codestyle, coverage, dist, format, lint"
 	@exit 1
 
 UNITTEST_ARGS = -m unittest discover \
@@ -15,6 +15,10 @@ UNITTEST_ARGS = -m unittest discover \
 .PHONY: check
 check:
 	python3 $(UNITTEST_ARGS)
+
+.PHONY: codestyle
+codestyle:
+	pycodestyle $(PYTHON_FILES)
 
 .PHONY: coverage
 coverage:
