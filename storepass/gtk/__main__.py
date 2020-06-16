@@ -42,6 +42,9 @@ class _PasswordDialog(Gtk.Dialog):
     def __init__(self, parent_window):
         super().__init__(parent=parent_window)
 
+        # Hint correct types to pylint.
+        self._password_entry = util.Hint.GtkEntry(self._password_entry)
+
     def get_password(self):
         return self._password_entry.get_text()
 
@@ -161,6 +164,39 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def __init__(self, application):
         super().__init__(application=application)
+
+        # Hint correct types to pylint.
+        self._entries_tree_view = util.Hint.GtkTreeView(
+            self._entries_tree_view)
+        self._entries_tree_view_column = util.Hint.GtkTreeViewColumn(
+            self._entries_tree_view_column)
+        self._entries_tree_view_icon_renderer = util.Hint.GtkCellRendererPixbuf(
+            self._entries_tree_view_icon_renderer)
+        self._db_filename_box = util.Hint.GtkBox(self._db_filename_box)
+        self._db_filename_label = util.Hint.GtkLabel(self._db_filename_label)
+        self._entry_name_box = util.Hint.GtkBox(self._entry_name_box)
+        self._entry_name_label = util.Hint.GtkLabel(self._entry_name_label)
+        self._entry_description_box = util.Hint.GtkBox(
+            self._entry_description_box)
+        self._entry_description_label = util.Hint.GtkLabel(
+            self._entry_description_label)
+        self._entry_updated_box = util.Hint.GtkBox(self._entry_updated_box)
+        self._entry_updated_label = util.Hint.GtkLabel(
+            self._entry_updated_label)
+        self._entry_notes_box = util.Hint.GtkBox(self._entry_notes_box)
+        self._entry_notes_label = util.Hint.GtkLabel(self._entry_notes_label)
+        self._entry_generic_hostname_box = util.Hint.GtkBox(
+            self._entry_generic_hostname_box)
+        self._entry_generic_hostname_label = util.Hint.GtkLabel(
+            self._entry_generic_hostname_label)
+        self._entry_generic_username_box = util.Hint.GtkBox(
+            self._entry_generic_username_box)
+        self._entry_generic_username_label = util.Hint.GtkLabel(
+            self._entry_generic_username_label)
+        self._entry_generic_password_box = util.Hint.GtkBox(
+            self._entry_generic_password_box)
+        self._entry_generic_password_label = util.Hint.GtkLabel(
+            self._entry_generic_password_label)
 
         # Connect main menu actions.
         new_action = Gio.SimpleAction.new('new', None)

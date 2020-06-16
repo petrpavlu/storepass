@@ -42,6 +42,9 @@ class EditDatabaseDialog(Gtk.Dialog):
     def __init__(self, parent_window, password):
         super().__init__(parent=parent_window)
 
+        # Hint correct types to pylint.
+        self._password_entry = util.Hint.GtkEntry(self._password_entry)
+
         self.connect('response', self._on_response)
 
         self._password_entry.set_text(_normalize_none_to_empty(password))
@@ -81,6 +84,14 @@ class EditFolderDialog(Gtk.Dialog):
 
     def __init__(self, parent_window, entry):
         super().__init__(parent=parent_window)
+
+        # Hint correct types to pylint.
+        self._modify_folder_label = util.Hint.GtkLabel(
+            self._modify_folder_label)
+        self._name_entry = util.Hint.GtkEntry(self._name_entry)
+        self._description_entry = util.Hint.GtkEntry(self._description_entry)
+        self._notes_text_view = util.Hint.GtkTextView(self._notes_text_view)
+        self._apply_button = util.Hint.GtkButton(self._apply_button)
 
         self.connect('response', self._on_response)
 
@@ -164,6 +175,21 @@ class EditAccountDialog(Gtk.Dialog):
 
     def __init__(self, parent_window, entry):
         super().__init__(parent=parent_window)
+
+        # Hint correct types to pylint.
+        self._modify_account_label = util.Hint.GtkLabel(
+            self._modify_account_label)
+        self._name_entry = util.Hint.GtkEntry(self._name_entry)
+        self._description_entry = util.Hint.GtkEntry(self._description_entry)
+        self._notes_text_view = util.Hint.GtkTextView(self._notes_text_view)
+        self._type_combo_box = util.Hint.GtkComboBox(self._type_combo_box)
+        self._hostname_label = util.Hint.GtkLabel(self._hostname_label)
+        self._hostname_entry = util.Hint.GtkEntry(self._hostname_entry)
+        self._username_label = util.Hint.GtkLabel(self._username_label)
+        self._username_entry = util.Hint.GtkEntry(self._username_entry)
+        self._password_label = util.Hint.GtkLabel(self._password_label)
+        self._password_entry = util.Hint.GtkEntry(self._password_entry)
+        self._apply_button = util.Hint.GtkButton(self._apply_button)
 
         self._type_list_store = Gtk.ListStore(str, _AccountClassGObject)
         self._type_list_store.append(
