@@ -8,6 +8,10 @@ disable=
     too-many-public-methods,
     too-many-statements
 
+[FORMAT]
+
+max-line-length=79
+
 [BASIC]
 
 good-names=
@@ -17,6 +21,11 @@ good-names=
     i,
     storepass-cli
 
-[LOGGING]
+[SIMILARITIES]
 
-logging-format-style=fstr
+# Avoid reporting similarities between the storepass and test module.
+#
+# Note: Once https://github.com/PyCQA/pylint/issues/214 is implemented, it
+# should be possible to disable the warning only for specific functions in the
+# test module.
+min-similarity-lines=10
