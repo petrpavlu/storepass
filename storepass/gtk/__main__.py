@@ -35,7 +35,7 @@ from storepass.gtk import util
 class _PasswordDialog(Gtk.Dialog):
     """Dialog to prompt the user for a database password."""
 
-    __gtype_name__ = "PasswordDialog"
+    __gtype_name__ = 'PasswordDialog'
 
     _password_entry = Gtk.Template.Child('password_entry')
 
@@ -52,7 +52,7 @@ class _PasswordDialog(Gtk.Dialog):
 class _AboutDialog(Gtk.AboutDialog):
     """About application dialog."""
 
-    __gtype_name__ = "AboutDialog"
+    __gtype_name__ = 'AboutDialog'
 
 
 # Note: Keep these constants in sync with the ui files.
@@ -130,7 +130,7 @@ class EntriesTreeStore(Gtk.TreeStore, Gtk.TreeDragSource, Gtk.TreeDragDest):
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources', 'main_window.ui'))
 class _MainWindow(Gtk.ApplicationWindow):
-    __gtype_name__ = "MainWindow"
+    __gtype_name__ = 'MainWindow'
 
     _entries_tree_view = Gtk.Template.Child('entries_tree_view')
     _entries_tree_view_column = Gtk.Template.Child('entries_tree_view_column')

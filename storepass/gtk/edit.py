@@ -35,7 +35,7 @@ def _get_current_datetime():
 class EditDatabaseDialog(Gtk.Dialog):
     """Dialog to edit database properties."""
 
-    __gtype_name__ = "EditDatabaseDialog"
+    __gtype_name__ = 'EditDatabaseDialog'
 
     _password_entry = Gtk.Template.Child('password_entry')
 
@@ -71,7 +71,7 @@ class EditDatabaseDialog(Gtk.Dialog):
 class EditFolderDialog(Gtk.Dialog):
     """Dialog to edit folder properties."""
 
-    __gtype_name__ = "EditFolderDialog"
+    __gtype_name__ = 'EditFolderDialog'
 
     _modify_folder_label = Gtk.Template.Child('modify_folder_label')
     _name_entry = Gtk.Template.Child('name_entry')
@@ -147,7 +147,7 @@ class _AccountListStoreColumn(enum.IntEnum):
 class EditAccountDialog(Gtk.Dialog):
     """Dialog to edit account properties."""
 
-    __gtype_name__ = "EditAccountDialog"
+    __gtype_name__ = 'EditAccountDialog'
 
     _modify_account_label = Gtk.Template.Child('modify_account_label')
     _name_entry = Gtk.Template.Child('name_entry')
