@@ -192,11 +192,11 @@ class EditAccountDialog(Gtk.Dialog):
         self._password_entry = util.Hint.GtkEntry(self._password_entry)
         self._apply_button = util.Hint.GtkButton(self._apply_button)
 
-        self._type_list_store = Gtk.ListStore(str, _AccountClassGObject)
-        self._type_list_store.append(
+        type_list_store = Gtk.ListStore(str, _AccountClassGObject)
+        type_list_store.append(
             ["Generic",
              _AccountClassGObject(storepass.model.Generic)])
-        self._type_combo_box.set_model(self._type_list_store)
+        self._type_combo_box.set_model(type_list_store)
 
         self.connect('response', self._on_response)
 
