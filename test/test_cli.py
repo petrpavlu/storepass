@@ -24,25 +24,25 @@ class CLIMock:
 
 
 @contextlib.contextmanager
-def cli_context(args, tz=None):
+def cli_context(args, timezone=None):
     """Create a mocked CLI context."""
 
     with unittest.mock.patch('getpass.getpass') as getpass, \
          unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as out, \
          unittest.mock.patch('sys.stderr', new_callable=io.StringIO) as err, \
          unittest.mock.patch('sys.argv', args):
-        if tz is not None:
+        if timezone is not None:
             # Save the current timezone and set the desired one.
             try:
                 prev_tz = os.environ['TZ']
             except KeyError:
                 prev_tz = None
-            os.environ['TZ'] = tz
+            os.environ['TZ'] = timezone
             time.tzset()
 
         yield CLIMock(getpass, out, err)
 
-        if tz is not None:
+        if timezone is not None:
             # Restore the original timezone settings.
             if prev_tz is None:
                 del os.environ['TZ']
@@ -818,7 +818,7 @@ class TestCLI(util.StorePassTestCase):
         # Check the display with the GMT timezone.
         with cli_context(
             ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
-                tz='GMT') as cli_mock:
+                timezone='GMT') as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
@@ -834,7 +834,7 @@ class TestCLI(util.StorePassTestCase):
         # Check the display with the GMT+1 timezone.
         with cli_context(
             ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
-                tz='GMT-1') as cli_mock:
+                timezone='GMT-1') as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
@@ -870,7 +870,7 @@ class TestCLI(util.StorePassTestCase):
         # Check that the entry is displayed as expected.
         with cli_context(
             ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
-                tz='GMT') as cli_mock:
+                timezone='GMT') as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
@@ -908,7 +908,7 @@ class TestCLI(util.StorePassTestCase):
         # Check that the entry is displayed as expected.
         with cli_context(
             ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
-                tz='GMT') as cli_mock:
+                timezone='GMT') as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
