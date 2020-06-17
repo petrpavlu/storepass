@@ -237,16 +237,25 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
         self._xml_root = None
 
-    def _indent_xml(self, xml_element, level=0):
+    def _indent_xml(self, xml_elem, level=0):
         """Indent elements of a given ElementTree for pretty-print."""
 
         indent = '\n' + '\t' * level
-        if len(xml_element) > 0:
-            xml_element.text = indent + '\t'
-            for xml_subelement in xml_element:
-                self._indent_xml(xml_subelement, level + 1)
-            xml_subelement.tail = indent
-        xml_element.tail = indent
+
+        if len(xml_elem) > 0:
+            xml_elem.text = indent + '\t'
+
+            # Silence pylint to not report a warning about using a possibly
+            # undefined loop variable.
+            xml_subelem = None
+
+            for xml_subelem in xml_elem:
+                self._indent_xml(xml_subelem, level + 1)
+
+            assert xml_subelem is not None
+            xml_subelem.tail = indent
+
+        xml_elem.tail = indent
 
     def process(self, root):
         """
