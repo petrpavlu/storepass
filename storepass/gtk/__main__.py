@@ -371,7 +371,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # A moved row should be already removed from its original position in
         # _entries_tree_store_do_drag_data_received().
         iter_ = self._safe_get_tree_model_iter(tree_store, path)
-        assert iter_ == None
+        assert iter_ is None
 
         return False
 
