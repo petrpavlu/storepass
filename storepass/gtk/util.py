@@ -38,46 +38,46 @@ def show_confirmation_dialog(parent_window, primary_text, secondary_text,
 class Hint:
     """Dummy type hints for pylint."""
     @staticmethod
-    def GtkBox(child):
+    def GtkBox(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.Box"""
         return child
 
     @staticmethod
-    def GtkButton(child):
+    def GtkButton(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.Button"""
         return child
 
     @staticmethod
-    def GtkCellRendererPixbuf(child):
+    def GtkCellRendererPixbuf(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.GtkCellRendererPixbuf"""
         return child
 
     @staticmethod
-    def GtkComboBox(child):
+    def GtkComboBox(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.ComboBox"""
         return child
 
     @staticmethod
-    def GtkEntry(child):
+    def GtkEntry(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.Entry"""
         return child
 
     @staticmethod
-    def GtkLabel(child):
+    def GtkLabel(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.Label"""
         return child
 
     @staticmethod
-    def GtkTextView(child):
+    def GtkTextView(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.TextView"""
         return child
 
     @staticmethod
-    def GtkTreeView(child):
+    def GtkTreeView(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.TreeView"""
         return child
 
     @staticmethod
-    def GtkTreeViewColumn(child):
+    def GtkTreeViewColumn(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.TextViewColumn"""
         return child
