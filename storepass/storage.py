@@ -348,8 +348,7 @@ class Storage:
     def _get_real_password(self):
         if callable(self.password):
             return self.password()
-        else:
-            return self.password
+        return self.password
 
     def _parse_header(self, header):
         """Verify validity of a password database header."""
