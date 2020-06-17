@@ -14,9 +14,9 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
 try:
     from gi.repository import GdkX11
-    gdk_x11_available = True
+    IS_GDK_X11_AVAILABLE = True
 except ImportError:
-    gdk_x11_available = False
+    IS_GDK_X11_AVAILABLE = False
 
 from gi.repository import GLib
 from gi.repository import GObject
@@ -342,7 +342,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # manager can consider the no-activity in the main window as if no
         # window that the application has is used and disallows the dialog from
         # getting the focus.
-        if gdk_x11_available:
+        if IS_GDK_X11_AVAILABLE:
             gdk_window = self.get_window()
             if isinstance(gdk_window, GdkX11.X11Window):
                 gdk_window.set_user_time(
