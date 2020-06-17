@@ -165,7 +165,10 @@ class Container:
         and False if a child with the same name already exists.
         """
 
-        assert (child.parent is not None) == is_move
+        # Silence "Access to a protected member _parent of a client class".
+        # pylint: disable=protected-access
+
+        assert (child._parent is not None) == is_move
 
         old_child, index = self._get_child_full(child.name)
         if old_child is not None:
@@ -183,6 +186,9 @@ class Container:
 
     def remove_child(self, child):
         """Delete a specified child."""
+
+        # Silence "Access to a protected member _parent of a client class".
+        # pylint: disable=protected-access
 
         assert child._parent == self
 
@@ -261,6 +267,10 @@ class Folder(Entry, Container):
         Move children from this folder to another one. The target folder must
         not yet have any children.
         """
+
+        # Silence "Access to a protected member _children of a client class"
+        # and "Access to a protected member _parent of a client class".
+        # pylint: disable=protected-access
 
         assert isinstance(folder, Folder)
 
