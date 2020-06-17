@@ -1,3 +1,4 @@
 [style]
 based_on_style = pep8
 blank_line_before_module_docstring = true
+split_before_logical_operator=False
