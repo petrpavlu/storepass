@@ -28,6 +28,8 @@ set when the entry is created and remains constant during a lifetime of the
 object.
 """
 
+import enum
+
 import storepass.exc
 
 
@@ -37,31 +39,31 @@ def path_string_to_spec(path_string):
     Character '/' is expected as the path separator and '\' starts an escape
     sequence.
     """
-
-    STATE_NORMAL = 0
-    STATE_ESCAPE = 1
+    class _State(enum.IntEnum):
+        NORMAL = 0
+        ESCAPE = 1
 
     res = []
-    state = STATE_NORMAL
+    state = _State.NORMAL
     element = ""
     for char in path_string:
-        if state == STATE_NORMAL:
+        if state == _State.NORMAL:
             if char == '/':
                 res.append(element)
                 element = ""
             elif char == '\\':
-                state = STATE_ESCAPE
+                state = _State.ESCAPE
             else:
                 element += char
         else:
-            assert state == STATE_ESCAPE
+            assert state == _State.ESCAPE
             # TODO Check that the character is '\' or '/'. Reject other escape
             # values.
             element += char
-            state = STATE_NORMAL
+            state = _State.NORMAL
     res.append(element)
 
-    if state == STATE_ESCAPE:
+    if state == _State.ESCAPE:
         raise ModelException(
             f"entry name '{path_string}' has an incomplete escape sequence at "
             f"its end")
