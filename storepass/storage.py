@@ -510,8 +510,8 @@ class Storage:
         encrypted_data = crypto_obj.encrypt(decrypted_data)
 
         # Prepare final output and write it out.
-        raw_content = b'rvl\x00\x02\x00\x00\x00\x00\x00\x00\x00' + \
-            salt + init_vector + encrypted_data
+        raw_content = (b'rvl\x00\x02\x00\x00\x00\x00\x00\x00\x00' + salt +
+                       init_vector + encrypted_data)
 
         def open_for_writing(filename, exclusive):
             if exclusive:
