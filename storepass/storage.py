@@ -129,23 +129,23 @@ class _XMLToModelConvertor:
 
         children = []
         path_i = 1
-        for xml_elem in xml_elem_iter:
-            if xml_elem.tag != 'entry':
+        for xml_subelem in xml_elem_iter:
+            if xml_subelem.tag != 'entry':
                 raise storepass.exc.StorageReadException(
-                    f"Unrecognized element '{xpath}/{xml_elem.tag}', expected "
-                    f"'entry'")
+                    f"Unrecognized element '{xpath}/{xml_subelem.tag}', "
+                    f"expected 'entry'")
 
             xpath.push(f'/entry[{path_i}]')
             path_i += 1
 
-            self._validate_element_attributes(xml_elem, xpath, ('type'))
+            self._validate_element_attributes(xml_subelem, xpath, ('type'))
 
-            type_ = xml_elem.get('type')
+            type_ = xml_subelem.get('type')
             if type_ == 'folder':
-                folder = self._parse_folder(xml_elem, xpath)
+                folder = self._parse_folder(xml_subelem, xpath)
                 children.append(folder)
             elif type_ == 'generic':
-                generic = self._parse_generic(xml_elem, xpath)
+                generic = self._parse_generic(xml_subelem, xpath)
                 children.append(generic)
             else:
                 raise storepass.exc.StorageReadException(
