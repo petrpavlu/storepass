@@ -135,12 +135,11 @@ def _check_add_command_options(args):
         return _check_options_validity('generic',
                                        ('hostname', 'username', 'password'),
                                        args)
-    elif args.type == 'folder':
+    if args.type == 'folder':
         return _check_options_validity('folder', (), args)
-    else:
-        assert 0 and "Unhandled entry type!"
 
-    return True
+    assert 0 and "Unhandled entry type!"
+    return False
 
 
 def _process_add_command(args, model):
