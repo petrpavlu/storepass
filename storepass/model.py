@@ -44,20 +44,20 @@ def path_string_to_spec(path_string):
     res = []
     state = STATE_NORMAL
     element = ""
-    for c in path_string:
+    for char in path_string:
         if state == STATE_NORMAL:
-            if c == '/':
+            if char == '/':
                 res.append(element)
                 element = ""
-            elif c == '\\':
+            elif char == '\\':
                 state = STATE_ESCAPE
             else:
-                element += c
+                element += char
         else:
             assert state == STATE_ESCAPE
             # TODO Check that the character is '\' or '/'. Reject other escape
             # values.
-            element += c
+            element += char
             state = STATE_NORMAL
     res.append(element)
 
@@ -73,13 +73,13 @@ def path_element_to_string(path_element):
     """Convert a single path element to its escaped string representation."""
 
     res = ""
-    for c in path_element:
-        if c == '\\':
+    for char in path_element:
+        if char == '\\':
             res += "\\\\"
-        elif c == '/':
+        elif char == '/':
             res += "\\/"
         else:
-            res += c
+            res += char
     return res
 
 
