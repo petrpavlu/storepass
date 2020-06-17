@@ -114,6 +114,7 @@ class ModelVisitor:
                 return i[1]
 
         assert 0 and "Container not on the parent path!"
+        return None
 
 
 class Container:
