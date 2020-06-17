@@ -675,7 +675,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         try:
             self._model.save(self._storage)
-        except storepass.exc.StoreWriteException as e:
+        except storepass.exc.StorageWriteException as e:
             filename = self._storage.filename
             util.show_error_dialog(
                 self, "Error saving password database",
