@@ -518,8 +518,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         yet.
         """
 
-        return self._storage.filename if self._storage.filename is not None \
-            else "<unsaved>"
+        return (self._storage.filename
+                if self._storage.filename is not None else "<unsaved>")
 
     def _update_title(self):
         """
@@ -879,8 +879,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         assert widget == self._entries_tree_view
 
         # Ignore events that are not a right mouse button press.
-        if event.type != Gdk.EventType.BUTTON_PRESS or \
-            event.button != Gdk.BUTTON_SECONDARY:
+        if (event.type != Gdk.EventType.BUTTON_PRESS or
+                event.button != Gdk.BUTTON_SECONDARY):
             return
 
         # Record the pointed-at row.
@@ -1104,8 +1104,8 @@ class _MainWindow(Gtk.ApplicationWindow):
                 "Operation will remove all entries from the database.",
                 "Remove", self._on_remove_confirmation_dialog_response,
                 tree_row_ref)
-        elif isinstance(entry, storepass.model.Folder) and \
-             len(entry.children) > 0:
+        elif (isinstance(entry, storepass.model.Folder) and
+              len(entry.children) > 0):
             util.show_confirmation_dialog(
                 self, "Remove a non-empty folder",
                 f"Folder '{entry.name}' is not empty.", "Remove",

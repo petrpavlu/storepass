@@ -302,8 +302,8 @@ class Account(Entry):
 
 
 class Generic(Account):
-    def __init__(self, name, description, updated, notes, hostname, username, \
-        password):
+    def __init__(self, name, description, updated, notes, hostname, username,
+                 password):
         Account.__init__(self, name, description, updated, notes)
         self.hostname = hostname
         self.username = username
@@ -423,8 +423,8 @@ class Model:
                 raise storepass.exc.ModelException(
                     f"Entry '{path_string}' already exists")
 
-        if move_children and isinstance(old_entry, Folder) and \
-            isinstance(new_entry, Folder):
+        if (move_children and isinstance(old_entry, Folder) and
+                isinstance(new_entry, Folder)):
             old_entry.move_children_to(new_entry)
         parent.remove_child(old_entry)
         res = parent.add_child(new_entry)

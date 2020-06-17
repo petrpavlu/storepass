@@ -84,8 +84,8 @@ def write_password_db(filename, password, xml, compress=True):
     encrypted_data = crypto_obj.encrypt(decrypted_data)
 
     # Prepare final output and write it out.
-    output_data = b'rvl\x00\x02\x00\x00\x00\x00\x00\x00\x00' + \
-        salt + init_vector + encrypted_data
+    output_data = (b'rvl\x00\x02\x00\x00\x00\x00\x00\x00\x00' + salt +
+                   init_vector + encrypted_data)
     write_file(filename, output_data)
 
 

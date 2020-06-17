@@ -20,16 +20,16 @@ class ListView(storepass.model.ModelVisitor):
 
     def visit_folder(self, folder):
         indent = self._get_current_indent()
-        description = f": {folder.description}" \
-            if folder.description is not None else ""
+        description = (f": {folder.description}"
+                       if folder.description is not None else "")
         print(f"{indent}+ {folder.name}{description}")
 
     def visit_generic(self, generic):
         indent = self._get_current_indent()
-        hostname = f" [{generic.hostname}]" \
-            if generic.hostname is not None else ""
-        description = f": {generic.description}" \
-            if generic.description is not None else ""
+        hostname = (f" [{generic.hostname}]"
+                    if generic.hostname is not None else "")
+        description = (f": {generic.description}"
+                       if generic.description is not None else "")
         print(f"{indent}- {generic.name}{hostname}{description}")
 
 

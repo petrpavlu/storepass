@@ -52,8 +52,8 @@ class EditDatabaseDialog(Gtk.Dialog):
     def _on_response(self, dialog, response_id):
         assert dialog == self
 
-        if response_id != Gtk.ResponseType.APPLY or \
-            self._password_entry.get_text() != "":
+        if (response_id != Gtk.ResponseType.APPLY or
+                self._password_entry.get_text() != ""):
             return
 
         # Report an error about the empty password and stop the response
@@ -115,8 +115,8 @@ class EditFolderDialog(Gtk.Dialog):
     def _on_response(self, dialog, response_id):
         assert dialog == self
 
-        if response_id != Gtk.ResponseType.APPLY or \
-            self._name_entry.get_text() != "":
+        if (response_id != Gtk.ResponseType.APPLY or
+                self._name_entry.get_text() != ""):
             return
 
         # Report an error about the empty name and stop the response signal.
@@ -233,8 +233,8 @@ class EditAccountDialog(Gtk.Dialog):
     def _on_response(self, dialog, response_id):
         assert dialog == self
 
-        if response_id != Gtk.ResponseType.APPLY or \
-            self._name_entry.get_text() != "":
+        if (response_id != Gtk.ResponseType.APPLY or
+                self._name_entry.get_text() != ""):
             return
 
         # Report an error about the empty name and stop the response signal.
