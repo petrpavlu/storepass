@@ -23,7 +23,8 @@ good-names=
     e,
     fh,
     i,
-    storepass-cli
+    storepass-cli,
+    storepass-gtk
 
 [SIMILARITIES]
 
