@@ -64,7 +64,7 @@ def path_string_to_spec(path_string):
     res.append(element)
 
     if state == _State.ESCAPE:
-        raise ModelException(
+        raise storepass.exc.ModelException(
             f"entry name '{path_string}' has an incomplete escape sequence at "
             f"its end")
 
