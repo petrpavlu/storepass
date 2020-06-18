@@ -124,7 +124,7 @@ class _XMLToModelConvertor:
             assert xml_elem.tag == 'notes'
             props.notes = xml_elem.text
 
-    def _parse_subentries(self, xml_elem, xpath, xml_elem_iter):
+    def _parse_subentries(self, _xml_elem, xpath, xml_elem_iter):
         """Parse sub-entries of a folder-like element."""
 
         children = []
@@ -275,7 +275,7 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
                            encoding='unicode',
                            xml_declaration=True)
 
-    def visit_root(self, root):
+    def visit_root(self, _root):
         """Create XML representation for the data root."""
 
         self._xml_root = ET.Element('revelationdata')

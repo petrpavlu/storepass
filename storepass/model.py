@@ -314,7 +314,7 @@ class Generic(Account):
         return (indent + f"Generic({parent}, hostname={self.hostname}, "
                 f"username={self.username}, password={self.password})")
 
-    def accept(self, visitor, single=False):
+    def accept(self, visitor, _single=False):
         visitor.visit_generic(self)
 
 

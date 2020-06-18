@@ -486,8 +486,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._record_modification()
         return True
 
-    def _entries_tree_store_do_row_drop_possible(self, tree_store, dest_path,
-                                                 selection_data):
+    def _entries_tree_store_do_row_drop_possible(self, tree_store, _dest_path,
+                                                 _selection_data):
         """
         Return whether a drop of an entries-tree-store row is possible before
         a given dest_path.
@@ -544,7 +544,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._has_unsaved_changes = True
         self._update_title()
 
-    def _map_entry_icon(self, tree_column, cell, tree_model, iter_, data):
+    def _map_entry_icon(self, tree_column, cell, tree_model, iter_, _data):
         """
         Set an icon name for each item in the entries tree view based on its
         type. This is a Gtk.TreeCellDataFunc callback.
@@ -563,7 +563,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         else:
             cell.props.icon_name = 'x-office-document'
 
-    def _on_new(self, action, param):
+    def _on_new(self, _action, _param):
         """
         Handle the New action which is used to start a new (empty) password
         database.
@@ -571,7 +571,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         self._clear_state()
 
-    def _on_open(self, action, param):
+    def _on_open(self, _action, _param):
         """
         Handle the Open action which is used to open an already existing
         password database.
@@ -685,7 +685,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._has_unsaved_changes = False
         self._update_title()
 
-    def _on_save_as(self, action, param):
+    def _on_save_as(self, _action, _param):
         """
         Handle the Save As action which is used to store the currently opened
         password database on disk under a new name.
@@ -988,7 +988,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._record_modification()
         return True
 
-    def _on_edit_entry(self, action, param):
+    def _on_edit_entry(self, _action, _param):
         # Get the selected entry (do not require a Container).
         tree_row_ref, entry = \
             self._get_entries_tree_view_menu_associated_entry(False)
@@ -1091,7 +1091,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         dialog.destroy()
 
-    def _on_remove_entry(self, action, param):
+    def _on_remove_entry(self, _action, _param):
         # Get the selected entry (do not require a Container).
         tree_row_ref, entry = \
             self._get_entries_tree_view_menu_associated_entry(False)
@@ -1146,7 +1146,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._record_modification()
         return True
 
-    def _on_add_folder(self, action, param):
+    def _on_add_folder(self, _action, _param):
         # Get the selected entry (lookup the closest Container).
         tree_row_ref, entry = \
             self._get_entries_tree_view_menu_associated_entry(True)
@@ -1173,7 +1173,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
         dialog.destroy()
 
-    def _on_add_account(self, action, param):
+    def _on_add_account(self, _action, _param):
         # Get the selected entry (lookup the closest Container).
         tree_row_ref, entry = \
             self._get_entries_tree_view_menu_associated_entry(True)
@@ -1231,12 +1231,12 @@ class _App(Gtk.Application):
         window.show()
         window.run_default_actions()
 
-    def _on_quit(self, action, param):
+    def _on_quit(self, _action, _param):
         """Handle the quit action by exiting the application."""
 
         self.quit()
 
-    def _on_about(self, action, param):
+    def _on_about(self, _action, _param):
         """Handle the about action by showing the about application dialog."""
 
         dialog = _AboutDialog()

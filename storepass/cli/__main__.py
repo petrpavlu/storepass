@@ -51,7 +51,7 @@ _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
 
-def _process_init_command(args, model):
+def _process_init_command(args, _model):
     """
     Handle the init command which is used to create an empty password database.
     """
