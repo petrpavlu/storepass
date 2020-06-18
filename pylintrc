@@ -2,6 +2,7 @@
 
 disable=
     bad-continuation,  # Dropped in https://github.com/PyCQA/pylint/pull/3571.
+    no-self-use,
     too-few-public-methods,
     too-many-arguments,
     too-many-branches,
