@@ -90,7 +90,7 @@ def _process_show_command(args, model):
         path_spec = storepass.model.path_string_to_spec(entry_name)
         entry = model.get_entry(path_spec)
     except storepass.exc.ModelException as e:
-        _logger.error(e)
+        print(f"{e}", file=sys.stderr)
         return 1
 
     detail_view = view.DetailView()
@@ -108,16 +108,16 @@ def _check_options_validity(type_, accepted_options, args):
     all_valid = True
 
     if args.hostname is not None and 'hostname' not in accepted_options:
-        _logger.error(
-            f"option --hostname is not valid for entry type '{type_}'")
+        print(f"option --hostname is not valid for entry type '{type_}'",
+              file=sys.stderr)
         all_valid = False
     if args.username is not None and 'username' not in accepted_options:
-        _logger.error(
-            f"option --username is not valid for entry type '{type_}'")
+        print(f"option --username is not valid for entry type '{type_}'",
+              file=sys.stderr)
         all_valid = False
     if args.password is not None and 'password' not in accepted_options:
-        _logger.error(
-            f"option --password is not valid for entry type '{type_}'")
+        print(f"option --password is not valid for entry type '{type_}'",
+              file=sys.stderr)
         all_valid = False
 
     return all_valid
@@ -154,7 +154,7 @@ def _process_add_command(args, model):
     try:
         path_spec = storepass.model.path_string_to_spec(entry_name)
     except storepass.exc.ModelException as e:
-        _logger.error(e)
+        print(f"{e}", file=sys.stderr)
         return 1
 
     if args.password:
@@ -181,7 +181,7 @@ def _process_add_command(args, model):
         parent_entry = model.get_entry(path_spec[:-1])
         model.add_entry(entry, parent_entry)
     except storepass.exc.ModelException as e:
-        _logger.error(e)
+        print(f"{e}", file=sys.stderr)
         return 1
     return 0
 
@@ -196,7 +196,7 @@ def _process_edit_command(args, model):
         path_spec = storepass.model.path_string_to_spec(entry_name)
         entry = model.get_entry(path_spec)
     except storepass.exc.ModelException as e:
-        _logger.error(e)
+        print(f"{e}", file=sys.stderr)
         return 1
 
     # Process options valid for all entries.
@@ -211,19 +211,19 @@ def _process_edit_command(args, model):
         if isinstance(entry, storepass.model.Generic):
             entry.username = args.username
         else:
-            _logger.error(f"TODO")
+            print(f"TODO", file=sys.stderr)
             has_error = True
     if args.hostname is not None:
         if isinstance(entry, storepass.model.Generic):
             entry.hostname = args.hostname
         else:
-            _logger.error(f"TODO")
+            print(f"TODO", file=sys.stderr)
             has_error = True
     if args.password:
         if isinstance(entry, storepass.model.Generic):
             entry.password = getpass.getpass("Entry password: ")
         else:
-            _logger.error(f"TODO")
+            print(f"TODO", file=sys.stderr)
             has_error = True
     if has_error:
         return 1
@@ -246,7 +246,7 @@ def _process_delete_command(args, model):
         entry = model.get_entry(path_spec)
         model.remove_entry(entry)
     except storepass.exc.ModelException as e:
-        _logger.error(e)
+        print(f"{e}", file=sys.stderr)
         return 1
 
     return 0
@@ -264,7 +264,8 @@ def _process_dump_command(args, storage):
     try:
         plain_data = storage.read_plain()
     except storepass.exc.StorageReadException as e:
-        _logger.error(f"failed to load password database '{args.file}': {e}")
+        print(f"failed to load password database '{args.file}': {e}",
+              file=sys.stderr)
         return 1
 
     # Print the content.
@@ -359,14 +360,15 @@ def main():
         assert args.verbose > 0
         level = ('INFO', 'DEBUG')[min(args.verbose, 2) - 1]
         _logger.setLevel(level)
-        _logger.info(f"log verbosity set to '{level}'")
+        _logger.info("log verbosity set to '%s'", level)
 
     # Handle the specified command.
     if args.command is None:
         parser.error("no command specified")
         return 1
 
-    _logger.debug(f"processing command '{args.command}' on file '{args.file}'")
+    _logger.debug("processing command '%s' on file '%s'", args.command,
+                  args.file)
 
     # Create a password proxy that asks the user for the database password only
     # once.
@@ -393,8 +395,8 @@ def main():
         try:
             model.load(storage)
         except storepass.exc.StorageReadException as e:
-            _logger.error(
-                f"failed to load password database '{args.file}': {e}")
+            print(f"failed to load password database '{args.file}': {e}",
+                  file=sys.stderr)
             return 1
 
     # Handle individual commands.
@@ -422,8 +424,8 @@ def main():
             exclusive = args.command == 'init'
             model.save(storage, exclusive)
         except storepass.exc.StorageWriteException as e:
-            _logger.error(
-                f"failed to save password database '{args.file}': {e}")
+            print(f"failed to save password database '{args.file}': {e}",
+                  file=sys.stderr)
             return 1
 
     return 0
