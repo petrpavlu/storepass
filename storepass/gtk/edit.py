@@ -3,13 +3,12 @@
 
 import datetime
 import enum
-import gi
 import importlib.resources
 
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
-
+import gi
+gi.require_version('Gtk', '3.0')  # pylint: disable=wrong-import-position
 from gi.repository import GObject
+from gi.repository import Gtk
 
 import storepass.model
 from storepass.gtk import util

@@ -2,25 +2,23 @@
 # SPDX-License-Identifier: MIT
 
 import enum
-import gi
 import importlib.resources
 import os
 import sys
 
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
-
-gi.require_version('Gdk', '3.0')
+import gi
+gi.require_version('Gdk', '3.0')  # pylint: disable=wrong-import-position
+gi.require_version('Gtk', '3.0')  # pylint: disable=wrong-import-position
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gio
 from gi.repository import Gdk
 try:
     from gi.repository import GdkX11
     IS_GDK_X11_AVAILABLE = True
 except ImportError:
     IS_GDK_X11_AVAILABLE = False
-
-from gi.repository import GLib
-from gi.repository import GObject
-from gi.repository import Gio
+from gi.repository import Gtk
 
 import storepass.exc
 import storepass.model

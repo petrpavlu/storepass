@@ -3,15 +3,16 @@
 
 """Test helper functions."""
 
-import Crypto.Cipher.AES
 import hashlib
 import os
 import os.path
 import shutil
 import tempfile
-from textwrap import dedent
+import textwrap
 import unittest
 import zlib
+
+import Crypto.Cipher.AES
 
 
 class StorePassTestCase(unittest.TestCase):
@@ -25,6 +26,10 @@ class StorePassTestCase(unittest.TestCase):
         shutil.rmtree(self.testdir)
 
 
+def dedent(text):
+    return textwrap.dedent(text)
+
+
 def dedent2(text):
     """
     Remove any common leading whitespace + character '|' from every line in
@@ -32,7 +37,7 @@ def dedent2(text):
     """
 
     output = ''
-    lines = dedent(text).splitlines(True)
+    lines = textwrap.dedent(text).splitlines(True)
     for line in lines:
         assert line[:1] == '|'
         output += line[1:]

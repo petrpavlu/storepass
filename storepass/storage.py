@@ -1,13 +1,14 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-import Crypto.Cipher.AES
 import datetime
 import hashlib
 import itertools
 import os
 import xml.etree.ElementTree as ET
 import zlib
+
+import Crypto.Cipher.AES
 
 import storepass.exc
 import storepass.model
