@@ -1,6 +1,19 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""
+Module to read/write a password database from/to a file.
+
+This module provides functionality to read and write a password database file:
+* The read operation takes an encrypted password database file, decrypts it,
+  parses its XML content and produces an internal data model representing the
+  data. Exception storepass.exc.StorageReadException is raised if an error
+  occurs.
+* The write operation takes an internal data model, prepares its XML
+  representation and writes it encrypted into a file. Exception
+  storepass.exc.StorageWriteException is raised if an error occurs.
+"""
+
 import datetime
 import hashlib
 import itertools
@@ -17,13 +30,11 @@ import storepass.model
 class _XMLToModelConvertor:
     """XML to internal data model convertor."""
     def __init__(self):
-        # Pass as the convertor is stateless.
-        pass
+        """Initialize an XML to internal data model converter."""
+        # Nothing to do since the convertor is stateless.
 
     class _EntryProperties:
-        """
-        Aggregate to hold common entry properties.
-        """
+        """Aggregate to hold common entry properties."""
         def __init__(self):
             self.name = None
             self.description = None
@@ -31,10 +42,7 @@ class _XMLToModelConvertor:
             self.notes = None
 
     class _XPath(list):
-        """
-        A list sub-class to track an XPath to XML elements in the processed
-        database.
-        """
+        """List-based XPath to record XML elements in a processed database."""
         def __str__(self):
             return ''.join(self)
 
@@ -43,6 +51,7 @@ class _XMLToModelConvertor:
             self.append(item)
 
     def process(self, xml_data):
+        """Parse a given XML document and return its data model."""
         try:
             root_elem = ET.fromstring(xml_data)
         except ET.ParseError as e:
@@ -58,7 +67,6 @@ class _XMLToModelConvertor:
     def _validate_element_attributes(self, xml_elem, xpath,
                                      accepted_attributes):
         """Check that the element has no unexpected attribute."""
-
         for attrib in xml_elem.attrib:
             if attrib not in accepted_attributes:
                 raise storepass.exc.StorageReadException(
@@ -66,7 +74,6 @@ class _XMLToModelConvertor:
 
     def _parse_root(self, xml_elem, xpath):
         """Parse the root <revelationdata> element."""
-
         if xml_elem.tag != 'revelationdata':
             raise storepass.exc.StorageReadException(
                 f"Invalid root element '{xpath}', expected 'revelationdata'")
@@ -88,7 +95,6 @@ class _XMLToModelConvertor:
 
     def _parse_updated(self, xml_elem, xpath):
         """Parse a <updated> element."""
-
         updated = xml_elem.text
         if updated is None:
             raise storepass.exc.StorageReadException(
@@ -109,10 +115,11 @@ class _XMLToModelConvertor:
 
     def _parse_entry_property(self, xml_elem, xpath, props):
         """
+        Parse one of common property elements.
+
         Parse a common property element <name>, <description>, <updated> or
         <notes>.
         """
-
         self._validate_element_attributes(xml_elem, xpath, ())
 
         if xml_elem.tag == 'name':
@@ -127,7 +134,6 @@ class _XMLToModelConvertor:
 
     def _parse_subentries(self, _xml_elem, xpath, xml_elem_iter):
         """Parse sub-entries of a folder-like element."""
-
         children = []
         path_i = 1
         for xml_subelem in xml_elem_iter:
@@ -159,7 +165,6 @@ class _XMLToModelConvertor:
 
     def _parse_folder(self, xml_elem, xpath):
         """Parse a <entry type='folder'> element."""
-
         assert xml_elem.tag == 'entry'
         assert xml_elem.get('type') == 'folder'
 
@@ -191,7 +196,6 @@ class _XMLToModelConvertor:
 
     def _parse_generic(self, xml_elem, xpath):
         """Parse a <entry type='generic'> element."""
-
         assert xml_elem.tag == 'entry'
         assert xml_elem.get('type') == 'generic'
 
@@ -234,15 +238,13 @@ class _XMLToModelConvertor:
 class _ModelToXMLConvertor(storepass.model.ModelVisitor):
     """Internal data model to XML convertor."""
     def __init__(self):
+        """Initialize an internal data model to XML converter."""
         super().__init__()
-
         self._xml_root = None
 
     def _indent_xml(self, xml_elem, level=0):
-        """Indent elements of a given ElementTree for pretty-print."""
-
+        """Indent elements of a given ElementTree for pretty-printing."""
         indent = '\n' + '\t' * level
-
         if len(xml_elem) > 0:
             xml_elem.text = indent + '\t'
 
@@ -260,17 +262,18 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
     def process(self, root):
         """
-        Process a password tree structure and return its XML representation (as
-        a string).
-        """
+        Process an internal data model and return its XML representation.
 
+        Make a walk over a tree structure of an internal data model and return
+        its complete XML representation as a string.
+        """
         self._xml_root = None
         assert len(self._path) == 0
 
         # Visit all nodes and create their ElementTree representation.
         root.accept(self)
 
-        # Convert ElementTree representation to a XML document.
+        # Convert ElementTree representation to an XML document.
         self._indent_xml(self._xml_root)
         return ET.tostring(self._xml_root,
                            encoding='unicode',
@@ -278,15 +281,12 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
     def visit_root(self, _root):
         """Create XML representation for the data root."""
-
         self._xml_root = ET.Element('revelationdata')
         self._xml_root.set('dataversion', '1')
-
         return self._xml_root
 
     def _add_entry_properties(self, entry, xml_entry):
         """Create XML representation for common password entry properties."""
-
         xml_name = ET.SubElement(xml_entry, 'name')
         xml_name.text = entry.name
 
@@ -304,7 +304,6 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
     def visit_folder(self, folder):
         """Create XML representation for a password folder."""
-
         xml_parent = self.get_path_data(folder.parent)
 
         xml_folder = ET.SubElement(xml_parent, 'entry')
@@ -315,7 +314,6 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
     def visit_generic(self, generic):
         """Create XML representation for a generic password record."""
-
         xml_parent = self.get_path_data(generic.parent)
 
         xml_generic = ET.SubElement(xml_parent, 'entry')
@@ -343,19 +341,19 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 class Storage:
     """Password database file reader/writer."""
     def __init__(self, filename, password):
+        """Initialize an XML to internal data model converter."""
         self.filename = filename
         self.password = password
 
     def _get_real_password(self):
+        """Return a password to read/write the database."""
         if callable(self.password):
             return self.password()
         return self.password
 
     def _parse_header(self, header):
         """Verify validity of a password database header."""
-
         assert len(header) == 12
-
         if header[:4] != b'rvl\x00':
             raise storepass.exc.StorageReadException(
                 f"Invalid magic number, expected b'rvl\\x00' but found "
@@ -374,12 +372,12 @@ class Storage:
 
     def read_plain(self, raw_bytes=False):
         """
-        Read and decrypt the password database. Return its plain XML content.
+        Read+decrypt a password database and return its plain content.
 
-        If raw_bytes is True, a bytes object is returned, otherwise the data is
-        decoded as UTF-8 and a Unicode string returned.
+        Read password data from a configured file, decrypt it and return the
+        plain XML content. If raw_bytes is True, a bytes object is returned,
+        otherwise the data is decoded as UTF-8 and a Unicode string returned.
         """
-
         try:
             with open(self.filename, 'rb') as fh:
                 raw_content = fh.read()
@@ -467,10 +465,11 @@ class Storage:
 
     def read_tree(self):
         """
-        Read and decrypt the password database. Return its normalized tree
-        structure.
-        """
+        Read+decrypt a password database and return its data model.
 
+        Read password data from a configured file, decrypt it and return its
+        data model.
+        """
         # Read and decrypt the file. Request the data to be returned as bytes
         # so ElementTree can handle decoding according to the XML
         # specification.
@@ -481,11 +480,12 @@ class Storage:
 
     def write_plain(self, xml, exclusive=False):
         """
-        Encrypt plain XML content and save it into the password database. If
-        exclusive is True then it is checked during opening of the file that it
-        does not exist yet.
-        """
+        Store a plain XML content into an encrypted password database.
 
+        Encrypt given XML data and write it into a configured file. If
+        exclusive is True then a check is made during opening of the file that
+        it does not exist yet.
+        """
         # Encode the Unicode data as UTF-8.
         encoded_data = xml.encode('utf-8')
 
@@ -542,11 +542,12 @@ class Storage:
 
     def write_tree(self, root, exclusive=False):
         """
-        Convert a password tree structure into a XML representation, encrypt it
-        and save into the password database. The exclusive argument has the
-        same meaning as in the method write_plain().
-        """
+        Store a data model into an encrypted password database.
 
+        Convert an internal data model to an XML document, encrypt it and write
+        into a configured file. The exclusive argument has the same meaning as
+        in the method write_plain()
+        """
         model_to_xml = _ModelToXMLConvertor()
         xml_data = model_to_xml.process(root)
         self.write_plain(xml_data, exclusive)
