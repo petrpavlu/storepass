@@ -7,24 +7,24 @@ import storepass.model
 
 
 class ListView(storepass.model.ModelVisitor):
-    """
-    View for producing a tree-like list with one-line information about each
-    password entry.
-    """
+    """View that produces a tree with one-line about each visited entry."""
     def visit_root(self, root):
+        """Process the database root."""
         # Do nothing.
-        pass
 
     def _get_current_indent(self):
+        """Obtain current indentation."""
         return "  " * (len(self._path) - 1)
 
     def visit_folder(self, folder):
+        """Print one-line information about a folder entry."""
         indent = self._get_current_indent()
         description = (f": {folder.description}"
                        if folder.description is not None else "")
         print(f"{indent}+ {folder.name}{description}")
 
     def visit_generic(self, generic):
+        """Print one-line information about a generic account entry."""
         indent = self._get_current_indent()
         hostname = (f" [{generic.hostname}]"
                     if generic.hostname is not None else "")
@@ -34,7 +34,9 @@ class ListView(storepass.model.ModelVisitor):
 
 
 class DetailView(storepass.model.ModelVisitor):
+    """View that shows detailed information about visited entries."""
     def _print_common_info(self, entry):
+        """Process common entry properties and print their values."""
         if entry.description is not None:
             print(f"  - Description: {entry.description}")
         if entry.updated is not None:
@@ -44,10 +46,12 @@ class DetailView(storepass.model.ModelVisitor):
             print(f"  - Notes: {entry.notes}")
 
     def visit_folder(self, folder):
+        """Print detailed information about a folder entry."""
         print(f"+ {folder.name} (folder)")
         self._print_common_info(folder)
 
     def visit_generic(self, generic):
+        """Print detailed information about a generic account entry."""
         print(f"+ {generic.name} (password entry)")
         if generic.hostname is not None:
             print(f"  - Hostname: {generic.hostname}")
