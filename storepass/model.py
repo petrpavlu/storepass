@@ -299,23 +299,24 @@ class Folder(Entry, Container):
         Container.__init__(self, children)
         Entry.__init__(self, name, description, updated, notes)
 
-    def move_children_to(self, folder):
+    def move_children_to(self, container):
         """
-        Move children from this folder to another one. The target folder must
-        not yet have any children.
-        """
+        Move children from this folder to another container.
 
+        Re-parent the current children under another container. The target
+        container must not have any children yet.
+        """
         # Silence "Access to a protected member _children of a client class"
         # and "Access to a protected member _parent of a client class".
         # pylint: disable=protected-access
 
-        assert isinstance(folder, Folder)
+        assert isinstance(container, Container)
 
-        assert len(folder._children) == 0
-        folder._children = self._children
+        assert len(container._children) == 0
+        container._children = self._children
         self._children = []
-        for child in folder._children:
-            child._parent = folder
+        for child in container._children:
+            child._parent = container
 
     def __str__(self, indent=""):
         parent = super().inline_str()
