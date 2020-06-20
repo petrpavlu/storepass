@@ -296,10 +296,10 @@ def main():
 
     # Add sub-commands.
     subparsers = parser.add_subparsers(dest='command')
-    init_parser = subparsers.add_parser(
+    _init_parser = subparsers.add_parser(
         'init', description="create a new empty database")
-    list_parser = subparsers.add_parser('list',
-                                        description="list password entries")
+    _list_parser = subparsers.add_parser('list',
+                                         description="list password entries")
     show_parser = subparsers.add_parser(
         'show', description="show a password entry and its details")
     add_parser = subparsers.add_parser('add',
@@ -308,7 +308,7 @@ def main():
         'edit', description="edit an existing password entry")
     delete_parser = subparsers.add_parser(
         'delete', description="delete a password entry")
-    dump_parser = subparsers.add_parser(
+    _dump_parser = subparsers.add_parser(
         'dump', description="dump raw database content")
 
     add_parser.add_argument('-t',
