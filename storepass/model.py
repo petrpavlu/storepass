@@ -359,7 +359,7 @@ class Generic(Account):
         return (indent + f"Generic({parent}, hostname={self.hostname}, "
                 f"username={self.username}, password={self.password})")
 
-    def accept(self, visitor, _single=False):
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """
         Visit the generic account entry.
 
