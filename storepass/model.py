@@ -35,7 +35,9 @@ import storepass.exc
 
 def path_string_to_spec(path_string):
     """
-    Split a name of a password entry and return a list of its path elements.
+    Split a name of a password entry into a list of its path elements.
+
+    Parse a name of a password entry and return a list of its path elements.
     Character '/' is expected as the path separator and '\' starts an escape
     sequence.
     """
@@ -73,7 +75,6 @@ def path_string_to_spec(path_string):
 
 def path_element_to_string(path_element):
     """Convert a single path element to its escaped string representation."""
-
     res = ""
     for char in path_element:
         if char == '\\':
@@ -87,38 +88,50 @@ def path_element_to_string(path_element):
 
 def path_spec_to_string(path_spec):
     """
-    Convert a list of path elements to its escaped and joined string
-    representation.
-    """
+    Convert a list of path elements to a name of a password entry.
 
+    Escape a list of path elements, join them on character '/' and return the
+    resulting string.
+    """
     return "/".join([path_element_to_string(element) for element in path_spec])
 
 
 class ModelVisitor:
+    """
+    Base data model visitor.
+
+    Visitor support class for the data model. It integrates closely with the
+    entry classes and allows tracking of data associated with the currently
+    active entry path.
+    """
     def __init__(self):
+        """Initialize a model visitor."""
         self._path = []
 
     def enter_container(self, container, data):
+        """Add a given container to the current path and record its data."""
         self._path.append((container, data))
 
     def leave_container(self):
+        """Remove the topmost container from the current path."""
         self._path.pop()
 
     def get_path_data(self, container):
-        """Obtain data associated with the specified container."""
-
+        """Obtain data associated with a specified container."""
         # Search the path in the reverse order because the common case is to
-        # obtain data for the current parent.
+        # obtain data for the current topmost parent container.
         for i in reversed(self._path):
             if i[0] == container:
                 return i[1]
 
-        assert 0 and "Container not on the parent path!"
+        assert 0 and "Container is not on the current path!"
         return None
 
 
 class Container:
+    """Generic container."""
     def __init__(self, children):
+        """Initialize a container."""
         self._children = sorted(children, key=lambda child: child.name)
         for child in self._children:
             assert child._parent is None
@@ -126,9 +139,11 @@ class Container:
 
     @property
     def children(self):
+        """Obtain child entries."""
         return self._children
 
     def _get_child_index(self, name):
+        """Get a position of a given entry in the children list."""
         low = 0
         high = len(self._children)
         while low < high:
@@ -141,11 +156,12 @@ class Container:
 
     def _get_child_full(self, name):
         """
-        Search for a child with the given name. Returns a 2-item tuple
-        consisting of the child object and its index if the name was found and
-        (None, number-of-children) otherwise.
-        """
+        Obtain a child entry with a given name together with its index.
 
+        Search for a child with a given name. Returns a 2-item tuple consisting
+        of the child object and its index if the name was found and (None,
+        number-of-children) otherwise.
+        """
         index = self._get_child_index(name)
         if index < len(self._children):
             child = self._children[index]
@@ -155,19 +171,22 @@ class Container:
 
     def get_child(self, name):
         """
-        Search for a child with the given name. Returns a found entry if it
+        Obtain a child entry with a given name.
+
+        Search for a child with a given name. Returns a found entry if it
         exists and None otherwise.
         """
-
         child, _ = self._get_child_full(name)
         return child
 
     def add_child(self, child, is_move=False):
         """
-        Add a new child object. Returns True if the insertion was successful
-        and False if a child with the same name already exists.
-        """
+        Add a new child entry.
 
+        Add a new child entry to the container. If is_move is set then detach
+        the entry first from its current parent. Returns True if the insertion
+        was successful and False if a child with the same name already exists.
+        """
         # Silence "Access to a protected member _parent of a client class".
         # pylint: disable=protected-access
 
@@ -188,8 +207,7 @@ class Container:
         return True
 
     def remove_child(self, child):
-        """Delete a specified child."""
-
+        """Detach a specified child entry from the container."""
         # Silence "Access to a protected member _parent of a client class".
         # pylint: disable=protected-access
 
@@ -203,7 +221,6 @@ class Container:
 
     def _accept_children(self, visitor, parent_data):
         """Visit all child entries."""
-
         visitor.enter_container(self, parent_data)
         for child in self._children:
             child.accept(visitor)
@@ -211,10 +228,13 @@ class Container:
 
 
 class Root(Container):
+    """Database root."""
     def __init__(self, children):
+        """Initialize a database root."""
         Container.__init__(self, children)
 
     def get_path(self):
+        """Obtain a trivial path to the database root."""
         return []
 
     def __str__(self, indent=""):
@@ -224,13 +244,21 @@ class Root(Container):
         return res
 
     def accept(self, visitor, single=False):
+        """
+        Visit the root and its children.
+
+        Call a given visitor to process the root and its children. If single
+        is set to False then only the root object is visited.
+        """
         parent_data = visitor.visit_root(self)
         if not single:
             self._accept_children(visitor, parent_data)
 
 
 class Entry:
+    """Database entry base class."""
     def __init__(self, name, description, updated, notes):
+        """Initialize an abstract database entry."""
         # Parent container. The value is managed by the Container class.
         self._parent = None
 
@@ -241,18 +269,22 @@ class Entry:
 
     @property
     def parent(self):
+        """Obtain the parent container."""
         return self._parent
 
     @property
     def name(self):
+        """Obtain a name of the entry."""
         return self._name
 
     def get_path(self):
+        """Obtain a full path from the database root to this entry."""
         if self._parent is None:
             return [self.name]
         return [self.name] + self._parent.get_path()
 
     def inline_str(self):
+        """Get a string describing the entry properties."""
         return (f"name={self.name}, description={self.description}, "
                 f"updated={self.updated}, notes={self.notes}")
 
@@ -261,7 +293,9 @@ class Entry:
 
 
 class Folder(Entry, Container):
+    """Password folder."""
     def __init__(self, name, description, updated, notes, children):
+        """Initialize a password folder."""
         Container.__init__(self, children)
         Entry.__init__(self, name, description, updated, notes)
 
@@ -291,19 +325,29 @@ class Folder(Entry, Container):
         return res
 
     def accept(self, visitor, single=False):
+        """
+        Visit the folder and its children.
+
+        Call a given visitor to process the folder and its children. If single
+        is set to False then only the folder object is visited.
+        """
         parent_data = visitor.visit_folder(self)
         if not single:
             self._accept_children(visitor, parent_data)
 
 
 class Account(Entry):
+    """Account entry base class."""
     def __init__(self, name, description, updated, notes):
+        """Initialize an abstract account entry."""
         Entry.__init__(self, name, description, updated, notes)
 
 
 class Generic(Account):
+    """Generic account entry."""
     def __init__(self, name, description, updated, notes, hostname, username,
                  password):
+        """Initialize a generic account entry."""
         Account.__init__(self, name, description, updated, notes)
         self.hostname = hostname
         self.username = username
@@ -315,31 +359,36 @@ class Generic(Account):
                 f"username={self.username}, password={self.password})")
 
     def accept(self, visitor, _single=False):
+        """
+        Visit the generic account entry.
+
+        Call a given visitor to process the generic account entry.
+        """
         visitor.visit_generic(self)
 
 
 class Model:
+    """Database model."""
     def __init__(self):
+        """Initialize a database model."""
         self._root = Root([])
 
     def load(self, storage):
-        """Initialize the model using the specified storage object."""
-
+        """Initialize the model using a specified storage object."""
         self._root = storage.read_tree()
 
     def save(self, storage, exclusive=False):
-        """Save the model using the specified storage object."""
-
+        """Save the model using a specified storage object."""
         storage.write_tree(self._root, exclusive)
 
     def get_entry(self, path_spec):
         """
-        Search for a specified entry. Returns a found entry if it exists and
-        throws ModelException otherwise.
+        Find a specified entry.
 
-        If path_spec is empty then the Root object is returned.
+        Search for an entry using a specified path. Returns a corresponding
+        entry if the path is valid and throws ModelException otherwise. If
+        path_spec is empty then the root object is returned.
         """
-
         parent = None
         entry = self._root
         for i, element in enumerate(path_spec):
@@ -364,10 +413,11 @@ class Model:
 
     def add_entry(self, new_entry, parent):
         """
-        Add a new entry under a specified parent. Throws ModelException if an
-        entry with the same name already exists.
-        """
+        Add a new entry under a specified parent.
 
+        Add an entry as a child of a specified parent. Throws ModelException if
+        an entry with the same name already exists.
+        """
         if not parent.add_child(new_entry):
             parent_path_spec = parent.get_path()
             path_string = path_spec_to_string(parent_path_spec +
@@ -377,10 +427,12 @@ class Model:
 
     def move_entry(self, entry, new_parent):
         """
-        Move a previously added entry under a new parent. Throws ModelException
-        if an entry with the same name already exists.
-        """
+        Move a previously added entry under a new parent.
 
+        Re-parent an entry under another container. Throws ModelException if an
+        entry with the same name already exists.
+        """
+        # TODO Assert is not ancestor. Report an error in such a case?
         if not new_parent.add_child(entry, is_move=True):
             parent_path_spec = new_parent.get_path()
             path_string = path_spec_to_string(parent_path_spec + [entry.name])
@@ -389,10 +441,11 @@ class Model:
 
     def remove_entry(self, entry):
         """
-        Remove a specified entry. Throws ModelException if the entry is a
-        non-empty folder.
-        """
+        Remove a specified entry.
 
+        Detach a specified entry from its parent and remove it. Throws
+        ModelException if the entry is a non-empty folder.
+        """
         if isinstance(entry, Container) and len(entry.children) > 0:
             path_string = path_spec_to_string(entry.get_path())
             raise storepass.exc.ModelException(
@@ -404,14 +457,15 @@ class Model:
 
     def replace_entry(self, old_entry, new_entry, move_children=True):
         """
-        Replace a specified entry with another one. Throws ModelException if
+        Replace a specified entry with another one.
+
+        Remove an old entry and add a new one instead. Throws ModelException if
         the new entry has a same name as an already existing entry and it is
         not the old entry.
 
         If move_children is True and the entries are both Folder's then the
         code moves all children rooted at the old entry to the new one.
         """
-
         parent = old_entry.parent
         assert parent is not None
 
@@ -432,8 +486,8 @@ class Model:
 
     def visit_all(self, visitor):
         """
-        Iterate over all password entries and pass them individually to the
-        specified visitor.
-        """
+        Visit all password entries.
 
+        Call a given visitor to recursively process all entries.
+        """
         self._root.accept(visitor)
