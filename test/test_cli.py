@@ -18,6 +18,7 @@ DEFAULT_PASSWORD = 'qwerty'
 class CLIMock:
     """Class grouping mocked functions and variables."""
     def __init__(self, getpass, stdout, stderr):
+        """Initialize a CLI mock object."""
         self.getpass = getpass
         self.stdout = stdout
         self.stderr = stderr
@@ -26,7 +27,6 @@ class CLIMock:
 @contextlib.contextmanager
 def cli_context(args, timezone=None):
     """Create a mocked CLI context."""
-
     with unittest.mock.patch('getpass.getpass') as getpass, \
          unittest.mock.patch('sys.stdout', new_callable=io.StringIO) as out, \
          unittest.mock.patch('sys.stderr', new_callable=io.StringIO) as err, \
@@ -52,9 +52,9 @@ def cli_context(args, timezone=None):
 
 
 class TestCLI(util.StorePassTestCase):
+    """End-to-end command line tests."""
     def _init_database(self, filename):
         """Create a new empty password database."""
-
         with cli_context(['storepass-cli', '-f', filename,
                           'init']) as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
@@ -66,7 +66,6 @@ class TestCLI(util.StorePassTestCase):
 
     def test_help(self):
         """Check the basic --help output."""
-
         with cli_context(['storepass-cli', '--help']) as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
@@ -89,11 +88,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_error(self):
-        """
-        Check that a simple error about a missing database file is sensibly
-        reported.
-        """
-
+        """Check reporting of a simple error about a missing database."""
         with cli_context(['storepass-cli', '-f', 'missing.db',
                           'list']) as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
@@ -108,11 +103,7 @@ class TestCLI(util.StorePassTestCase):
                     """))
 
     def test_init(self):
-        """
-        Check that the init subcommand can be used to create a new empty
-        password database.
-        """
-
+        """Check that the init command creates a new empty database."""
         # Create a new empty password database.
         with cli_context(['storepass-cli', '-f', self.dbname,
                           'init']) as cli_mock:
@@ -149,11 +140,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_init_overwrite(self):
-        """
-        Check that the init subcommand does not overwrite an already existing
-        file.
-        """
-
+        """Check that the init command does not overwrite an existing file."""
         # Write an empty password database.
         util.write_file(self.dbname, b'')
 
@@ -173,8 +160,7 @@ class TestCLI(util.StorePassTestCase):
                     """))
 
     def test_add(self):
-        """Check that a single entry can be added to a password database."""
-
+        """Check that a single entry can be added to a database."""
         # Create a new empty password database.
         self._init_database(self.dbname)
 
@@ -210,11 +196,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_add_generic(self):
-        """
-        Check that a complete generic entry can be added to a password
-        database.
-        """
-
+        """Check that a generic entry can be added to a database."""
         # Create a new empty password database.
         self._init_database(self.dbname)
 
@@ -258,10 +240,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_add_folder(self):
-        """
-        Check that a complete folder entry can be added to a password database.
-        """
-
+        """Check that a folder entry can be added to a database."""
         # Create a new empty password database.
         self._init_database(self.dbname)
 
@@ -301,11 +280,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_add_folder_options(self):
-        """
-        Check that options that are invalid for the folder entry type are
-        sensibly rejected.
-        """
-
+        """Check rejection of options that are invalid for the folder type."""
         # Try to add a new folder entry with invalid options.
         with cli_context([
                 'storepass-cli', '-f', self.dbname, 'add', '--type', 'folder',
@@ -326,8 +301,7 @@ class TestCLI(util.StorePassTestCase):
                     """))
 
     def test_add_nested(self):
-        """Check that nested entries can be added to a password database."""
-
+        """Check that nested entries can be added to a database."""
         # Create a new empty password database.
         self._init_database(self.dbname)
 
@@ -396,11 +370,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_add_invalid_path(self):
-        """
-        Check that adding a new entry under a non-existent path is sensibly
-        rejected.
-        """
-
+        """Check rejection to add a new entry under a non-existent path."""
         # Create a new empty password database.
         self._init_database(self.dbname)
 
@@ -420,11 +390,7 @@ class TestCLI(util.StorePassTestCase):
                     """))
 
     def test_add_present(self):
-        """
-        Check that adding a new entry with the same name as an existing entry
-        is sensibly rejected.
-        """
-
+        """Check rejection to add a new entry with a duplicate name."""
         # Create a new empty password database.
         self._init_database(self.dbname)
 
@@ -455,10 +421,7 @@ class TestCLI(util.StorePassTestCase):
                     """))
 
     def test_delete(self):
-        """
-        Check that a single entry can be deleted from a password database.
-        """
-
+        """Check that an entry can be deleted from a database."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -498,10 +461,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_delete_nested(self):
-        """
-        Check that nested entries can be deleted from a password database.
-        """
-
+        """Check that nested entries can be deleted from a database."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -562,8 +522,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_delete_invalid_path(self):
-        """Check that deleting a non-existent entry is sensibly rejected."""
-
+        """Check rejection to delete a non-existent entry."""
         # Create a new empty password database.
         self._init_database(self.dbname)
 
@@ -583,8 +542,7 @@ class TestCLI(util.StorePassTestCase):
                     """))
 
     def test_delete_non_empty(self):
-        """Check that deleting a non-empty folder is sensibly rejected."""
-
+        """Check rejection to delete a non-empty folder."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -636,8 +594,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_list(self):
-        """Check that a single entry can be listed."""
-
+        """Check that a single entry is listed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -664,8 +621,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_list_generic(self):
-        """Check that a complete generic entry can be listed."""
-
+        """Check that a generic entry is listed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -698,8 +654,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_list_folder(self):
-        """Check that a complete folder entry can be listed."""
-
+        """Check that a folder entry is listed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -729,8 +684,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_list_nested(self):
-        """Check that nested entries can be listed."""
-
+        """Check that nested entries are listed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -769,8 +723,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show(self):
-        """Check that details of a single entry can be displayed."""
-
+        """Check that details of a single entry are displayed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -798,11 +751,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show_timezone(self):
-        """
-        Check that timezone settings are correctly taken into effect when
-        displaying details of a single entry.
-        """
-
+        """Check that a date of the last change uses a configured timezone."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -848,8 +797,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show_generic(self):
-        """Check that details of a complete generic entry can be displayed."""
-
+        """Check that details of a generic entry are displayed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -889,8 +837,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show_folder(self):
-        """Check that details of a complete folder entry can be displayed."""
-
+        """Check that details of a folder entry are displayed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -924,8 +871,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show_nested(self):
-        """Check that nested entries can be displayed."""
-
+        """Check that nested entries are displayed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,

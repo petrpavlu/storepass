@@ -16,26 +16,31 @@ import Crypto.Cipher.AES
 
 
 class StorePassTestCase(unittest.TestCase):
+    """Base test case class."""
     def setUp(self):
+        """Initialize a test environment before a test starts."""
         self.testdir = tempfile.mkdtemp()
 
         # Set the default database name.
         self.dbname = os.path.join(self.testdir, 'pass.db')
 
     def tearDown(self):
+        """Clean up a test environment after a test finishes."""
         shutil.rmtree(self.testdir)
 
 
 def dedent(text):
+    """Remove any common leading whitespace from every line in a given text."""
     return textwrap.dedent(text)
 
 
 def dedent2(text):
     """
-    Remove any common leading whitespace + character '|' from every line in
-    the given text.
-    """
+    Remove any common leading whitespace + '|' from every line in a given text.
 
+    Remove any common leading whitespace + character '|' from every line in a
+    given text.
+    """
     output = ''
     lines = textwrap.dedent(text).splitlines(True)
     for line in lines:
@@ -46,14 +51,12 @@ def dedent2(text):
 
 def write_file(filename, bytes_):
     """Write raw content (bytes) into a specified file."""
-
     with open(filename, 'wb') as fh:
         fh.write(bytes_)
 
 
 def write_password_db(filename, password, xml, compress=True):
     """Write a password database file."""
-
     # Encode the data if needed.
     if isinstance(xml, bytes):
         encoded_data = xml
@@ -96,7 +99,6 @@ def write_password_db(filename, password, xml, compress=True):
 
 def read_password_db(filename, password, test_case):
     """Read a password database file and verify its basic properties."""
-
     with open(filename, 'rb') as fh:
         raw_content = fh.read()
 

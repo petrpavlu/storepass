@@ -1,6 +1,8 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""Tests for the storage module."""
+
 import datetime
 import os
 
@@ -13,9 +15,9 @@ DEFAULT_PASSWORD = 'qwerty'
 
 
 class TestStorage(util.StorePassTestCase):
+    """Tests for the storage module."""
     def test_read_plain(self):
         """Check that the plain reader can output raw database content."""
-
         util.write_password_db(self.dbname, DEFAULT_PASSWORD, 'RAW CONTENT')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
@@ -24,18 +26,13 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_invalid_file(self):
         """Check that an unreadable file is sensibly rejected."""
-
         storage = storepass.storage.Storage(os.getcwd(), DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             storage.read_plain()
         self.assertRegex(str(cm.exception), r"\[Errno 21\] Is a directory:")
 
     def test_read_header_size_min(self):
-        """
-        Check that a file with an incomplete header is sensibly rejected
-        (minimum corner case).
-        """
-
+        """Check rejection of an incomplete header (minimum case)."""
         util.write_file(self.dbname, b'')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
@@ -46,11 +43,7 @@ class TestStorage(util.StorePassTestCase):
             "File header is incomplete, expected '12' bytes but found '0'")
 
     def test_read_header_size_max(self):
-        """
-        Check that a file with an incomplete header is sensibly rejected
-        (maximum corner case).
-        """
-
+        """Check rejection of an incomplete header (maximum case)."""
         util.write_file(self.dbname,
                         b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
 
@@ -62,11 +55,7 @@ class TestStorage(util.StorePassTestCase):
             "File header is incomplete, expected '12' bytes but found '11'")
 
     def test_read_salt_size_min(self):
-        """
-        Check that a file with an incomplete salt data is sensibly rejected
-        (minimum corner case).
-        """
-
+        """Check rejection of incomplete salt data (minimum case)."""
         util.write_file(self.dbname,
                         b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
 
@@ -78,11 +67,7 @@ class TestStorage(util.StorePassTestCase):
             "Salt record is incomplete, expected '8' bytes but found '0'")
 
     def test_read_salt_size_max(self):
-        """
-        Check that a file with an incomplete salt data is sensibly rejected
-        (maximum corner case).
-        """
-
+        """Check rejection of incomplete salt data (maximum case)."""
         util.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
@@ -96,11 +81,7 @@ class TestStorage(util.StorePassTestCase):
             "Salt record is incomplete, expected '8' bytes but found '7'")
 
     def test_read_init_size_min(self):
-        """
-        Check that a file with an incomplete initialization vector is sensibly
-        rejected (minimum corner case).
-        """
-
+        """Check rejection of an incomplete init vector (minimum case)."""
         util.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
@@ -115,11 +96,7 @@ class TestStorage(util.StorePassTestCase):
             "found '0'")
 
     def test_read_init_size_max(self):
-        """
-        Check that a file with an incomplete initialization vector is sensibly
-        rejected (maximum corner case).
-        """
-
+        """Check rejection of an incomplete init vector (maximum case)."""
         util.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
@@ -135,11 +112,7 @@ class TestStorage(util.StorePassTestCase):
             "found '15'")
 
     def test_read_encrypted_alignment(self):
-        """
-        Check that a file with a misaligned encrypted data is sensibly
-        rejected.
-        """
-
+        """Check rejection of misaligned encrypted data."""
         util.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
@@ -154,11 +127,7 @@ class TestStorage(util.StorePassTestCase):
             "Data record with size of '1' bytes is not 16-byte aligned")
 
     def test_read_header_magic(self):
-        """
-        Check that a file with an invalid magic number in its header is
-        sensibly rejected.
-        """
-
+        """Check rejection of an invalid magic number in a file header."""
         util.write_file(
             self.dbname,
             b'\xff\xff\xff\xff\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
@@ -174,11 +143,7 @@ class TestStorage(util.StorePassTestCase):
             "b'\\xff\\xff\\xff\\xff'")
 
     def test_read_header_version(self):
-        """
-        Check that a file with an unsupported version number in its header is
-        sensibly rejected.
-        """
-
+        """Check rejection of an unsupported verion number in a file header."""
         util.write_file(
             self.dbname,
             b'rvl\x00\xff\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
@@ -194,11 +159,7 @@ class TestStorage(util.StorePassTestCase):
             "b'\\xff'")
 
     def test_read_header_padding(self):
-        """
-        Check that a file with wrong padding at bytes [5:6) in its header is
-        sensibly rejected.
-        """
-
+        """Check rejection of a wrong pad at bytes [5:6) in a file header."""
         util.write_file(
             self.dbname,
             b'rvl\x00\x02\xff\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
@@ -213,11 +174,7 @@ class TestStorage(util.StorePassTestCase):
             "Non-zero header padding at bytes [5:6), found b'\\xff'")
 
     def test_read_header_padding2(self):
-        """
-        Check that a file with wrong padding at bytes [9:12) in its header is
-        sensibly rejected.
-        """
-
+        """Check rejection of a wrong pad at bytes [9:12) in a file header."""
         util.write_file(
             self.dbname,
             b'rvl\x00\x02\x00\x06\x07\x08\xff\xff\xff\x0c\x0d\x0e\x0f'
@@ -233,11 +190,7 @@ class TestStorage(util.StorePassTestCase):
         )
 
     def test_read_password(self):
-        """
-        Check that using a wrong password to read a database is sensibly
-        reported.
-        """
-
+        """Check rejection of a wrong database password."""
         util.write_password_db(self.dbname, 'a', 'RAW CONTENT')
 
         storage = storepass.storage.Storage(self.dbname, 'b')
@@ -246,11 +199,7 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(str(cm.exception), "Incorrect password")
 
     def test_read_no_compressed_data(self):
-        """
-        Check that a file with compressed data of zero size is sensibly
-        rejected.
-        """
-
+        """Check rejection of compressed data with zero size."""
         util.write_password_db(self.dbname,
                                DEFAULT_PASSWORD,
                                '',
@@ -262,11 +211,7 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(str(cm.exception), "Compressed data have zero size")
 
     def test_read_wrong_padding_length(self):
-        """
-        Check that a file with a wrong padding of compressed data (incorrect
-        length) is sensibly rejected.
-        """
-
+        """Check rejection of a wrong padding length for compressed data."""
         util.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
@@ -282,11 +227,7 @@ class TestStorage(util.StorePassTestCase):
             "than '16' bytes")
 
     def test_read_wrong_padding_bytes(self):
-        """
-        Check that a file with a wrong padding of compressed data (incorrect
-        bytes) is sensibly rejected.
-        """
-
+        """Check rejection of a wrong padding content for compressed data."""
         util.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
@@ -302,10 +243,7 @@ class TestStorage(util.StorePassTestCase):
             "but found b'\\x0e\\x02'")
 
     def test_read_wrong_compression(self):
-        """
-        Check that a file with wrongly compressed data is sensibly rejected.
-        """
-
+        """Check rejection of wrongly compressed data."""
         util.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
@@ -320,10 +258,7 @@ class TestStorage(util.StorePassTestCase):
             "Error -3 while decompressing data: incorrect header check")
 
     def test_read_wrong_utf8(self):
-        """
-        Check that a file with wrongly encoded data is sensibly rejected.
-        """
-
+        """Check rejection of wrongly encoded data."""
         util.write_password_db(self.dbname, DEFAULT_PASSWORD, b'\xff')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
@@ -335,10 +270,7 @@ class TestStorage(util.StorePassTestCase):
             "position 0: invalid start byte")
 
     def test_read_wrong_xml(self):
-        """
-        Check that a file with not well-formed XML is sensibly rejected.
-        """
-
+        """Check rejection of not well-formed XML."""
         util.write_password_db(self.dbname, DEFAULT_PASSWORD, '</xml>')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
@@ -350,10 +282,7 @@ class TestStorage(util.StorePassTestCase):
             "line 1, column 1")
 
     def test_read_wrong_root_element(self):
-        """
-        Check that a file with an unexpected root element is sensibly rejected.
-        """
-
+        """Check rejection of a wrong root element."""
         util.write_password_db(self.dbname, DEFAULT_PASSWORD, '<data/>')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
@@ -364,11 +293,7 @@ class TestStorage(util.StorePassTestCase):
             "Invalid root element '/data', expected 'revelationdata'")
 
     def test_read_wrong_root_attribute(self):
-        """
-        Check that a file with an unexpected <revelationdata> attribute is
-        sensibly rejected.
-        """
-
+        """Check rejection of a wrong <revelationdata> attribute."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             '<revelationdata invalid-attr="invalid-value"></revelationdata>')
@@ -382,11 +307,7 @@ class TestStorage(util.StorePassTestCase):
             "'invalid-attr'")
 
     def test_read_wrong_root_dataversion(self):
-        """
-        Check that a file with an unexpected 'dataversion' attribute is
-        sensibly rejected.
-        """
-
+        """Check rejection of an unexpected 'dataversion' attribute."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             '<revelationdata dataversion="2"></revelationdata>')
@@ -400,11 +321,7 @@ class TestStorage(util.StorePassTestCase):
             "'/revelationdata/@dataversion' to be '1' but found '2'")
 
     def test_read_wrong_entry_attribute(self):
-        """
-        Check that a file with an unexpected <entry> attribute is sensibly
-        rejected.
-        """
-
+        """Check rejection of a wrong <entry> attribute."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -424,7 +341,6 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_folder_entry(self):
         """Check parsing of a single folder entry."""
-
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -454,11 +370,7 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(child_0.children, [])
 
     def test_read_wrong_folder_entry_property(self):
-        """
-        Check that a file with an unexpected sub-element property for
-        <entry type="folder"> is sensibly rejected.
-        """
-
+        """Check rejection of a wrong property for <entry type="folder">."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -477,11 +389,7 @@ class TestStorage(util.StorePassTestCase):
             "'/revelationdata/entry[1]/invalid-property'")
 
     def test_read_wrong_name_attribute(self):
-        """
-        Check that a file with an unexpected <name> attribute is sensibly
-        rejected.
-        """
-
+        """Check rejection of a wrong <name> attribute."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -501,10 +409,7 @@ class TestStorage(util.StorePassTestCase):
             "attribute 'invalid-attribute'")
 
     def test_read_wrong_updated_value(self):
-        """
-        Check that a file with an invalid <updated> value is sensibly rejected.
-        """
-
+        """Check rejection of invalid <updated> values."""
         # Empty value is rejected.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -584,7 +489,6 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
-
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -620,11 +524,7 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(child_0.password, "E1 password")
 
     def test_read_wrong_generic_entry_property(self):
-        """
-        Check that a file with an unexpected sub-element property for
-        <entry type="generic"> is sensibly rejected.
-        """
-
+        """Check rejection of a wrong property for <entry type="generic">."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -643,11 +543,7 @@ class TestStorage(util.StorePassTestCase):
             "'/revelationdata/entry[1]/invalid-property'")
 
     def test_read_wrong_generic_field_attribute(self):
-        """
-        Check that a file with an unexpected generic-entry <field> attribute is
-        sensibly rejected.
-        """
-
+        """Check rejection of a wrong generic-entry <field> attribute."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -667,11 +563,7 @@ class TestStorage(util.StorePassTestCase):
             "attribute 'invalid-attribute'")
 
     def test_read_wrong_generic_field_id(self):
-        """
-        Check that a file with an unexpected generic-entry <field> id attribute
-        is sensibly rejected.
-        """
-
+        """Check rejection of a wrong generic-entry <field> id attribute."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -693,7 +585,6 @@ class TestStorage(util.StorePassTestCase):
 
     def test_write_plain(self):
         """Check that the plain writer can save raw database content."""
-
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         storage.write_plain('RAW CONTENT')
 
@@ -702,7 +593,6 @@ class TestStorage(util.StorePassTestCase):
 
     def test_write_invalid_file(self):
         """Check that an unwritable file is sensibly rejected."""
-
         storage = storepass.storage.Storage(os.getcwd(), DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageWriteException) as cm:
             storage.write_plain('')
@@ -710,7 +600,6 @@ class TestStorage(util.StorePassTestCase):
 
     def test_write_generic_entry(self):
         """Check output of a single generic entry."""
-
         generic = storepass.model.Generic(
             "E1 name", "E1 description",
             datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc),
