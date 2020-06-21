@@ -1147,7 +1147,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_add_folder(self, _action, _param):
         # Get the selected entry (lookup the closest Container).
-        tree_row_ref, entry = \
+        tree_row_ref, _entry = \
             self._get_entries_tree_view_menu_associated_entry(True)
 
         dialog = edit.EditFolderDialog(self, None)
@@ -1174,7 +1174,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_add_account(self, _action, _param):
         # Get the selected entry (lookup the closest Container).
-        tree_row_ref, entry = \
+        tree_row_ref, _entry = \
             self._get_entries_tree_view_menu_associated_entry(True)
 
         dialog = edit.EditAccountDialog(self, None)
