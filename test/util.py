@@ -14,6 +14,10 @@ import zlib
 
 import Crypto.Cipher.AES
 
+# Set up expected test environment:
+# Force COLUMNS=80 so argparse produces consistent help output on all systems.
+os.environ['COLUMNS'] = '80'
+
 
 class StorePassTestCase(unittest.TestCase):
     """Base test case class."""
