@@ -36,8 +36,8 @@ docstyle:
 
 .PHONY: format
 format:
-	yapf --style=yapfrc --in-place --recursive --verbose $(PYTHON_FILES)
+	yapf --in-place --recursive --verbose $(PYTHON_FILES)
 
 .PHONY: lint
 lint:
-	pylint --rcfile=pylintrc $(PYTHON_FILES)
+	pylint $(PYTHON_FILES)
