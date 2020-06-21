@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
+# Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
 """Local launcher for the StorePass command line interface."""
