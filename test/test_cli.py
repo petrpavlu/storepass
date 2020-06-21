@@ -74,7 +74,8 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |usage: storepass-cli [-h] [-f PASSDB] [-v] {init,list,show,add,edit,delete,dump} ...
+                    |usage: storepass-cli [-h] [-f PASSDB] [-v]
+                    |                     {init,list,show,add,edit,delete,dump} ...
                     |
                     |positional arguments:
                     |  {init,list,show,add,edit,delete,dump}
@@ -82,7 +83,8 @@ class TestCLI(util.StorePassTestCase):
                     |optional arguments:
                     |  -h, --help            show this help message and exit
                     |  -f PASSDB, --file PASSDB
-                    |                        password database file (the default is ~/.storepass.db)
+                    |                        password database file (the default is
+                    |                        ~/.storepass.db)
                     |  -v, --verbose         increase verbosity level
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
