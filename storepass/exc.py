@@ -1,17 +1,19 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""StorePass exceptions."""
+
 
 class StorePassException(Exception):
     """Base StorePass exception."""
 
 
 class ModelException(StorePassException):
-    """Exception when working with the model."""
+    """Exception when working with a model."""
 
 
 class StorageException(StorePassException):
-    """Base Storage exception."""
+    """Base storage exception."""
 
 
 class StorageReadException(StorageException):

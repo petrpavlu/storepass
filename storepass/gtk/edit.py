@@ -1,6 +1,8 @@
 # Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""Dialogs to edit database properties and add/edit password entries."""
+
 import datetime
 import enum
 import importlib.resources
@@ -15,16 +17,17 @@ from storepass.gtk import util
 
 
 def _normalize_empty_to_none(text):
+    """Return verbatim a given string if it is not empty or None otherwise."""
     return text if text != "" else None
 
 
 def _normalize_none_to_empty(text):
+    """Return verbatim a given text or an empty string if the value is None."""
     return text if text is not None else ""
 
 
 def _get_current_datetime():
     """Obtain the current date+time in the UTC timezone."""
-
     return datetime.datetime.now(datetime.timezone.utc)
 
 
@@ -39,6 +42,7 @@ class EditDatabaseDialog(Gtk.Dialog):
     _password_entry = Gtk.Template.Child('password_entry')
 
     def __init__(self, parent_window, password):
+        """Initialize a database edit dialog."""
         super().__init__(parent=parent_window)
 
         # Hint correct types to pylint.
@@ -49,6 +53,7 @@ class EditDatabaseDialog(Gtk.Dialog):
         self._password_entry.set_text(_normalize_none_to_empty(password))
 
     def _on_response(self, dialog, response_id):
+        """Process a response signal from the dialog."""
         assert dialog == self
 
         if (response_id != Gtk.ResponseType.APPLY or
@@ -64,7 +69,6 @@ class EditDatabaseDialog(Gtk.Dialog):
 
     def get_password(self):
         """Return a password input by the user."""
-
         return self._password_entry.get_text()
 
 
@@ -83,6 +87,13 @@ class EditFolderDialog(Gtk.Dialog):
     _apply_button = Gtk.Template.Child('apply_button')
 
     def __init__(self, parent_window, entry):
+        """
+        Initialize an add/edit folder dialog.
+
+        Initialize a dialog to prompt the user for properties of a folder
+        entry. Initial values are preset from a specified folder entry unless
+        the value is None.
+        """
         super().__init__(parent=parent_window)
 
         # Hint correct types to pylint.
@@ -112,6 +123,7 @@ class EditFolderDialog(Gtk.Dialog):
             _normalize_none_to_empty(entry.notes))
 
     def _on_response(self, dialog, response_id):
+        """Process a response signal from the dialog."""
         assert dialog == self
 
         if (response_id != Gtk.ResponseType.APPLY or
@@ -126,7 +138,6 @@ class EditFolderDialog(Gtk.Dialog):
 
     def get_entry(self):
         """Create a new folder based on the information input by the user."""
-
         name = _normalize_empty_to_none(self._name_entry.get_text())
         assert name is not None
         description = _normalize_empty_to_none(
@@ -174,6 +185,13 @@ class EditAccountDialog(Gtk.Dialog):
     _apply_button = Gtk.Template.Child('apply_button')
 
     def __init__(self, parent_window, entry):
+        """
+        Initialize an add/edit account dialog.
+
+        Initialize a dialog to prompt the user for properties of an account
+        entry. Initial values are preset from a specified account entry unless
+        the value is None.
+        """
         super().__init__(parent=parent_window)
 
         # Hint correct types to pylint.
@@ -230,6 +248,7 @@ class EditAccountDialog(Gtk.Dialog):
                 _normalize_none_to_empty(entry.password))
 
     def _on_response(self, dialog, response_id):
+        """Process a response signal from the dialog."""
         assert dialog == self
 
         if (response_id != Gtk.ResponseType.APPLY or
@@ -270,7 +289,6 @@ class EditAccountDialog(Gtk.Dialog):
 
     def get_entry(self):
         """Create a new account based on the information input by the user."""
-
         # Get common properties.
         name = _normalize_empty_to_none(self._name_entry.get_text())
         assert name is not None

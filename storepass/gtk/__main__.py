@@ -1,6 +1,8 @@
 # Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""StorePass graphical interface built with the GTK library."""
+
 import enum
 import importlib.resources
 import os
@@ -72,7 +74,6 @@ class _EntryGObject(GObject.Object):
 class EntriesTreeStorePopulator(storepass.model.ModelVisitor):
     def __init__(self, tree_store):
         super().__init__()
-
         self._tree_store = tree_store
 
     def visit_root(self, root):
@@ -336,7 +337,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # the application is started from a terminal. In such a case, no
         # DESKTOP_STARTUP_ID environment variable is set which results in
         # _NET_WM_USER_TIME for the main window initially getting set to 0 by
-        # Gtk. When a password dialog then tries to steal the focus, a window
+        # GTK. When a password dialog then tries to steal the focus, a window
         # manager can consider the no-activity in the main window as if no
         # window that the application has is used and disallows the dialog from
         # getting the focus.

@@ -1,6 +1,8 @@
 # Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""GTK helper classes and functions."""
+
 import gi
 gi.require_version('Gtk', '3.0')  # pylint: disable=wrong-import-position
 from gi.repository import Gtk
@@ -8,7 +10,6 @@ from gi.repository import Gtk
 
 def show_error_dialog(parent_window, primary_text, secondary_text):
     """Create and display an error dialog."""
-
     dialog = Gtk.MessageDialog(
         parent_window,
         Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
@@ -22,7 +23,6 @@ def show_confirmation_dialog(parent_window, primary_text, secondary_text,
                              confirmation_label, response_handler,
                              *response_handler_args):
     """Create and display a confirmation dialog."""
-
     dialog = Gtk.MessageDialog(
         parent_window,
         Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,

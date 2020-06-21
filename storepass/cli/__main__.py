@@ -1,6 +1,8 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""StorePass command line interface."""
+
 import argparse
 import datetime
 import getpass

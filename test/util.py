@@ -1,7 +1,7 @@
 # Copyright (C) 2019 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-"""Test helper functions."""
+"""Test helper classes and functions."""
 
 import hashlib
 import os

@@ -1,6 +1,8 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
+"""Build script for setuptools."""
+
 import setuptools
 
 with open('README.md', 'r') as fh:
