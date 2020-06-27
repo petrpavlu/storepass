@@ -366,7 +366,7 @@ class CreditCard(Account):
         parent = super().inline_str()
         return (indent + f"CreditCard({parent}, card_type={self.card_type}, "
                 f"card_number={self.card_number}, "
-                f"expiry_date={self.expiry_daste}, ccv={self.ccv}, "
+                f"expiry_date={self.expiry_date}, ccv={self.ccv}, "
                 f"pin={self.pin})")
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
