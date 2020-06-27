@@ -42,6 +42,18 @@ class _XMLToModelConvertor:
             self.updated = None
             self.notes = None
 
+    class _AccountProperties:
+        def __init__(self, *args):
+            self.valid_field_ids = tuple([*args])
+
+    class _GenericProperties(_AccountProperties):
+        def __init__(self):
+            super().__init__('generic-hostname', 'generic-username',
+                             'generic-password')
+            self.hostname = None
+            self.username = None
+            self.password = None
+
     class _XPath(list):
         """List-based XPath to record XML elements in a processed database."""
         def __str__(self):
@@ -114,7 +126,7 @@ class _XMLToModelConvertor:
             raise storepass.exc.StorageReadException(
                 f"Element '{xpath}' has invalid value '{updated}': {e}") from e
 
-    def _parse_entry_property(self, xml_elem, xpath, props):
+    def _parse_entry_property(self, xml_elem, xpath, entry_props):
         """
         Parse one of common property elements.
 
@@ -124,14 +136,14 @@ class _XMLToModelConvertor:
         self._validate_element_attributes(xml_elem, xpath, ())
 
         if xml_elem.tag == 'name':
-            props.name = xml_elem.text
+            entry_props.name = xml_elem.text
         elif xml_elem.tag == 'description':
-            props.description = xml_elem.text
+            entry_props.description = xml_elem.text
         elif xml_elem.tag == 'updated':
-            props.updated = self._parse_updated(xml_elem, xpath)
+            entry_props.updated = self._parse_updated(xml_elem, xpath)
         else:
             assert xml_elem.tag == 'notes'
-            props.notes = xml_elem.text
+            entry_props.notes = xml_elem.text
 
     def _parse_subentries(self, _xml_elem, xpath, xml_elem_iter):
         """Parse sub-entries of a folder-like element."""
@@ -153,8 +165,8 @@ class _XMLToModelConvertor:
                 folder = self._parse_folder(xml_subelem, xpath)
                 children.append(folder)
             elif type_ == 'generic':
-                generic = self._parse_generic(xml_subelem, xpath)
-                children.append(generic)
+                account = self._parse_account(xml_subelem, xpath)
+                children.append(account)
             else:
                 raise storepass.exc.StorageReadException(
                     f"Attribute '{xpath}/@type' has unrecognized value "
@@ -169,7 +181,7 @@ class _XMLToModelConvertor:
         assert xml_elem.tag == 'entry'
         assert xml_elem.get('type') == 'folder'
 
-        props = self._EntryProperties()
+        entry_props = self._EntryProperties()
         xml_subelem_iter = iter(list(xml_elem))
 
         for xml_subelem in xml_subelem_iter:
@@ -183,57 +195,72 @@ class _XMLToModelConvertor:
             xpath.push(f'/{xml_subelem.tag}')
 
             if xml_subelem.tag in ('name', 'description', 'updated', 'notes'):
-                self._parse_entry_property(xml_subelem, xpath, props)
+                self._parse_entry_property(xml_subelem, xpath, entry_props)
             else:
                 raise storepass.exc.StorageReadException(
-                    f"Unrecognized sub-folder element '{xpath}'")
+                    f"Unrecognized folder element '{xpath}'")
 
             xpath.pop()
 
         children = self._parse_subentries(xml_elem, xpath, xml_subelem_iter)
 
-        return storepass.model.Folder(props.name, props.description,
-                                      props.updated, props.notes, children)
+        return storepass.model.Folder(entry_props.name,
+                                      entry_props.description,
+                                      entry_props.updated, entry_props.notes,
+                                      children)
 
-    def _parse_generic(self, xml_elem, xpath):
-        """Parse a <entry type='generic'> element."""
+    def _parse_account(self, xml_elem, xpath):
+        """Parse a <entry type='account-type'> element."""
         assert xml_elem.tag == 'entry'
-        assert xml_elem.get('type') == 'generic'
 
-        props = self._EntryProperties()
-        username = None
-        password = None
-        hostname = None
+        entry_props = self._EntryProperties()
+        type_ = xml_elem.get('type')
+        if type_ == 'generic':
+            account_props = self._GenericProperties()
+        else:
+            assert 0
 
         for xml_subelem in list(xml_elem):
             xpath.push(f'/{xml_subelem.tag}')
 
             if xml_subelem.tag in ('name', 'description', 'updated', 'notes'):
-                self._parse_entry_property(xml_subelem, xpath, props)
+                self._parse_entry_property(xml_subelem, xpath, entry_props)
             elif xml_subelem.tag == 'field':
                 self._validate_element_attributes(xml_subelem, xpath, ('id'))
 
                 id_ = xml_subelem.get('id')
-                if id_ == 'generic-hostname':
-                    hostname = xml_subelem.text
-                elif id_ == 'generic-username':
-                    username = xml_subelem.text
-                elif id_ == 'generic-password':
-                    password = xml_subelem.text
-                else:
+                # Check that the ID is accepted by the given account type.
+                if id_ not in account_props.valid_field_ids:
+                    accepted = ', '.join([
+                        f"'{accepted_id}'"
+                        for accepted_id in account_props.valid_field_ids
+                    ])
                     raise storepass.exc.StorageReadException(
                         f"Attribute '{xpath}/@id' has unrecognized value "
-                        f"'{id_}', expected 'generic-hostname', "
-                        f"'generic-username' or 'generic-password'")
+                        f"'{id_}', expected one of: {accepted}")
+
+                # Assing the value to the right property.
+                if id_ == 'generic-hostname':
+                    account_props.hostname = xml_subelem.text
+                elif id_ == 'generic-username':
+                    account_props.username = xml_subelem.text
+                elif id_ == 'generic-password':
+                    account_props.password = xml_subelem.text
+                else:
+                    assert 0
             else:
                 raise storepass.exc.StorageReadException(
-                    f"Unrecognized sub-generic element '{xpath}'")
+                    f"Unrecognized account element '{xpath}'")
 
             xpath.pop()
 
-        return storepass.model.Generic(props.name, props.description,
-                                       props.updated, props.notes, hostname,
-                                       username, password)
+        if type_ == 'generic':
+            return storepass.model.Generic(
+                entry_props.name, entry_props.description, entry_props.updated,
+                entry_props.notes, account_props.hostname,
+                account_props.username, account_props.password)
+        else:
+            assert 0
 
 
 class _ModelToXMLConvertor(storepass.model.ModelVisitor):

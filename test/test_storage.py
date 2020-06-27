@@ -385,7 +385,7 @@ class TestStorage(util.StorePassTestCase):
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             _ = storage.read_tree()
         self.assertEqual(
-            str(cm.exception), "Unrecognized sub-folder element "
+            str(cm.exception), "Unrecognized folder element "
             "'/revelationdata/entry[1]/invalid-property'")
 
     def test_read_wrong_name_attribute(self):
@@ -539,7 +539,7 @@ class TestStorage(util.StorePassTestCase):
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             _ = storage.read_tree()
         self.assertEqual(
-            str(cm.exception), "Unrecognized sub-generic element "
+            str(cm.exception), "Unrecognized account element "
             "'/revelationdata/entry[1]/invalid-property'")
 
     def test_read_wrong_generic_field_attribute(self):
@@ -580,8 +580,8 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(
             str(cm.exception),
             "Attribute '/revelationdata/entry[1]/field/@id' has "
-            "unrecognized value 'invalid-id', expected 'generic-hostname', "
-            "'generic-username' or 'generic-password'")
+            "unrecognized value 'invalid-id', expected one of: "
+            "'generic-hostname', 'generic-username', 'generic-password'")
 
     def test_write_plain(self):
         """Check that the plain writer can save raw database content."""
