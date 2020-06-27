@@ -42,17 +42,16 @@ class _XMLToModelConvertor:
             self.updated = None
             self.notes = None
 
-    class _AccountProperties:
+    class _AccountProperties(dict):
+        """Dict-based aggregate to hold account properties."""
         def __init__(self, *args):
             self.valid_field_ids = tuple([*args])
 
-    class _GenericProperties(_AccountProperties):
-        def __init__(self):
-            super().__init__('generic-hostname', 'generic-username',
-                             'generic-password')
-            self.hostname = None
-            self.username = None
-            self.password = None
+        def __getitem__(self, key):
+            try:
+                return super().__getitem__(key)
+            except KeyError:
+                return None
 
     class _XPath(list):
         """List-based XPath to record XML elements in a processed database."""
@@ -164,7 +163,9 @@ class _XMLToModelConvertor:
             if type_ == 'folder':
                 folder = self._parse_folder(xml_subelem, xpath)
                 children.append(folder)
-            elif type_ == 'generic':
+            elif type_ in ('creditcard', 'cryptokey', 'database', 'door',
+                           'email', 'ftp', 'generic', 'phone', 'shell',
+                           'remotedesktop', 'vnc', 'website'):
                 account = self._parse_account(xml_subelem, xpath)
                 children.append(account)
             else:
@@ -213,13 +214,69 @@ class _XMLToModelConvertor:
         """Parse a <entry type='account-type'> element."""
         assert xml_elem.tag == 'entry'
 
+        # Initialize entry and account-type property objects.
         entry_props = self._EntryProperties()
         type_ = xml_elem.get('type')
-        if type_ == 'generic':
-            account_props = self._GenericProperties()
+        if type_ == 'creditcard':
+            account_props = self._AccountProperties('creditcard-cardtype',
+                                                    'creditcard-cardnumber',
+                                                    'creditcard-expirydate',
+                                                    'creditcard-ccv',
+                                                    'generic-pin')
+        elif type_ == 'cryptokey':
+            account_props = self._AccountProperties('generic-hostname',
+                                                    'generic-certificate',
+                                                    'generic-keyfile',
+                                                    'generic-password')
+        elif type_ == 'database':
+            account_props = self._AccountProperties('generic-hostname',
+                                                    'generic-username',
+                                                    'generic-password',
+                                                    'generic-database')
+        elif type_ == 'door':
+            account_props = self._AccountProperties('generic-location',
+                                                    'generic-code')
+        elif type_ == 'email':
+            account_props = self._AccountProperties('generic-email',
+                                                    'generic-hostname',
+                                                    'generic-username',
+                                                    'generic-password')
+        elif type_ == 'ftp':
+            account_props = self._AccountProperties('generic-hostname',
+                                                    'generic-port',
+                                                    'generic-username',
+                                                    'generic-password')
+        elif type_ == 'generic':
+            account_props = self._AccountProperties('generic-hostname',
+                                                    'generic-username',
+                                                    'generic-password')
+        elif type_ == 'phone':
+            account_props = self._AccountProperties('phone-phonenumber',
+                                                    'generic-pin')
+        elif type_ == 'shell':
+            account_props = self._AccountProperties('generic-hostname',
+                                                    'generic-domain',
+                                                    'generic-username',
+                                                    'generic-password')
+        elif type_ == 'remotedesktop':
+            account_props = self._AccountProperties('generic-hostname',
+                                                    'generic-port',
+                                                    'generic-username',
+                                                    'generic-password')
+        elif type_ == 'vnc':
+            account_props = self._AccountProperties('generic-hostname',
+                                                    'generic-port',
+                                                    'generic-username',
+                                                    'generic-password')
+        elif type_ == 'website':
+            account_props = self._AccountProperties('generic-url',
+                                                    'generic-username',
+                                                    'generic-email',
+                                                    'generic-password')
         else:
-            assert 0
+            assert 0 and "Unhandled entry type!"
 
+        # Process all sub-elements.
         for xml_subelem in list(xml_elem):
             xpath.push(f'/{xml_subelem.tag}')
 
@@ -229,8 +286,9 @@ class _XMLToModelConvertor:
                 self._validate_element_attributes(xml_subelem, xpath, ('id'))
 
                 id_ = xml_subelem.get('id')
-                # Check that the ID is accepted by the given account type.
-                if id_ not in account_props.valid_field_ids:
+                if id_ in account_props.valid_field_ids:
+                    account_props[id_] = xml_subelem.text
+                else:
                     accepted = ', '.join([
                         f"'{accepted_id}'"
                         for accepted_id in account_props.valid_field_ids
@@ -238,29 +296,100 @@ class _XMLToModelConvertor:
                     raise storepass.exc.StorageReadException(
                         f"Attribute '{xpath}/@id' has unrecognized value "
                         f"'{id_}', expected one of: {accepted}")
-
-                # Assing the value to the right property.
-                if id_ == 'generic-hostname':
-                    account_props.hostname = xml_subelem.text
-                elif id_ == 'generic-username':
-                    account_props.username = xml_subelem.text
-                elif id_ == 'generic-password':
-                    account_props.password = xml_subelem.text
-                else:
-                    assert 0
             else:
                 raise storepass.exc.StorageReadException(
                     f"Unrecognized account element '{xpath}'")
 
             xpath.pop()
 
+        # Return the resulting account object.
+        if type_ == 'creditcard':
+            return storepass.model.CreditCard(
+                entry_props.name, entry_props.description, entry_props.updated,
+                entry_props.notes, account_props['creditcard-cardtype'],
+                account_props['creditcard-cardnumber'],
+                account_props['creditcard-expirydate'],
+                account_props['creditcard-ccv'], account_props['generic-pin'])
+        if type_ == 'cryptokey':
+            return storepass.model.CryptoKey(
+                entry_props.name, entry_props.description, entry_props.updated,
+                entry_props.notes, account_props['generic-hostname'],
+                account_props['generic-certificate'],
+                account_props['generic-keyfile'],
+                account_props['generic-password'])
+        if type_ == 'database':
+            return storepass.model.Database(
+                entry_props.name, entry_props.description, entry_props.updated,
+                entry_props.notes, account_props['generic-hostname'],
+                account_props['generic-username'],
+                account_props['generic-password'],
+                account_props['generic-database'])
+        if type_ == 'door':
+            return storepass.model.Door(entry_props.name,
+                                        entry_props.description,
+                                        entry_props.updated, entry_props.notes,
+                                        account_props['generic-location'],
+                                        account_props['generic-code'])
+        if type_ == 'email':
+            return storepass.model.Email(
+                entry_props.name, entry_props.description, entry_props.updated,
+                entry_props.notes, account_props['generic-email'],
+                account_props['generic-hostname'],
+                account_props['generic-username'],
+                account_props['generic-password'])
+        if type_ == 'ftp':
+            return storepass.model.FTP(entry_props.name,
+                                       entry_props.description,
+                                       entry_props.updated, entry_props.notes,
+                                       account_props['generic-hostname'],
+                                       account_props['generic-port'],
+                                       account_props['generic-username'],
+                                       account_props['generic-password'])
         if type_ == 'generic':
             return storepass.model.Generic(
                 entry_props.name, entry_props.description, entry_props.updated,
-                entry_props.notes, account_props.hostname,
-                account_props.username, account_props.password)
-        else:
-            assert 0
+                entry_props.notes, account_props['generic-hostname'],
+                account_props['generic-username'],
+                account_props['generic-password'])
+        if type_ == 'phone':
+            return storepass.model.Phone(entry_props.name,
+                                         entry_props.description,
+                                         entry_props.updated,
+                                         entry_props.notes,
+                                         account_props['phone-phonenumber'],
+                                         account_props['generic-pin'])
+        if type_ == 'shell':
+            return storepass.model.Shell(
+                entry_props.name, entry_props.description, entry_props.updated,
+                entry_props.notes, account_props['generic-hostname'],
+                account_props['generic-domain'],
+                account_props['generic-username'],
+                account_props['generic-password'])
+        if type_ == 'remotedesktop':
+            return storepass.model.RemoteDesktop(
+                entry_props.name, entry_props.description, entry_props.updated,
+                entry_props.notes, account_props['generic-hostname'],
+                account_props['generic-port'],
+                account_props['generic-username'],
+                account_props['generic-password'])
+        if type_ == 'vnc':
+            return storepass.model.VNC(entry_props.name,
+                                       entry_props.description,
+                                       entry_props.updated, entry_props.notes,
+                                       account_props['generic-hostname'],
+                                       account_props['generic-port'],
+                                       account_props['generic-username'],
+                                       account_props['generic-password'])
+        if type_ == 'website':
+            return storepass.model.Website(
+                entry_props.name, entry_props.description, entry_props.updated,
+                entry_props.notes, account_props['generic-url'],
+                account_props['generic-username'],
+                account_props['generic-email'],
+                account_props['generic-password'])
+
+        assert 0 and "Unhandled entry type!"
+        return None
 
 
 class _ModelToXMLConvertor(storepass.model.ModelVisitor):

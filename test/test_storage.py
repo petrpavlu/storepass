@@ -370,7 +370,7 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(child_0.children, [])
 
     def test_read_wrong_folder_entry_property(self):
-        """Check rejection of a wrong property for <entry type="folder">."""
+        """Check rejection of a wrong property element for a folder entry."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -487,6 +487,232 @@ class TestStorage(util.StorePassTestCase):
             "'100020003000400050006000700090000000': timestamp out of range "
             "for platform time_t")
 
+    def test_read_credit_card_entry(self):
+        """Check parsing of a single credit card entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="creditcard">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="creditcard-cardtype">E1 card type</field>
+                \t\t<field id="creditcard-cardnumber">E1 card number</field>
+                \t\t<field id="creditcard-expirydate">E1 expiry date</field>
+                \t\t<field id="creditcard-ccv">E1 CCV</field>
+                \t\t<field id="generic-pin">E1 PIN</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.CreditCard)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.card_type, "E1 card type")
+        self.assertEqual(child_0.card_number, "E1 card number")
+        self.assertEqual(child_0.expiry_date, "E1 expiry date")
+        self.assertEqual(child_0.ccv, "E1 CCV")
+        self.assertEqual(child_0.pin, "E1 PIN")
+
+    def test_read_crypto_key_entry(self):
+        """Check parsing of a single crypto key entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="cryptokey">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-certificate">E1 certificate</field>
+                \t\t<field id="generic-keyfile">E1 keyfile</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.CryptoKey)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.hostname, "E1 hostname")
+        self.assertEqual(child_0.certificate, "E1 certificate")
+        self.assertEqual(child_0.keyfile, "E1 keyfile")
+        self.assertEqual(child_0.password, "E1 password")
+
+    def test_read_database_entry(self):
+        """Check parsing of a single database entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="database">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t\t<field id="generic-database">E1 database</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.Database)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.hostname, "E1 hostname")
+        self.assertEqual(child_0.username, "E1 username")
+        self.assertEqual(child_0.password, "E1 password")
+        self.assertEqual(child_0.database, "E1 database")
+
+    def test_read_door_entry(self):
+        """Check parsing of a single door entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="door">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-location">E1 location</field>
+                \t\t<field id="generic-code">E1 code</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.Door)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.location, "E1 location")
+        self.assertEqual(child_0.code, "E1 code")
+
+    def test_read_email_entry(self):
+        """Check parsing of a single email entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="email">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-email">E1 email</field>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.Email)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.email, "E1 email")
+        self.assertEqual(child_0.hostname, "E1 hostname")
+        self.assertEqual(child_0.username, "E1 username")
+        self.assertEqual(child_0.password, "E1 password")
+
+    def test_read_ftp_entry(self):
+        """Check parsing of a single FTP entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="ftp">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.FTP)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.hostname, "E1 hostname")
+        self.assertEqual(child_0.port, "E1 port")
+        self.assertEqual(child_0.username, "E1 username")
+        self.assertEqual(child_0.password, "E1 password")
+
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
         util.write_password_db(
@@ -523,8 +749,194 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(child_0.username, "E1 username")
         self.assertEqual(child_0.password, "E1 password")
 
-    def test_read_wrong_generic_entry_property(self):
-        """Check rejection of a wrong property for <entry type="generic">."""
+    def test_read_phone_entry(self):
+        """Check parsing of a single phone entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="phone">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="phone-phonenumber">E1 phone number</field>
+                \t\t<field id="generic-pin">E1 PIN</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.Phone)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.phone_number, "E1 phone number")
+        self.assertEqual(child_0.pin, "E1 PIN")
+
+    def test_read_shell_entry(self):
+        """Check parsing of a single shell entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="shell">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-domain">E1 domain</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.Shell)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.hostname, "E1 hostname")
+        self.assertEqual(child_0.domain, "E1 domain")
+        self.assertEqual(child_0.username, "E1 username")
+        self.assertEqual(child_0.password, "E1 password")
+
+    def test_read_remote_desktop_entry(self):
+        """Check parsing of a single remote desktop entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="remotedesktop">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.RemoteDesktop)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.hostname, "E1 hostname")
+        self.assertEqual(child_0.port, "E1 port")
+        self.assertEqual(child_0.username, "E1 username")
+        self.assertEqual(child_0.password, "E1 password")
+
+    def test_read_vnc_entry(self):
+        """Check parsing of a single VNC entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="vnc">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.VNC)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.hostname, "E1 hostname")
+        self.assertEqual(child_0.port, "E1 port")
+        self.assertEqual(child_0.username, "E1 username")
+        self.assertEqual(child_0.password, "E1 password")
+
+    def test_read_website_entry(self):
+        """Check parsing of a single website entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="website">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-url">E1 URL</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-email">E1 email</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.Website)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.url, "E1 URL")
+        self.assertEqual(child_0.username, "E1 username")
+        self.assertEqual(child_0.email, "E1 email")
+        self.assertEqual(child_0.password, "E1 password")
+
+    def test_read_wrong_account_entry_property(self):
+        """Check rejection of a wrong property element for an account entry."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -542,8 +954,8 @@ class TestStorage(util.StorePassTestCase):
             str(cm.exception), "Unrecognized account element "
             "'/revelationdata/entry[1]/invalid-property'")
 
-    def test_read_wrong_generic_field_attribute(self):
-        """Check rejection of a wrong generic-entry <field> attribute."""
+    def test_read_wrong_account_field_attribute(self):
+        """Check rejection of a wrong account-entry <field> attribute."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -562,8 +974,8 @@ class TestStorage(util.StorePassTestCase):
             "Element '/revelationdata/entry[1]/field' has unrecognized "
             "attribute 'invalid-attribute'")
 
-    def test_read_wrong_generic_field_id(self):
-        """Check rejection of a wrong generic-entry <field> id attribute."""
+    def test_read_wrong_account_field_id(self):
+        """Check rejection of a wrong account-entry <field> id attribute."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
