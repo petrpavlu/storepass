@@ -10,18 +10,24 @@ Class diagram:
      '-----------'    '-------'
          ^   ^          ^   ^
          |   |          |   |
-     ,---'   +---,  ,---'   '---,
+     ,---'   '---,  ,---'   '---,
      |           |  |           |
   ,------,    ,--------,   ,---------,
   | Root |    | Folder |   | Account |
   '------'    '--------'   '---------'
-                             ^
-                             |
-       ,---------------------'
-       |
-  ,---------,
-  | Generic |
-  '---------'
+                                ^
+                                |
+        ,--------------,--------+-------,----------,---------,--------,
+        |              |        |       |          |         |        |
+  ,------------, ,-----------,  |  ,----------, ,------, ,-------, ,-----,
+  | CreditCard | | CryptoKey |  |  | Database | | Door | | Email | | FTP |
+  '------------' '-----------'  |  '----------' '------' '-------' '-----'
+                                |
+       ,----------,---------,---'---------,------------,---------,
+       |          |         |             |            |         |
+  ,---------, ,-------, ,-------, ,---------------, ,-----, ,---------,
+  | Generic | | Phone | | Shell | | RemoteDesktop | | VNC | | Website |
+  '---------' '-------' '-------' '---------------' '-----' '---------'
 
 All Entry's must hold a valid name identifying the Folder/Account. The name is
 set when the entry is created and remains constant during a lifetime of the
@@ -344,6 +350,136 @@ class Account(Entry):
         Entry.__init__(self, name, description, updated, notes)
 
 
+class CreditCard(Account):
+    """Credit card entry."""
+    def __init__(self, name, description, updated, notes, card_type,
+                 card_number, expiry_date, ccv, pin):
+        """Initialize a credit card entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.card_type = card_type
+        self.card_number = card_number
+        self.expiry_date = expiry_date
+        self.ccv = ccv
+        self.pin = pin
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"CreditCard({parent}, card_type={self.card_type}, "
+                f"card_number={self.card_number}, "
+                f"expiry_date={self.expiry_daste}, ccv={self.ccv}, "
+                f"pin={self.pin})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the credit card entry."""
+        visitor.visit_credit_card(self)
+
+
+class CryptoKey(Account):
+    """Crypto key entry."""
+    def __init__(self, name, description, updated, notes, hostname,
+                 certificate, keyfile, password):
+        """Initialize a crypto key entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.hostname = hostname
+        self.certificate = certificate
+        self.keyfile = keyfile
+        self.password = password
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"CryptoKey({parent}, hostname={self.hostname}, "
+                f"certificate={self.certificate}, keyfile={self.keyfile}, "
+                f"keyfile={self.keyfile}, password={self.password})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the crypto key entry."""
+        visitor.visit_crypto_key(self)
+
+
+class Database(Account):
+    """Database entry."""
+    def __init__(self, name, description, updated, notes, hostname, username,
+                 password, database):
+        """Initialize a database entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.hostname = hostname
+        self.username = username
+        self.password = password
+        self.database = database
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"Database({parent}, hostname={self.hostname}, "
+                f"username={self.username}, password={self.password}, "
+                f"database={self.database})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the database entry."""
+        visitor.visit_database(self)
+
+
+class Door(Account):
+    """Door entry."""
+    def __init__(self, name, description, updated, notes, location, code):
+        """Initialize a door entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.location = location
+        self.code = code
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"Door({parent}, location={self.location}, "
+                f"code={self.code})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the door entry."""
+        visitor.visit_door(self)
+
+
+class Email(Account):
+    """Email entry."""
+    def __init__(self, name, description, updated, notes, email, hostname,
+                 username, password):
+        """Initialize an email entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.email = email
+        self.hostname = hostname
+        self.username = username
+        self.password = password
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"Email({parent}, email={self.email}, "
+                f"hostname={self.hostname}, username={self.username}, "
+                f"password={self.password})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the email entry."""
+        visitor.visit_email(self)
+
+
+class FTP(Account):
+    """File Transfer Protocol entry."""
+    def __init__(self, name, description, updated, notes, hostname, port,
+                 username, password):
+        """Initialize a FTP entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.hostname = hostname
+        self.port = port
+        self.username = username
+        self.password = password
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"FTP({parent}, hostname={self.hostname}, "
+                f"port={self.port}, username={self.username}, "
+                f"password={self.password})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the FTP entry."""
+        visitor.visit_ftp(self)
+
+
 class Generic(Account):
     """Generic account entry."""
     def __init__(self, name, description, updated, notes, hostname, username,
@@ -360,12 +496,114 @@ class Generic(Account):
                 f"username={self.username}, password={self.password})")
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
-        """
-        Visit the generic account entry.
-
-        Call a given visitor to process the generic account entry.
-        """
+        """Visit the generic account entry."""
         visitor.visit_generic(self)
+
+
+class Phone(Account):
+    """Phone entry."""
+    def __init__(self, name, description, updated, notes, phone_number, pin):
+        """Initialize a phone entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.phone_number = phone_number
+        self.pin = pin
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"Phone({parent}, phone_number={self.phone_number}, "
+                f"pin={self.pin})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the phone entry."""
+        visitor.visit_phone(self)
+
+
+class Shell(Account):
+    """Shell entry."""
+    def __init__(self, name, description, updated, notes, hostname, domain,
+                 username, password):
+        """Initialize a shell entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.hostname = hostname
+        self.domain = domain
+        self.username = username
+        self.password = password
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"Shell({parent}, hostname={self.hostname}, "
+                f"domain={self.domain}, username={self.username}, "
+                f"password={self.password})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the shell entry."""
+        visitor.visit_shell(self)
+
+
+class RemoteDesktop(Account):
+    """Remote desktop entry."""
+    def __init__(self, name, description, updated, notes, hostname, port,
+                 username, password):
+        """Initialize a remote desktop entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.hostname = hostname
+        self.port = port
+        self.username = username
+        self.password = password
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"RemoteDesktop({parent}, hostname={self.hostname}, "
+                f"port={self.port}, username={self.username}, "
+                f"password={self.password})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the remote desktop entry."""
+        visitor.visit_remote_desktop(self)
+
+
+class VNC(Account):
+    """Virtual Network Computing entry."""
+    def __init__(self, name, description, updated, notes, hostname, port,
+                 username, password):
+        """Initialize a VNC entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.hostname = hostname
+        self.port = port
+        self.username = username
+        self.password = password
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"VNC({parent}, hostname={self.hostname}, "
+                f"port={self.port}, username={self.username}, "
+                f"password={self.password})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the VNC entry."""
+        visitor.visit_vnc(self)
+
+
+class Website(Account):
+    """Web site entry."""
+    def __init__(self, name, description, updated, notes, url, username, email,
+                 password):
+        """Initialize a web site entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.url = url
+        self.username = username
+        self.email = email
+        self.password = password
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"Website({parent}, url={self.url}, "
+                f"username={self.username}, email={self.email}, "
+                f"password={self.password})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the web site entry."""
+        visitor.visit_web(self)
 
 
 class Model:
