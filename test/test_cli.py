@@ -352,6 +352,241 @@ class TestCLI(util.StorePassTestCase):
                     storepass-cli: error: option --username is not valid for entry type 'folder'
                     """))
 
+    def test_add_credit_card_options(self):
+        """Check rejection of invalid options for the credit-card type."""
+        # Try to add a new credit-card entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type',
+                'credit-card', '--card-number', 'E1 card number',
+                '--card-type', 'E1 card type', '--ccv', 'E1 CCV',
+                '--certificate', 'E1 certificate', '--code', 'E1 code',
+                '--database', 'E1 database', '--domain', 'E1 domain',
+                '--email', 'E1 email', '--expiry-date', 'E1 expiry date',
+                '--hostname', 'E1 hostname', '--keyfile', 'E1 keyfile',
+                '--location', 'E1 location', '--password', '--phone-number',
+                'E1 phone number', '--pin', 'E1 PIN', '--port', 'E1 port',
+                '--url', 'E1 URL', '--username', 'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --certificate is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --code is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --database is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --domain is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --email is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --hostname is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --location is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --password is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --port is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --url is not valid for entry type 'credit-card'
+                    storepass-cli: error: option --username is not valid for entry type 'credit-card'
+                    """))
+
+    def test_add_crypto_key_options(self):
+        """Check rejection of invalid options for the crypto-key type."""
+        # Try to add a new crypto-key entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type',
+                'crypto-key', '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --card-type is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --ccv is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --code is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --database is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --domain is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --email is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --location is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --pin is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --port is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --url is not valid for entry type 'crypto-key'
+                    storepass-cli: error: option --username is not valid for entry type 'crypto-key'
+                    """))
+
+    def test_add_database_options(self):
+        """Check rejection of invalid options for the database type."""
+        # Try to add a new database entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type',
+                'database', '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'database'
+                    storepass-cli: error: option --card-type is not valid for entry type 'database'
+                    storepass-cli: error: option --ccv is not valid for entry type 'database'
+                    storepass-cli: error: option --certificate is not valid for entry type 'database'
+                    storepass-cli: error: option --code is not valid for entry type 'database'
+                    storepass-cli: error: option --domain is not valid for entry type 'database'
+                    storepass-cli: error: option --email is not valid for entry type 'database'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'database'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'database'
+                    storepass-cli: error: option --location is not valid for entry type 'database'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'database'
+                    storepass-cli: error: option --pin is not valid for entry type 'database'
+                    storepass-cli: error: option --port is not valid for entry type 'database'
+                    storepass-cli: error: option --url is not valid for entry type 'database'
+                    """))
+
+    def test_add_door_options(self):
+        """Check rejection of invalid options for the door type."""
+        # Try to add a new door entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'door',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'door'
+                    storepass-cli: error: option --card-type is not valid for entry type 'door'
+                    storepass-cli: error: option --ccv is not valid for entry type 'door'
+                    storepass-cli: error: option --certificate is not valid for entry type 'door'
+                    storepass-cli: error: option --database is not valid for entry type 'door'
+                    storepass-cli: error: option --domain is not valid for entry type 'door'
+                    storepass-cli: error: option --email is not valid for entry type 'door'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'door'
+                    storepass-cli: error: option --hostname is not valid for entry type 'door'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'door'
+                    storepass-cli: error: option --password is not valid for entry type 'door'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'door'
+                    storepass-cli: error: option --pin is not valid for entry type 'door'
+                    storepass-cli: error: option --port is not valid for entry type 'door'
+                    storepass-cli: error: option --url is not valid for entry type 'door'
+                    storepass-cli: error: option --username is not valid for entry type 'door'
+                    """))
+
+    def test_add_email_options(self):
+        """Check rejection of invalid options for the email type."""
+        # Try to add a new email entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'email',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'email'
+                    storepass-cli: error: option --card-type is not valid for entry type 'email'
+                    storepass-cli: error: option --ccv is not valid for entry type 'email'
+                    storepass-cli: error: option --certificate is not valid for entry type 'email'
+                    storepass-cli: error: option --code is not valid for entry type 'email'
+                    storepass-cli: error: option --database is not valid for entry type 'email'
+                    storepass-cli: error: option --domain is not valid for entry type 'email'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'email'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'email'
+                    storepass-cli: error: option --location is not valid for entry type 'email'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'email'
+                    storepass-cli: error: option --pin is not valid for entry type 'email'
+                    storepass-cli: error: option --port is not valid for entry type 'email'
+                    storepass-cli: error: option --url is not valid for entry type 'email'
+                    """))
+
+    def test_add_ftp_options(self):
+        """Check rejection of invalid options for the FTP type."""
+        # Try to add a new FTP entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'ftp',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'ftp'
+                    storepass-cli: error: option --card-type is not valid for entry type 'ftp'
+                    storepass-cli: error: option --ccv is not valid for entry type 'ftp'
+                    storepass-cli: error: option --certificate is not valid for entry type 'ftp'
+                    storepass-cli: error: option --code is not valid for entry type 'ftp'
+                    storepass-cli: error: option --database is not valid for entry type 'ftp'
+                    storepass-cli: error: option --domain is not valid for entry type 'ftp'
+                    storepass-cli: error: option --email is not valid for entry type 'ftp'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'ftp'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'ftp'
+                    storepass-cli: error: option --location is not valid for entry type 'ftp'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'ftp'
+                    storepass-cli: error: option --pin is not valid for entry type 'ftp'
+                    storepass-cli: error: option --url is not valid for entry type 'ftp'
+                    """))
+
     def test_add_generic(self):
         """Check that a generic entry can be added to a database."""
         # Create a new empty password database.
@@ -395,6 +630,243 @@ class TestCLI(util.StorePassTestCase):
                     </revelationdata>
                     $"""))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_add_generic_options(self):
+        """Check rejection of invalid options for the generic type."""
+        # Try to add a new generic entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'generic',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'generic'
+                    storepass-cli: error: option --card-type is not valid for entry type 'generic'
+                    storepass-cli: error: option --ccv is not valid for entry type 'generic'
+                    storepass-cli: error: option --certificate is not valid for entry type 'generic'
+                    storepass-cli: error: option --code is not valid for entry type 'generic'
+                    storepass-cli: error: option --database is not valid for entry type 'generic'
+                    storepass-cli: error: option --domain is not valid for entry type 'generic'
+                    storepass-cli: error: option --email is not valid for entry type 'generic'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'generic'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'generic'
+                    storepass-cli: error: option --location is not valid for entry type 'generic'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'generic'
+                    storepass-cli: error: option --pin is not valid for entry type 'generic'
+                    storepass-cli: error: option --port is not valid for entry type 'generic'
+                    storepass-cli: error: option --url is not valid for entry type 'generic'
+                    """))
+
+    def test_add_phone_options(self):
+        """Check rejection of invalid options for the phone type."""
+        # Try to add a new phone entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'phone',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'phone'
+                    storepass-cli: error: option --card-type is not valid for entry type 'phone'
+                    storepass-cli: error: option --ccv is not valid for entry type 'phone'
+                    storepass-cli: error: option --certificate is not valid for entry type 'phone'
+                    storepass-cli: error: option --code is not valid for entry type 'phone'
+                    storepass-cli: error: option --database is not valid for entry type 'phone'
+                    storepass-cli: error: option --domain is not valid for entry type 'phone'
+                    storepass-cli: error: option --email is not valid for entry type 'phone'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'phone'
+                    storepass-cli: error: option --hostname is not valid for entry type 'phone'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'phone'
+                    storepass-cli: error: option --location is not valid for entry type 'phone'
+                    storepass-cli: error: option --password is not valid for entry type 'phone'
+                    storepass-cli: error: option --port is not valid for entry type 'phone'
+                    storepass-cli: error: option --url is not valid for entry type 'phone'
+                    storepass-cli: error: option --username is not valid for entry type 'phone'
+                    """))
+
+    def test_add_shell_options(self):
+        """Check rejection of invalid options for the shell type."""
+        # Try to add a new shell entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'shell',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'shell'
+                    storepass-cli: error: option --card-type is not valid for entry type 'shell'
+                    storepass-cli: error: option --ccv is not valid for entry type 'shell'
+                    storepass-cli: error: option --certificate is not valid for entry type 'shell'
+                    storepass-cli: error: option --code is not valid for entry type 'shell'
+                    storepass-cli: error: option --database is not valid for entry type 'shell'
+                    storepass-cli: error: option --email is not valid for entry type 'shell'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'shell'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'shell'
+                    storepass-cli: error: option --location is not valid for entry type 'shell'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'shell'
+                    storepass-cli: error: option --pin is not valid for entry type 'shell'
+                    storepass-cli: error: option --port is not valid for entry type 'shell'
+                    storepass-cli: error: option --url is not valid for entry type 'shell'
+                    """))
+
+    def test_add_remote_desktop_options(self):
+        """Check rejection of invalid options for the remote-desktop type."""
+        # Try to add a new remote-desktop entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type',
+                'remote-desktop', '--card-number', 'E1 card number',
+                '--card-type', 'E1 card type', '--ccv', 'E1 CCV',
+                '--certificate', 'E1 certificate', '--code', 'E1 code',
+                '--database', 'E1 database', '--domain', 'E1 domain',
+                '--email', 'E1 email', '--expiry-date', 'E1 expiry date',
+                '--hostname', 'E1 hostname', '--keyfile', 'E1 keyfile',
+                '--location', 'E1 location', '--password', '--phone-number',
+                'E1 phone number', '--pin', 'E1 PIN', '--port', 'E1 port',
+                '--url', 'E1 URL', '--username', 'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --card-type is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --ccv is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --certificate is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --code is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --database is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --domain is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --email is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --location is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --pin is not valid for entry type 'remote-desktop'
+                    storepass-cli: error: option --url is not valid for entry type 'remote-desktop'
+                    """))
+
+    def test_add_vnc_options(self):
+        """Check rejection of invalid options for the VNC type."""
+        # Try to add a new VNC entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'vnc',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'vnc'
+                    storepass-cli: error: option --card-type is not valid for entry type 'vnc'
+                    storepass-cli: error: option --ccv is not valid for entry type 'vnc'
+                    storepass-cli: error: option --certificate is not valid for entry type 'vnc'
+                    storepass-cli: error: option --code is not valid for entry type 'vnc'
+                    storepass-cli: error: option --database is not valid for entry type 'vnc'
+                    storepass-cli: error: option --domain is not valid for entry type 'vnc'
+                    storepass-cli: error: option --email is not valid for entry type 'vnc'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'vnc'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'vnc'
+                    storepass-cli: error: option --location is not valid for entry type 'vnc'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'vnc'
+                    storepass-cli: error: option --pin is not valid for entry type 'vnc'
+                    storepass-cli: error: option --url is not valid for entry type 'vnc'
+                    """))
+
+    def test_add_website_options(self):
+        """Check rejection of invalid options for the website type."""
+        # Try to add a new website entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'website',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'website'
+                    storepass-cli: error: option --card-type is not valid for entry type 'website'
+                    storepass-cli: error: option --ccv is not valid for entry type 'website'
+                    storepass-cli: error: option --certificate is not valid for entry type 'website'
+                    storepass-cli: error: option --code is not valid for entry type 'website'
+                    storepass-cli: error: option --database is not valid for entry type 'website'
+                    storepass-cli: error: option --domain is not valid for entry type 'website'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'website'
+                    storepass-cli: error: option --hostname is not valid for entry type 'website'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'website'
+                    storepass-cli: error: option --location is not valid for entry type 'website'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'website'
+                    storepass-cli: error: option --pin is not valid for entry type 'website'
+                    storepass-cli: error: option --port is not valid for entry type 'website'
+                    """))
 
     def test_add_nested(self):
         """Check that nested entries can be added to a database."""
