@@ -308,11 +308,18 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_add_folder_options(self):
-        """Check rejection of options that are invalid for the folder type."""
+        """Check rejection of invalid options for the folder type."""
         # Try to add a new folder entry with invalid options.
         with cli_context([
                 'storepass-cli', '-f', self.dbname, 'add', '--type', 'folder',
-                '--hostname', 'E1 hostname', '--password', '--username',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
                 'E1 username', 'E1 name'
         ]) as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
@@ -323,8 +330,23 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
+                    storepass-cli: error: option --card-number is not valid for entry type 'folder'
+                    storepass-cli: error: option --card-type is not valid for entry type 'folder'
+                    storepass-cli: error: option --ccv is not valid for entry type 'folder'
+                    storepass-cli: error: option --certificate is not valid for entry type 'folder'
+                    storepass-cli: error: option --code is not valid for entry type 'folder'
+                    storepass-cli: error: option --database is not valid for entry type 'folder'
+                    storepass-cli: error: option --domain is not valid for entry type 'folder'
+                    storepass-cli: error: option --email is not valid for entry type 'folder'
+                    storepass-cli: error: option --expiry-date is not valid for entry type 'folder'
                     storepass-cli: error: option --hostname is not valid for entry type 'folder'
+                    storepass-cli: error: option --keyfile is not valid for entry type 'folder'
+                    storepass-cli: error: option --location is not valid for entry type 'folder'
                     storepass-cli: error: option --password is not valid for entry type 'folder'
+                    storepass-cli: error: option --phone-number is not valid for entry type 'folder'
+                    storepass-cli: error: option --pin is not valid for entry type 'folder'
+                    storepass-cli: error: option --port is not valid for entry type 'folder'
+                    storepass-cli: error: option --url is not valid for entry type 'folder'
                     storepass-cli: error: option --username is not valid for entry type 'folder'
                     """))
 
