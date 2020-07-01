@@ -405,9 +405,11 @@ def _build_parser():
     _dump_parser = subparsers.add_parser(
         'dump', description="dump raw database content")
 
-    add_parser.add_argument('-t',
-                            '--type',
-                            choices=('folder', 'generic'),
+    add_parser.add_argument('--type',
+                            choices=('folder', 'credit-card', 'crypto-key',
+                                     'database', 'door', 'email', 'ftp',
+                                     'generic', 'phone', 'shell',
+                                     'remote-desktop', 'vnc', 'website'),
                             default='generic',
                             help="entry type (the default is generic)")
 

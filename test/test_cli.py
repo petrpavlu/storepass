@@ -99,10 +99,12 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |usage: storepass-cli add [-h] [-t {folder,generic}] [--description DESC]
-                    |                         [--notes NOTES] [--card-number ID] [--card-type TYPE]
-                    |                         [--ccv CCV] [--certificate CERT] [--code CODE]
-                    |                         [--database NAME] [--domain NAME] [--email ADDRESS]
+                    |usage: storepass-cli add [-h]
+                    |                         [--type {folder,credit-card,crypto-key,database,door,email,ftp,generic,phone,shell,remote-desktop,vnc,website}]
+                    |                         [--description DESC] [--notes NOTES]
+                    |                         [--card-number ID] [--card-type TYPE] [--ccv CCV]
+                    |                         [--certificate CERT] [--code CODE] [--database NAME]
+                    |                         [--domain NAME] [--email ADDRESS]
                     |                         [--expiry-date DATE] [--hostname HOST]
                     |                         [--keyfile FILE] [--location PLACE] [--password]
                     |                         [--phone-number PHONE] [--pin PIN] [--port NUMBER]
@@ -116,7 +118,7 @@ class TestCLI(util.StorePassTestCase):
                     |
                     |optional arguments:
                     |  -h, --help            show this help message and exit
-                    |  -t {folder,generic}, --type {folder,generic}
+                    |  --type {folder,credit-card,crypto-key,database,door,email,ftp,generic,phone,shell,remote-desktop,vnc,website}
                     |                        entry type (the default is generic)
                     |
                     |optional arguments valid for all entry types:
