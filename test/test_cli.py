@@ -89,6 +89,76 @@ class TestCLI(util.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
+    def test_add_help(self):
+        """Check the --help output for the add command."""
+        with cli_context(['storepass-cli', 'add', '--help']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |usage: storepass-cli add [-h] [-t {folder,generic}] [--description DESC]
+                    |                         [--notes NOTES] [--card-number ID] [--card-type TYPE]
+                    |                         [--ccv CCV] [--certificate CERT] [--code CODE]
+                    |                         [--database NAME] [--domain NAME] [--email ADDRESS]
+                    |                         [--expiry-date DATE] [--hostname HOST]
+                    |                         [--keyfile FILE] [--location PLACE] [--password]
+                    |                         [--phone-number PHONE] [--pin PIN] [--port NUMBER]
+                    |                         [--url ADDRESS] [--username USER]
+                    |                         ENTRY
+                    |
+                    |add a new password entry
+                    |
+                    |positional arguments:
+                    |  ENTRY                 password entry
+                    |
+                    |optional arguments:
+                    |  -h, --help            show this help message and exit
+                    |  -t {folder,generic}, --type {folder,generic}
+                    |                        entry type (the default is generic)
+                    |
+                    |optional arguments valid for all entry types:
+                    |  --description DESC    set entry description to the specified value
+                    |  --notes NOTES         set entry notes to the specified value
+                    |
+                    |optional arguments valid for specific account types:
+                    |  --card-number ID      set card number to the specified value
+                    |  --card-type TYPE      set card type to the specified value
+                    |  --ccv CCV             set CCV number to the specified value
+                    |  --certificate CERT    set certificate to the specified value
+                    |  --code CODE           set code to the specified value
+                    |  --database NAME       set database name to the specified value
+                    |  --domain NAME         set domain name to the specified value
+                    |  --email ADDRESS       set email to the specified value
+                    |  --expiry-date DATE    set expiry date to the specified value
+                    |  --hostname HOST       set hostname to the specified value
+                    |  --keyfile FILE        set keyfile to the specified value
+                    |  --location PLACE      set location to the specified value
+                    |  --password            prompt for a password value
+                    |  --phone-number PHONE  set phone number to the specified value
+                    |  --pin PIN             set PIN to the specified value
+                    |  --port NUMBER         set port to the specified value
+                    |  --url ADDRESS         set URL to the specified value
+                    |  --username USER       set username to the specified value
+                    |
+                    |option validity for account types:
+                    |  credit-card:          card-type, card-number, expiry-date, ccv, pin
+                    |  crypto-key:           hostname, certificate, keyfile, password
+                    |  database:             hostname, username, password, database
+                    |  door:                 location, code
+                    |  email:                email, hostname, username, password
+                    |  ftp:                  hostname, port, username, password
+                    |  generic:              hostname, username, password
+                    |  phone:                phone-number, pin
+                    |  shell:                hostname, domain, username, password
+                    |  remote-desktop:       hostname, port, username, password
+                    |  vnc:                  hostname, port, username, password
+                    |  website:              url, username, email, password
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
     def test_error(self):
         """Check reporting of a simple error about a missing database."""
         with cli_context(['storepass-cli', '-f', 'missing.db',
