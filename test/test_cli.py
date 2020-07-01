@@ -286,8 +286,8 @@ class TestCLI(util.StorePassTestCase):
         # Try to add a new folder entry with invalid options.
         with cli_context([
                 'storepass-cli', '-f', self.dbname, 'add', '--type', 'folder',
-                '--hostname', 'E1 hostname', '--username', 'E1 username',
-                '--password', 'E1 name'
+                '--hostname', 'E1 hostname', '--password', '--username',
+                'E1 username', 'E1 name'
         ]) as cli_mock:
             cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
@@ -298,8 +298,8 @@ class TestCLI(util.StorePassTestCase):
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
                     storepass-cli: error: option --hostname is not valid for entry type 'folder'
-                    storepass-cli: error: option --username is not valid for entry type 'folder'
                     storepass-cli: error: option --password is not valid for entry type 'folder'
+                    storepass-cli: error: option --username is not valid for entry type 'folder'
                     """))
 
     def test_add_nested(self):

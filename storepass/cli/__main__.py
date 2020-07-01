@@ -100,50 +100,6 @@ def _process_show_command(args, model):
     return 0
 
 
-def _check_options_validity(type_, accepted_options, args):
-    """
-    Check that all type-related options specified on the command line are valid
-    for the given entry type. An error is logged if some option is not
-    available. Returns True if the check was successful and False otherwise.
-    """
-
-    all_valid = True
-
-    if args.hostname is not None and 'hostname' not in accepted_options:
-        _logger.error("option --hostname is not valid for entry type '%s'",
-                      type_)
-        all_valid = False
-    if args.username is not None and 'username' not in accepted_options:
-        _logger.error("option --username is not valid for entry type '%s'",
-                      type_)
-        all_valid = False
-    if args.password is not None and 'password' not in accepted_options:
-        _logger.error("option --password is not valid for entry type '%s'",
-                      type_)
-        all_valid = False
-
-    return all_valid
-
-
-def _check_add_command_options(args):
-    """
-    Check that type-related options specified for the add command are valid.
-    Returns True if the check was successful and False otherwise.
-    """
-
-    assert args.command == 'add'
-
-    if args.type == 'generic':
-        return _check_options_validity('generic',
-                                       ('hostname', 'username', 'password'),
-                                       args)
-    if args.type == 'folder':
-        return _check_options_validity('folder', (), args)
-
-    assert 0 and "Unhandled entry type!"
-    return False
-
-
 def _process_add_command(args, model):
     """
     Handle the add command which is used to insert a new single password entry.
@@ -277,13 +233,139 @@ def _process_dump_command(args, storage):
     return 0
 
 
-def main():
+ACCOUNT_ARGUMENT_VALIDITY = {
+    'credit-card': ['card-type', 'card-number', 'expiry-date', 'ccv', 'pin'],
+    'crypto-key': ['hostname', 'certificate', 'keyfile', 'password'],
+    'database': ['hostname', 'username', 'password', 'database'],
+    'door': ['location', 'code'],
+    'email': ['email', 'hostname', 'username', 'password'],
+    'ftp': ['hostname', 'port', 'username', 'password'],
+    'generic': ['hostname', 'username', 'password'],
+    'phone': ['phone-number', 'pin'],
+    'shell': ['hostname', 'domain', 'username', 'password'],
+    'remote-desktop': ['hostname', 'port', 'username', 'password'],
+    'vnc': ['hostname', 'port', 'username', 'password'],
+    'website': ['url', 'username', 'email', 'password']
+}
+
+
+def _check_property_arguments(args):
     """
-    Main entry function. Returns 0 if the operation was successful and a
-    non-zero value otherwise.
+    Check validity of specified property arguments for a selected entry type.
+
+    Check that all type-related options specified on the command line are valid
+    for a selected entry type. An error is logged if some option is not
+    available. Returns True if the check was successful and False otherwise.
     """
 
-    # Parse the command-line arguments.
+    assert args.command == 'add'
+
+    if args.type == 'folder':
+        accepted_options = set()
+    else:
+        accepted_options = set(ACCOUNT_ARGUMENT_VALIDITY[args.type])
+
+    def _check_one(option, value):
+        if value is not None and option not in accepted_options:
+            _logger.error("option --%s is not valid for entry type '%s'",
+                          option, args.type)
+            return 1
+        return 0
+
+    invalid = 0
+    invalid += _check_one('card-number', args.card_number)
+    invalid += _check_one('card-type', args.card_type)
+    invalid += _check_one('ccv', args.ccv)
+    invalid += _check_one('certificate', args.certificate)
+    invalid += _check_one('code', args.code)
+    invalid += _check_one('database', args.database)
+    invalid += _check_one('domain', args.domain)
+    invalid += _check_one('email', args.email)
+    invalid += _check_one('expiry-date', args.expiry_date)
+    invalid += _check_one('hostname', args.hostname)
+    invalid += _check_one('keyfile', args.keyfile)
+    invalid += _check_one('location', args.location)
+    invalid += _check_one('password', args.password)
+    invalid += _check_one('phone-number', args.phone_number)
+    invalid += _check_one('pin', args.pin)
+    invalid += _check_one('port', args.port)
+    invalid += _check_one('url', args.url)
+    invalid += _check_one('username', args.username)
+    return invalid == 0
+
+
+def _add_property_arguments(parser):
+    """Add all command-line arguments to set entry properties."""
+    common_group = parser.add_argument_group(
+        "optional arguments valid for all entry types")
+    common_group.add_argument(
+        '--description',
+        metavar='DESC',
+        help="set entry description to the specified value")
+    common_group.add_argument('--notes',
+                              help="set entry notes to the specified value")
+
+    account_group = parser.add_argument_group(
+        "optional arguments valid for specific account types")
+    account_group.add_argument('--card-number',
+                               metavar='ID',
+                               help="set card number to the specified value")
+    account_group.add_argument('--card-type',
+                               metavar='TYPE',
+                               help="set card type to the specified value")
+    account_group.add_argument('--ccv',
+                               metavar='CCV',
+                               help="set CCV number to the specified value")
+    account_group.add_argument('--certificate',
+                               metavar='CERT',
+                               help="set certificate to the specified value")
+    account_group.add_argument('--code',
+                               metavar='CODE',
+                               help="set code to the specified value")
+    account_group.add_argument('--database',
+                               metavar='NAME',
+                               help="set database name to the specified value")
+    account_group.add_argument('--domain',
+                               metavar='NAME',
+                               help="set domain name to the specified value")
+    account_group.add_argument('--email',
+                               metavar='ADDRESS',
+                               help="set email to the specified value")
+    account_group.add_argument('--expiry-date',
+                               metavar='DATE',
+                               help="set expiry date to the specified value")
+    account_group.add_argument('--hostname',
+                               metavar='HOST',
+                               help="set hostname to the specified value")
+    account_group.add_argument('--keyfile',
+                               metavar='FILE',
+                               help="set keyfile to the specified value")
+    account_group.add_argument('--location',
+                               metavar='PLACE',
+                               help="set location to the specified value")
+    account_group.add_argument('--password',
+                               action='store_true',
+                               default=None,
+                               help="prompt for a password value")
+    account_group.add_argument('--phone-number',
+                               metavar='PHONE',
+                               help="set phone number to the specified value")
+    account_group.add_argument('--pin',
+                               metavar='PIN',
+                               help="set PIN to the specified value")
+    account_group.add_argument('--port',
+                               metavar='NUMBER',
+                               help="set port to the specified value")
+    account_group.add_argument('--url',
+                               metavar='ADDRESS',
+                               help="set URL to the specified value")
+    account_group.add_argument('--username',
+                               metavar='USER',
+                               help="set username to the specified value")
+
+
+def _build_parser():
+    """Create and initialize a command-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-f',
@@ -304,10 +386,20 @@ def main():
                                          description="list password entries")
     show_parser = subparsers.add_parser(
         'show', description="show a password entry and its details")
-    add_parser = subparsers.add_parser('add',
-                                       description="add a new password entry")
+    add_edit_epilog = "option validity for account types:\n" + "\n".join([
+        f"  {type_ + ':':22}{', '.join(args)}"
+        for type_, args in ACCOUNT_ARGUMENT_VALIDITY.items()
+    ])
+    add_parser = subparsers.add_parser(
+        'add',
+        description="add a new password entry",
+        epilog=add_edit_epilog,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     edit_parser = subparsers.add_parser(
-        'edit', description="edit an existing password entry")
+        'edit',
+        description="edit an existing password entry",
+        epilog=add_edit_epilog,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     delete_parser = subparsers.add_parser(
         'delete', description="delete a password entry")
     _dump_parser = subparsers.add_parser(
@@ -320,27 +412,7 @@ def main():
                             help="entry type (the default is generic)")
 
     for sub_parser in (add_parser, edit_parser):
-        common_group = sub_parser.add_argument_group(
-            "optional arguments valid for all entry types")
-        common_group.add_argument(
-            '--description',
-            metavar='DESC',
-            help="set entry description to the specified value")
-        common_group.add_argument(
-            '--notes', help="set entry notes to the specified value")
-
-        password_group = sub_parser.add_argument_group(
-            "optional arguments valid for the generic type")
-        password_group.add_argument('--hostname',
-                                    metavar='HOST',
-                                    help="set hostname to the specified value")
-        password_group.add_argument('--username',
-                                    metavar='USER',
-                                    help="set username to the specified value")
-        password_group.add_argument('--password',
-                                    action='store_true',
-                                    default=None,
-                                    help="prompt for a password value")
+        _add_property_arguments(sub_parser)
 
     for sub_parser in (show_parser, add_parser, delete_parser, edit_parser):
         sub_parser.add_argument('entry',
@@ -348,13 +420,24 @@ def main():
                                 metavar='ENTRY',
                                 help="password entry")
 
+    return parser
+
+
+def main():
+    """
+    Main entry function. Returns 0 if the operation was successful and a
+    non-zero value otherwise.
+    """
+
+    # Parse the command-line arguments.
+    parser = _build_parser()
     try:
         args = parser.parse_args()
     except SystemExit as e:
         return e.code
 
     # Do further checking of the command line options.
-    if args.command == 'add' and not _check_add_command_options(args):
+    if args.command == 'add' and not _check_property_arguments(args):
         return 1
 
     # Set desired log verbosity.
