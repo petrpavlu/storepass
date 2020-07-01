@@ -267,50 +267,6 @@ class TestCLI(util.StorePassTestCase):
                     $"""))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-    def test_add_generic(self):
-        """Check that a generic entry can be added to a database."""
-        # Create a new empty password database.
-        self._init_database(self.dbname)
-
-        # Add a new generic entry.
-        with cli_context([
-                'storepass-cli', '-f', self.dbname, 'add', '--description',
-                'E1 description', '--notes', 'E1 notes', '--hostname',
-                'E1 hostname', '--username', 'E1 username', '--password',
-                'E1 name'
-        ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            self.assertEqual(cli_mock.getpass.call_count, 2)
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
-        # Read the database and dump its XML content.
-        with cli_context(['storepass-cli', '-f', self.dbname,
-                          'dump']) as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertRegex(
-                cli_mock.stdout.getvalue(),
-                util.dedent("""\
-                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
-                    <revelationdata dataversion="1">
-                    \t<entry type="generic">
-                    \t\t<name>E1 name</name>
-                    \t\t<description>E1 description</description>
-                    \t\t<updated>[0-9]+</updated>
-                    \t\t<notes>E1 notes</notes>
-                    \t\t<field id="generic-hostname">E1 hostname</field>
-                    \t\t<field id="generic-username">E1 username</field>
-                    \t\t<field id="generic-password">E1 password</field>
-                    \t</entry>
-                    </revelationdata>
-                    $"""))
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
     def test_add_folder(self):
         """Check that a folder entry can be added to a database."""
         # Create a new empty password database.
@@ -371,6 +327,50 @@ class TestCLI(util.StorePassTestCase):
                     storepass-cli: error: option --password is not valid for entry type 'folder'
                     storepass-cli: error: option --username is not valid for entry type 'folder'
                     """))
+
+    def test_add_generic(self):
+        """Check that a generic entry can be added to a database."""
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Add a new generic entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--description',
+                'E1 description', '--notes', 'E1 notes', '--hostname',
+                'E1 hostname', '--username', 'E1 username', '--password',
+                'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="generic">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1 description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1 notes</notes>
+                    \t\t<field id="generic-hostname">E1 hostname</field>
+                    \t\t<field id="generic-username">E1 username</field>
+                    \t\t<field id="generic-password">E1 password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_add_nested(self):
         """Check that nested entries can be added to a database."""
@@ -692,6 +692,36 @@ class TestCLI(util.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
+    def test_list_folder(self):
+        """Check that a folder entry is listed correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is listed as expected.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'list']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    + E1 name: E1 description
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
     def test_list_generic(self):
         """Check that a generic entry is listed correctly."""
         # Create a test database.
@@ -722,36 +752,6 @@ class TestCLI(util.StorePassTestCase):
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
                     - E1 name [E1 hostname]: E1 description
-                    """))
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
-    def test_list_folder(self):
-        """Check that a folder entry is listed correctly."""
-        # Create a test database.
-        util.write_password_db(
-            self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
-                <revelationdata dataversion="1">
-                \t<entry type="folder">
-                \t\t<name>E1 name</name>
-                \t\t<description>E1 description</description>
-                \t\t<updated>1546300800</updated>
-                \t\t<notes>E1 notes</notes>
-                \t</entry>
-                </revelationdata>
-                '''))
-
-        # Check that the entry is listed as expected.
-        with cli_context(['storepass-cli', '-f', self.dbname,
-                          'list']) as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(
-                cli_mock.stdout.getvalue(),
-                util.dedent("""\
-                    + E1 name: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -868,6 +868,40 @@ class TestCLI(util.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
+    def test_show_folder(self):
+        """Check that details of a folder entry are displayed correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (folder)
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
     def test_show_generic(self):
         """Check that details of a generic entry are displayed correctly."""
         # Create a test database.
@@ -902,40 +936,6 @@ class TestCLI(util.StorePassTestCase):
                     |  - Hostname: E1 hostname
                     |  - Username: E1 username
                     |  - Password: E1 password
-                    |  - Description: E1 description
-                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
-                    |  - Notes: E1 notes
-                    """))
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
-    def test_show_folder(self):
-        """Check that details of a folder entry are displayed correctly."""
-        # Create a test database.
-        util.write_password_db(
-            self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
-                <revelationdata dataversion="1">
-                \t<entry type="folder">
-                \t\t<name>E1 name</name>
-                \t\t<description>E1 description</description>
-                \t\t<updated>1546300800</updated>
-                \t\t<notes>E1 notes</notes>
-                \t</entry>
-                </revelationdata>
-                '''))
-
-        # Check that the entry is displayed as expected.
-        with cli_context(
-            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
-                timezone='GMT') as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(
-                cli_mock.stdout.getvalue(),
-                util.dedent2("""\
-                    |+ E1 name (folder)
                     |  - Description: E1 description
                     |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
                     |  - Notes: E1 notes
