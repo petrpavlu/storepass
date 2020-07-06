@@ -603,7 +603,7 @@ class Website(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the web site entry."""
-        visitor.visit_web(self)
+        visitor.visit_website(self)
 
 
 class Model:

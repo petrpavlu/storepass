@@ -122,15 +122,59 @@ def _process_add_command(args, model):
 
     updated = datetime.datetime.now(datetime.timezone.utc)
 
-    if args.type == 'generic':
+    if args.type == 'folder':
+        entry = storepass.model.Folder(path_spec[-1], args.description,
+                                       updated, args.notes, [])
+    elif args.type == 'credit-card':
+        entry = storepass.model.CreditCard(path_spec[-1], args.description,
+                                           updated, args.notes, args.card_type,
+                                           args.card_number, args.expiry_date,
+                                           args.ccv, args.pin)
+    elif args.type == 'crypto-key':
+        entry = storepass.model.CryptoKey(path_spec[-1], args.description,
+                                          updated, args.notes, args.hostname,
+                                          args.certificate, args.keyfile,
+                                          password)
+    elif args.type == 'database':
+        entry = storepass.model.Database(path_spec[-1], args.description,
+                                         updated, args.notes, args.hostname,
+                                         args.username, password,
+                                         args.database)
+    elif args.type == 'door':
+        entry = storepass.model.Door(path_spec[-1], args.description, updated,
+                                     args.notes, args.location, args.code)
+    elif args.type == 'email':
+        entry = storepass.model.Email(path_spec[-1], args.description, updated,
+                                      args.notes, args.email, args.hostname,
+                                      args.username, password)
+    elif args.type == 'ftp':
+        entry = storepass.model.FTP(path_spec[-1], args.description, updated,
+                                    args.notes, args.hostname, args.port,
+                                    args.username, password)
+    elif args.type == 'generic':
         entry = storepass.model.Generic(path_spec[-1], args.description,
                                         updated, args.notes, args.hostname,
                                         args.username, password)
-
-    elif args.type == 'folder':
-        entry = storepass.model.Folder(path_spec[-1], args.description,
-                                       updated, args.notes, [])
-
+    elif args.type == 'phone':
+        entry = storepass.model.Phone(path_spec[-1], args.description, updated,
+                                      args.notes, args.phone_number, args.pin)
+    elif args.type == 'shell':
+        entry = storepass.model.Shell(path_spec[-1], args.description, updated,
+                                      args.notes, args.hostname, args.domain,
+                                      args.username, password)
+    elif args.type == 'remote-desktop':
+        entry = storepass.model.RemoteDesktop(path_spec[-1], args.description,
+                                              updated, args.notes,
+                                              args.hostname, args.port,
+                                              args.username, password)
+    elif args.type == 'vnc':
+        entry = storepass.model.VNC(path_spec[-1], args.description, updated,
+                                    args.notes, args.hostname, args.port,
+                                    args.username, password)
+    elif args.type == 'website':
+        entry = storepass.model.Website(path_spec[-1], args.description,
+                                        updated, args.notes, args.url,
+                                        args.username, args.email, password)
     else:
         assert 0 and "Unhandled entry type!"
 
