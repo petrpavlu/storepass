@@ -2179,7 +2179,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    + E1 name (password entry)
+                    + E1 name (generic account)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -2208,7 +2208,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (password entry)
+                    |+ E1 name (generic account)
                     |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -2224,13 +2224,13 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (password entry)
+                    |+ E1 name (generic account)
                     |  - Last modified: Tue Jan  1 01:00:00 2019 GMT
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_show_folder(self):
-        """Check that details of a folder entry are displayed correctly."""
+        """Check that details of a folder entry are shown correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -2263,8 +2263,258 @@ class TestCLI(util.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
+    def test_show_credit_card(self):
+        """Check that details of a credit-card entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="creditcard">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="creditcard-cardtype">E1 card type</field>
+                \t\t<field id="creditcard-cardnumber">E1 card number</field>
+                \t\t<field id="creditcard-expirydate">E1 expiry date</field>
+                \t\t<field id="creditcard-ccv">E1 CCV</field>
+                \t\t<field id="generic-pin">E1 PIN</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (credit card)
+                    |  - Card type: E1 card type
+                    |  - Card number: E1 card number
+                    |  - Expiry date: E1 expiry date
+                    |  - CCV: E1 CCV
+                    |  - PIN: E1 PIN
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_crypto_key(self):
+        """Check that details of a crypto-key entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="cryptokey">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-certificate">E1 certificate</field>
+                \t\t<field id="generic-keyfile">E1 keyfile</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (crypto key)
+                    |  - Hostname: E1 hostname
+                    |  - Certificate: E1 certificate
+                    |  - Keyfile: E1 keyfile
+                    |  - Password: E1 password
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_database(self):
+        """Check that details of a database entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="database">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t\t<field id="generic-database">E1 database</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (database)
+                    |  - Hostname: E1 hostname
+                    |  - Username: E1 username
+                    |  - Password: E1 password
+                    |  - Database: E1 database
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_door(self):
+        """Check that details of a door entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="door">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-location">E1 location</field>
+                \t\t<field id="generic-code">E1 code</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (door)
+                    |  - Location: E1 location
+                    |  - Code: E1 code
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_email(self):
+        """Check that details of an email entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="email">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-email">E1 email</field>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (email)
+                    |  - Email: E1 email
+                    |  - Hostname: E1 hostname
+                    |  - Username: E1 username
+                    |  - Password: E1 password
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_ftp(self):
+        """Check that details of an FTP entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="ftp">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (FTP)
+                    |  - Hostname: E1 hostname
+                    |  - Port: E1 port
+                    |  - Username: E1 username
+                    |  - Password: E1 password
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
     def test_show_generic(self):
-        """Check that details of a generic entry are displayed correctly."""
+        """Check that details of a generic entry are shown correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -2293,9 +2543,215 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (password entry)
+                    |+ E1 name (generic account)
                     |  - Hostname: E1 hostname
                     |  - Username: E1 username
+                    |  - Password: E1 password
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_phone(self):
+        """Check that details of a phone entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="phone">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="phone-phonenumber">E1 phone number</field>
+                \t\t<field id="generic-pin">E1 PIN</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (phone)
+                    |  - Phone number: E1 phone number
+                    |  - PIN: E1 PIN
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_shell(self):
+        """Check that details of a shell entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="shell">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-domain">E1 domain</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (shell)
+                    |  - Hostname: E1 hostname
+                    |  - Domain: E1 domain
+                    |  - Username: E1 username
+                    |  - Password: E1 password
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_remote_desktop(self):
+        """Check that details of a remote-desktop entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="remotedesktop">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (remote desktop)
+                    |  - Hostname: E1 hostname
+                    |  - Port: E1 port
+                    |  - Username: E1 username
+                    |  - Password: E1 password
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_vnc(self):
+        """Check that details of a VNC entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="vnc">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (VNC)
+                    |  - Hostname: E1 hostname
+                    |  - Port: E1 port
+                    |  - Username: E1 username
+                    |  - Password: E1 password
+                    |  - Description: E1 description
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    |  - Notes: E1 notes
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_website(self):
+        """Check that details of a website entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="website">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-url">E1 URL</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-email">E1 email</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (website)
+                    |  - URL: E1 URL
+                    |  - Username: E1 username
+                    |  - Email: E1 email
                     |  - Password: E1 password
                     |  - Description: E1 description
                     |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
@@ -2365,7 +2821,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    + E3 name (password entry)
+                    + E3 name (generic account)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
