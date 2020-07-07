@@ -108,6 +108,12 @@ def _process_show_command(args, model):
     return 0
 
 
+def _validate_add_command(args):
+    """Validate command-line options for the add command."""
+    # Check that property arguments are valid for a given type.
+    return _check_property_arguments(args, args.type)
+
+
 def _process_add_command(args, model):
     """
     Handle the add command which is used to insert a new single password entry.
@@ -301,26 +307,25 @@ ACCOUNT_ARGUMENT_VALIDITY = {
 }
 
 
-def _check_property_arguments(args):
+def _check_property_arguments(args, type_):
     """
-    Check validity of specified property arguments for a selected entry type.
+    Check validity of specified property arguments for a given entry type.
 
     Check that all type-related options specified on the command line are valid
-    for a selected entry type. An error is logged if some option is not
-    available. Returns True if the check was successful and False otherwise.
+    for a given entry type. An error is logged if some option is not available.
+    Returns 0 if the check was successful, or 1 on failure.
     """
+    assert args.command in ('add', 'edit')
 
-    assert args.command == 'add'
-
-    if args.type == 'folder':
+    if type_ == 'folder':
         accepted_options = set()
     else:
-        accepted_options = set(ACCOUNT_ARGUMENT_VALIDITY[args.type])
+        accepted_options = set(ACCOUNT_ARGUMENT_VALIDITY[type_])
 
     def _check_one(option, value):
         if value is not None and option not in accepted_options:
             _logger.error("option --%s is not valid for entry type '%s'",
-                          option, args.type)
+                          option, type_)
             return 1
         return 0
 
@@ -343,7 +348,7 @@ def _check_property_arguments(args):
     invalid += _check_one('port', args.port)
     invalid += _check_one('url', args.url)
     invalid += _check_one('username', args.username)
-    return invalid == 0
+    return 1 if invalid > 0 else 0
 
 
 def _add_property_arguments(parser):
@@ -490,9 +495,16 @@ def main():
     except SystemExit as e:
         return e.code
 
-    # Do further checking of the command line options.
-    if args.command == 'add' and not _check_property_arguments(args):
-        return 1
+    # Do further command-specific checks of the command line options.
+    if args.command == 'add':
+        res = _validate_add_command(args)
+    else:
+        # No extra checks needed.
+        res = 0
+
+    # Bail out if the checks failed.
+    if res != 0:
+        return res
 
     # Set desired log verbosity.
     if args.verbose is not None:
