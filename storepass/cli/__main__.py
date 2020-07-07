@@ -53,6 +53,14 @@ _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
 
+def _get_entry_password():
+    """Obtain an entry's password from the user."""
+    password = getpass.getpass("Entry password: ")
+    if password != '':
+        return password
+    return None
+
+
 def _process_init_command(args, _model):
     """
     Handle the init command which is used to create an empty password database.
@@ -116,7 +124,7 @@ def _process_add_command(args, model):
         return 1
 
     if args.password:
-        password = getpass.getpass("Entry password: ")
+        password = _get_entry_password()
     else:
         password = None
 
