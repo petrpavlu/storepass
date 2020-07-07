@@ -487,7 +487,7 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
         self._add_field(xml_entry, 'creditcard-expirydate',
                         credit_card.expiry_date)
         self._add_field(xml_entry, 'creditcard-ccv', credit_card.ccv)
-        self._add_field(xml_entry, 'creditcard-pin', credit_card.pin)
+        self._add_field(xml_entry, 'generic-pin', credit_card.pin)
         return xml_entry
 
     def visit_crypto_key(self, crypto_key):

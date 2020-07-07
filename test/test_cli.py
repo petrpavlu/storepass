@@ -393,7 +393,7 @@ class TestCLI(util.StorePassTestCase):
                     \t\t<field id="creditcard-cardnumber">E1 card number</field>
                     \t\t<field id="creditcard-expirydate">E1 expiry date</field>
                     \t\t<field id="creditcard-ccv">E1 CCV</field>
-                    \t\t<field id="creditcard-pin">E1 PIN</field>
+                    \t\t<field id="generic-pin">E1 PIN</field>
                     \t</entry>
                     </revelationdata>
                     $"""))
