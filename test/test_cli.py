@@ -1482,6 +1482,821 @@ class TestCLI(util.StorePassTestCase):
                     storepass-cli: error: Entry 'E1 name' already exists
                     """))
 
+    def test_edit(self):
+        """Check that a single entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="generic">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="generic">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_folder(self):
+        """Check that a folder entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="folder">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_credit_card(self):
+        """Check that a credit-card entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="creditcard">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="creditcard-cardtype">E1 card type</field>
+                \t\t<field id="creditcard-cardnumber">E1 card number</field>
+                \t\t<field id="creditcard-expirydate">E1 expiry date</field>
+                \t\t<field id="creditcard-ccv">E1 CCV</field>
+                \t\t<field id="generic-pin">E1 PIN</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--card-type',
+                'E1-U card type', '--card-number', 'E1-U card number',
+                '--expiry-date', 'E1-U expiry date', '--ccv', 'E1-U CCV',
+                '--pin', 'E1-U PIN', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="creditcard">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="creditcard-cardtype">E1-U card type</field>
+                    \t\t<field id="creditcard-cardnumber">E1-U card number</field>
+                    \t\t<field id="creditcard-expirydate">E1-U expiry date</field>
+                    \t\t<field id="creditcard-ccv">E1-U CCV</field>
+                    \t\t<field id="generic-pin">E1-U PIN</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_crypto_key(self):
+        """Check that a crypto-key entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="cryptokey">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-certificate">E1 certificate</field>
+                \t\t<field id="generic-keyfile">E1 keyfile</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--hostname',
+                'E1-U hostname', '--certificate', 'E1-U certificate',
+                '--keyfile', 'E1-U keyfile', '--password', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="cryptokey">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-hostname">E1-U hostname</field>
+                    \t\t<field id="generic-certificate">E1-U certificate</field>
+                    \t\t<field id="generic-keyfile">E1-U keyfile</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_database(self):
+        """Check that a database entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="database">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t\t<field id="generic-database">E1 database</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--hostname',
+                'E1-U hostname', '--username', 'E1-U username', '--password',
+                '--database', 'E1-U database', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="database">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-hostname">E1-U hostname</field>
+                    \t\t<field id="generic-username">E1-U username</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t\t<field id="generic-database">E1-U database</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_door(self):
+        """Check that a door entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="door">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-location">E1 location</field>
+                \t\t<field id="generic-code">E1 code</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--location',
+                'E1-U location', '--code', 'E1-U code', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="door">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-location">E1-U location</field>
+                    \t\t<field id="generic-code">E1-U code</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_email(self):
+        """Check that a email entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="email">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-email">E1 email</field>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--email',
+                'E1-U email', '--hostname', 'E1-U hostname', '--username',
+                'E1-U username', '--password', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="email">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-email">E1-U email</field>
+                    \t\t<field id="generic-hostname">E1-U hostname</field>
+                    \t\t<field id="generic-username">E1-U username</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_ftp(self):
+        """Check that an FTP entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="ftp">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--hostname',
+                'E1-U hostname', '--port', 'E1-U port', '--username',
+                'E1-U username', '--password', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="ftp">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-hostname">E1-U hostname</field>
+                    \t\t<field id="generic-port">E1-U port</field>
+                    \t\t<field id="generic-username">E1-U username</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_generic(self):
+        """Check that a generic account entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="generic">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--hostname',
+                'E1-U hostname', '--username', 'E1-U username', '--password',
+                'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="generic">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-hostname">E1-U hostname</field>
+                    \t\t<field id="generic-username">E1-U username</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_phone(self):
+        """Check that a phone entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="phone">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="phone-phonenumber">E1 phone number</field>
+                \t\t<field id="generic-pin">E1 pin</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--phone-number',
+                'E1-U phone number', '--pin', 'E1-U PIN', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="phone">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="phone-phonenumber">E1-U phone number</field>
+                    \t\t<field id="generic-pin">E1-U PIN</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_shell(self):
+        """Check that a shell entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="shell">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-domain">E1 domain</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--hostname',
+                'E1-U hostname', '--domain', 'E1-U domain', '--username',
+                'E1-U username', '--password', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="shell">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-hostname">E1-U hostname</field>
+                    \t\t<field id="generic-domain">E1-U domain</field>
+                    \t\t<field id="generic-username">E1-U username</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_remote_desktop(self):
+        """Check that a remote-desktop entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="remotedesktop">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--hostname',
+                'E1-U hostname', '--port', 'E1-U port', '--username',
+                'E1-U username', '--password', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="remotedesktop">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-hostname">E1-U hostname</field>
+                    \t\t<field id="generic-port">E1-U port</field>
+                    \t\t<field id="generic-username">E1-U username</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_vnc(self):
+        """Check that a VNC entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="vnc">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--hostname',
+                'E1-U hostname', '--port', 'E1-U port', '--username',
+                'E1-U username', '--password', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="vnc">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-hostname">E1-U hostname</field>
+                    \t\t<field id="generic-port">E1-U port</field>
+                    \t\t<field id="generic-username">E1-U username</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_website(self):
+        """Check that a website entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="website">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-url">E1 URL</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-email">E1 email</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--url',
+                'E1-U URL', '--username', 'E1-U username', '--email',
+                'E1-U email', '--password', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="website">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-url">E1-U URL</field>
+                    \t\t<field id="generic-username">E1-U username</field>
+                    \t\t<field id="generic-email">E1-U email</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_invalid_path(self):
+        """Check rejection to edit a non-existent entry."""
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Try to edit a nested generic entry with an invalid path.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'edit',
+             'E1 name/E2 name']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: Entry 'E1 name' (element #1 in 'E1 name/E2 name') does not exist
+                    """))
+
     def test_delete(self):
         """Check that an entry can be deleted from a database."""
         # Create a test database.

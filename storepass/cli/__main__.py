@@ -203,6 +203,7 @@ def _process_add_command(args, model):
 
 
 def _process_edit_command(args, model):
+    """Handle the edit command which is used to modify an existing entry."""
     assert args.command == 'edit'
     assert len(args.entry) == 1
 
@@ -215,6 +216,27 @@ def _process_edit_command(args, model):
         _logger.error("%s", e)
         return 1
 
+    # Check that property arguments are valid for a given type.
+    type_map = {
+        storepass.model.Folder: 'folder',
+        storepass.model.CreditCard: 'credit-card',
+        storepass.model.CryptoKey: 'crypto-key',
+        storepass.model.Database: 'database',
+        storepass.model.Door: 'door',
+        storepass.model.Email: 'email',
+        storepass.model.FTP: 'ftp',
+        storepass.model.Generic: 'generic',
+        storepass.model.Phone: 'phone',
+        storepass.model.Shell: 'shell',
+        storepass.model.RemoteDesktop: 'remote-desktop',
+        storepass.model.VNC: 'vnc',
+        storepass.model.Website: 'website',
+    }
+    assert type(entry) in type_map and "Unhandled entry type!"
+    res = _check_property_arguments(args, type_map[type(entry)])
+    if res != 0:
+        return res
+
     # Process options valid for all entries.
     if args.description is not None:
         entry.description = args.description
@@ -222,27 +244,45 @@ def _process_edit_command(args, model):
         entry.notes = args.notes
 
     # Process password entry-specific options.
-    has_error = False
-    if args.username is not None:
-        if isinstance(entry, storepass.model.Generic):
-            entry.username = args.username
-        else:
-            _logger.error("TODO")
-            has_error = True
+    if args.card_number is not None:
+        entry.card_number = args.card_number
+    if args.card_type is not None:
+        entry.card_type = args.card_type
+    if args.ccv is not None:
+        entry.ccv = args.ccv
+    if args.certificate is not None:
+        entry.certificate = args.certificate
+    if args.code is not None:
+        entry.code = args.code
+    if args.database is not None:
+        entry.database = args.database
+    if args.domain is not None:
+        entry.domain = args.domain
+    if args.email is not None:
+        entry.email = args.email
+    if args.expiry_date is not None:
+        entry.expiry_date = args.expiry_date
     if args.hostname is not None:
-        if isinstance(entry, storepass.model.Generic):
-            entry.hostname = args.hostname
-        else:
-            _logger.error("TODO")
-            has_error = True
+        entry.hostname = args.hostname
+    if args.keyfile is not None:
+        entry.keyfile = args.keyfile
+    if args.location is not None:
+        entry.location = args.location
     if args.password:
-        if isinstance(entry, storepass.model.Generic):
-            entry.password = getpass.getpass("Entry password: ")
-        else:
-            _logger.error("TODO")
-            has_error = True
-    if has_error:
-        return 1
+        entry.password = _get_entry_password()
+    if args.phone_number is not None:
+        entry.phone_number = args.phone_number
+    if args.pin is not None:
+        entry.pin = args.pin
+    if args.port is not None:
+        entry.port = args.port
+    if args.url is not None:
+        entry.url = args.url
+    if args.username is not None:
+        entry.username = args.username
+
+    # Bump the updated date.
+    entry.updated = datetime.datetime.now(datetime.timezone.utc)
 
     return 0
 
