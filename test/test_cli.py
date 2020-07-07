@@ -365,10 +365,10 @@ class TestCLI(util.StorePassTestCase):
                 'E1 card number', '--expiry-date', 'E1 expiry date', '--ccv',
                 'E1 CCV', '--pin', 'E1 PIN', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD]
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
-            self.assertEqual(cli_mock.getpass.call_count, 1)
+            cli_mock.getpass.assert_called_once()
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -618,10 +618,10 @@ class TestCLI(util.StorePassTestCase):
                 '--description', 'E1 description', '--notes', 'E1 notes',
                 '--location', 'E1 location', '--code', 'E1 code', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD]
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
-            self.assertEqual(cli_mock.getpass.call_count, 1)
+            cli_mock.getpass.assert_called_once()
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -954,10 +954,10 @@ class TestCLI(util.StorePassTestCase):
                 '--phone-number', 'E1 phone number', '--pin', 'E1 PIN',
                 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD]
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
-            self.assertEqual(cli_mock.getpass.call_count, 1)
+            cli_mock.getpass.assert_called_once()
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
