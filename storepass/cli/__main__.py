@@ -52,13 +52,253 @@ logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s",
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
+_ACCOUNT_TYPE_TO_STR = {
+    storepass.model.Folder: 'folder',
+    storepass.model.CreditCard: 'credit-card',
+    storepass.model.CryptoKey: 'crypto-key',
+    storepass.model.Database: 'database',
+    storepass.model.Door: 'door',
+    storepass.model.Email: 'email',
+    storepass.model.FTP: 'ftp',
+    storepass.model.Generic: 'generic',
+    storepass.model.Phone: 'phone',
+    storepass.model.Shell: 'shell',
+    storepass.model.RemoteDesktop: 'remote-desktop',
+    storepass.model.VNC: 'vnc',
+    storepass.model.Website: 'website',
+}
 
-def _get_entry_password():
-    """Obtain an entry's password from the user."""
-    password = getpass.getpass("Entry password: ")
-    if password != '':
-        return password
-    return None
+_ACCOUNT_STR_TO_TYPE = {
+    value: key
+    for key, value in _ACCOUNT_TYPE_TO_STR.items()
+}
+
+
+class _EntryGenerator:
+    def __init__(self, name):
+        self.type = None
+
+        self.name = name
+        self.description = None
+        self.updated = None
+        self.notes = None
+
+        self.card_number = None
+        self.card_type = None
+        self.ccv = None
+        self.certificate = None
+        self.code = None
+        self.database = None
+        self.domain = None
+        self.email = None
+        self.expiry_date = None
+        self.hostname = None
+        self.keyfile = None
+        self.location = None
+        self.password = None
+        self.phone_number = None
+        self.pin = None
+        self.port = None
+        self.url = None
+        self.username = None
+
+    def set_from_entry(self, entry):
+        self.type = type(entry)
+
+        self.description = entry.description
+        self.updated = entry.updated
+        self.notes = entry.notes
+
+        entry.accept(self, single=True)
+
+    def set_from_args(self, args):
+        if args.type is not None:
+            self.type = _ACCOUNT_STR_TO_TYPE[args.type]
+
+        # Process options valid for all entries.
+        if args.description is not None:
+            self.description = args.description
+        if args.notes is not None:
+            self.notes = args.notes
+
+        # Process password entry-specific options.
+        if args.card_number is not None:
+            self.card_number = args.card_number
+        if args.card_type is not None:
+            self.card_type = args.card_type
+        if args.ccv is not None:
+            self.ccv = args.ccv
+        if args.certificate is not None:
+            self.certificate = args.certificate
+        if args.code is not None:
+            self.code = args.code
+        if args.database is not None:
+            self.database = args.database
+        if args.domain is not None:
+            self.domain = args.domain
+        if args.email is not None:
+            self.email = args.email
+        if args.expiry_date is not None:
+            self.expiry_date = args.expiry_date
+        if args.hostname is not None:
+            self.hostname = args.hostname
+        if args.keyfile is not None:
+            self.keyfile = args.keyfile
+        if args.location is not None:
+            self.location = args.location
+        if args.password is not None:
+            self.password = getpass.getpass("Entry password: ")
+            if self.password == '':
+                self.password = None
+        if args.phone_number is not None:
+            self.phone_number = args.phone_number
+        if args.pin is not None:
+            self.pin = args.pin
+        if args.port is not None:
+            self.port = args.port
+        if args.url is not None:
+            self.url = args.url
+        if args.username is not None:
+            self.username = args.username
+
+        # Finally, set the updated value.
+        self.updated = datetime.datetime.now(datetime.timezone.utc)
+
+    def get_entry(self):
+        if self.type == storepass.model.Folder:
+            return storepass.model.Folder(self.name, self.description,
+                                          self.updated, self.notes, [])
+        if self.type == storepass.model.CreditCard:
+            return storepass.model.CreditCard(self.name, self.description,
+                                              self.updated, self.notes,
+                                              self.card_type, self.card_number,
+                                              self.expiry_date, self.ccv,
+                                              self.pin)
+        if self.type == storepass.model.CryptoKey:
+            return storepass.model.CryptoKey(self.name, self.description,
+                                             self.updated, self.notes,
+                                             self.hostname, self.certificate,
+                                             self.keyfile, self.password)
+        if self.type == storepass.model.Database:
+            return storepass.model.Database(self.name, self.description,
+                                            self.updated, self.notes,
+                                            self.hostname, self.username,
+                                            self.password, self.database)
+        if self.type == storepass.model.Door:
+            return storepass.model.Door(self.name, self.description,
+                                        self.updated, self.notes,
+                                        self.location, self.code)
+        if self.type == storepass.model.Email:
+            return storepass.model.Email(self.name, self.description,
+                                         self.updated, self.notes, self.email,
+                                         self.hostname, self.username,
+                                         self.password)
+        if self.type == storepass.model.FTP:
+            return storepass.model.FTP(self.name, self.description,
+                                       self.updated, self.notes, self.hostname,
+                                       self.port, self.username, self.password)
+        if self.type == storepass.model.Generic:
+            return storepass.model.Generic(self.name, self.description,
+                                           self.updated, self.notes,
+                                           self.hostname, self.username,
+                                           self.password)
+        if self.type == storepass.model.Phone:
+            return storepass.model.Phone(self.name, self.description,
+                                         self.updated, self.notes,
+                                         self.phone_number, self.pin)
+        if self.type == storepass.model.Shell:
+            return storepass.model.Shell(self.name, self.description,
+                                         self.updated, self.notes,
+                                         self.hostname, self.domain,
+                                         self.username, self.password)
+        if self.type == storepass.model.RemoteDesktop:
+            return storepass.model.RemoteDesktop(self.name, self.description,
+                                                 self.updated, self.notes,
+                                                 self.hostname, self.port,
+                                                 self.username, self.password)
+        if self.type == storepass.model.VNC:
+            return storepass.model.VNC(self.name, self.description,
+                                       self.updated, self.notes, self.hostname,
+                                       self.port, self.username, self.password)
+        if self.type == storepass.model.Website:
+            return storepass.model.Website(self.name, self.description,
+                                           self.updated, self.notes, self.url,
+                                           self.username, self.email,
+                                           self.password)
+
+        assert 0 and "Unhandled entry type!"
+        return None
+
+    def visit_folder(self, folder):
+        pass
+
+    def visit_credit_card(self, credit_card):
+        self.card_type = credit_card.card_type
+        self.card_number = credit_card.card_number
+        self.expiry_date = credit_card.expiry_date
+        self.ccv = credit_card.ccv
+        self.pin = credit_card.pin
+
+    def visit_crypto_key(self, crypto_key):
+        self.hostname = crypto_key.hostname
+        self.certificate = crypto_key.certificate
+        self.keyfile = crypto_key.keyfile
+        self.password = crypto_key.password
+
+    def visit_database(self, database):
+        self.hostname = database.hostname
+        self.username = database.username
+        self.password = database.password
+        self.database = database.database
+
+    def visit_door(self, door):
+        self.location = door.location
+        self.code = door.code
+
+    def visit_email(self, email):
+        self.email = email.email
+        self.hostname = email.hostname
+        self.username = email.username
+        self.password = email.password
+
+    def visit_ftp(self, ftp):
+        self.hostname = ftp.hostname
+        self.port = ftp.port
+        self.username = ftp.username
+        self.password = ftp.password
+
+    def visit_generic(self, generic):
+        self.hostname = generic.hostname
+        self.username = generic.username
+        self.password = generic.password
+
+    def visit_phone(self, phone):
+        self.phone_number = phone.phone_number
+        self.pin = phone.pin
+
+    def visit_shell(self, shell):
+        self.hostname = shell.hostname
+        self.domain = shell.domain
+        self.username = shell.username
+        self.password = shell.password
+
+    def visit_remote_desktop(self, remote_desktop):
+        self.hostname = remote_desktop.hostname
+        self.port = remote_desktop.port
+        self.username = remote_desktop.username
+        self.password = remote_desktop.password
+
+    def visit_vnc(self, vnc):
+        self.hostname = vnc.hostname
+        self.port = vnc.port
+        self.username = vnc.username
+        self.password = vnc.password
+
+    def visit_website(self, website):
+        self.url = website.url
+        self.username = website.username
+        self.email = website.email
+        self.password = website.password
 
 
 def _process_init_command(args, _model):
@@ -109,8 +349,18 @@ def _process_show_command(args, model):
 
 
 def _validate_add_command(args):
-    """Validate command-line options for the add command."""
-    # Check that property arguments are valid for a given type.
+    """Pre-validate command-line options for the add command."""
+    return _check_property_arguments(args, args.type)
+
+
+def _validate_edit_command(args):
+    """Pre-validate command-line options for the edit command."""
+    # If no new type is specified on the command-line then leave validation of
+    # property arguments to _process_edit_command() when a type of the existing
+    # entry is determined.
+    if args.type is None:
+        return 0
+
     return _check_property_arguments(args, args.type)
 
 
@@ -129,73 +379,14 @@ def _process_add_command(args, model):
         _logger.error("%s", e)
         return 1
 
-    if args.password:
-        password = _get_entry_password()
-    else:
-        password = None
-
-    updated = datetime.datetime.now(datetime.timezone.utc)
-
-    if args.type == 'folder':
-        entry = storepass.model.Folder(path_spec[-1], args.description,
-                                       updated, args.notes, [])
-    elif args.type == 'credit-card':
-        entry = storepass.model.CreditCard(path_spec[-1], args.description,
-                                           updated, args.notes, args.card_type,
-                                           args.card_number, args.expiry_date,
-                                           args.ccv, args.pin)
-    elif args.type == 'crypto-key':
-        entry = storepass.model.CryptoKey(path_spec[-1], args.description,
-                                          updated, args.notes, args.hostname,
-                                          args.certificate, args.keyfile,
-                                          password)
-    elif args.type == 'database':
-        entry = storepass.model.Database(path_spec[-1], args.description,
-                                         updated, args.notes, args.hostname,
-                                         args.username, password,
-                                         args.database)
-    elif args.type == 'door':
-        entry = storepass.model.Door(path_spec[-1], args.description, updated,
-                                     args.notes, args.location, args.code)
-    elif args.type == 'email':
-        entry = storepass.model.Email(path_spec[-1], args.description, updated,
-                                      args.notes, args.email, args.hostname,
-                                      args.username, password)
-    elif args.type == 'ftp':
-        entry = storepass.model.FTP(path_spec[-1], args.description, updated,
-                                    args.notes, args.hostname, args.port,
-                                    args.username, password)
-    elif args.type == 'generic':
-        entry = storepass.model.Generic(path_spec[-1], args.description,
-                                        updated, args.notes, args.hostname,
-                                        args.username, password)
-    elif args.type == 'phone':
-        entry = storepass.model.Phone(path_spec[-1], args.description, updated,
-                                      args.notes, args.phone_number, args.pin)
-    elif args.type == 'shell':
-        entry = storepass.model.Shell(path_spec[-1], args.description, updated,
-                                      args.notes, args.hostname, args.domain,
-                                      args.username, password)
-    elif args.type == 'remote-desktop':
-        entry = storepass.model.RemoteDesktop(path_spec[-1], args.description,
-                                              updated, args.notes,
-                                              args.hostname, args.port,
-                                              args.username, password)
-    elif args.type == 'vnc':
-        entry = storepass.model.VNC(path_spec[-1], args.description, updated,
-                                    args.notes, args.hostname, args.port,
-                                    args.username, password)
-    elif args.type == 'website':
-        entry = storepass.model.Website(path_spec[-1], args.description,
-                                        updated, args.notes, args.url,
-                                        args.username, args.email, password)
-    else:
-        assert 0 and "Unhandled entry type!"
+    generator = _EntryGenerator(path_spec[-1])
+    generator.set_from_args(args)
+    new_entry = generator.get_entry()
 
     # Insert the new entry in the model.
     try:
         parent_entry = model.get_entry(path_spec[:-1])
-        model.add_entry(entry, parent_entry)
+        model.add_entry(new_entry, parent_entry)
     except storepass.exc.ModelException as e:
         _logger.error("%s", e)
         return 1
@@ -211,79 +402,33 @@ def _process_edit_command(args, model):
     entry_name = args.entry[0]
     try:
         path_spec = storepass.model.path_string_to_spec(entry_name)
-        entry = model.get_entry(path_spec)
+        old_entry = model.get_entry(path_spec)
     except storepass.exc.ModelException as e:
         _logger.error("%s", e)
         return 1
 
-    # Check that property arguments are valid for a given type.
-    type_map = {
-        storepass.model.Folder: 'folder',
-        storepass.model.CreditCard: 'credit-card',
-        storepass.model.CryptoKey: 'crypto-key',
-        storepass.model.Database: 'database',
-        storepass.model.Door: 'door',
-        storepass.model.Email: 'email',
-        storepass.model.FTP: 'ftp',
-        storepass.model.Generic: 'generic',
-        storepass.model.Phone: 'phone',
-        storepass.model.Shell: 'shell',
-        storepass.model.RemoteDesktop: 'remote-desktop',
-        storepass.model.VNC: 'vnc',
-        storepass.model.Website: 'website',
-    }
-    assert type(entry) in type_map and "Unhandled entry type!"
-    res = _check_property_arguments(args, type_map[type(entry)])
-    if res != 0:
-        return res
+    # If no new type is specified then validate that property arguments are
+    # valid for the existing type.
+    if args.type is not None:
+        assert (type(old_entry) in _ACCOUNT_TYPE_TO_STR and
+                "Unhandled entry type!")
+        res = _check_property_arguments(args,
+                                        _ACCOUNT_TYPE_TO_STR[type(old_entry)])
+        if res != 0:
+            return res
 
-    # Process options valid for all entries.
-    if args.description is not None:
-        entry.description = args.description
-    if args.notes is not None:
-        entry.notes = args.notes
+    # Create a replacement entry.
+    generator = _EntryGenerator(path_spec[-1])
+    generator.set_from_entry(old_entry)
+    generator.set_from_args(args)
+    new_entry = generator.get_entry()
 
-    # Process password entry-specific options.
-    if args.card_number is not None:
-        entry.card_number = args.card_number
-    if args.card_type is not None:
-        entry.card_type = args.card_type
-    if args.ccv is not None:
-        entry.ccv = args.ccv
-    if args.certificate is not None:
-        entry.certificate = args.certificate
-    if args.code is not None:
-        entry.code = args.code
-    if args.database is not None:
-        entry.database = args.database
-    if args.domain is not None:
-        entry.domain = args.domain
-    if args.email is not None:
-        entry.email = args.email
-    if args.expiry_date is not None:
-        entry.expiry_date = args.expiry_date
-    if args.hostname is not None:
-        entry.hostname = args.hostname
-    if args.keyfile is not None:
-        entry.keyfile = args.keyfile
-    if args.location is not None:
-        entry.location = args.location
-    if args.password:
-        entry.password = _get_entry_password()
-    if args.phone_number is not None:
-        entry.phone_number = args.phone_number
-    if args.pin is not None:
-        entry.pin = args.pin
-    if args.port is not None:
-        entry.port = args.port
-    if args.url is not None:
-        entry.url = args.url
-    if args.username is not None:
-        entry.username = args.username
-
-    # Bump the updated date.
-    entry.updated = datetime.datetime.now(datetime.timezone.utc)
-
+    # Update the entry in the model.
+    try:
+        model.replace_entry(old_entry, new_entry)
+    except storepass.exc.ModelException as e:
+        _logger.error("%s", e)
+        return 1
     return 0
 
 
@@ -502,13 +647,14 @@ def _build_parser():
     _dump_parser = subparsers.add_parser(
         'dump', description="dump raw database content")
 
+    type_choices = ('folder', 'credit-card', 'crypto-key', 'database', 'door',
+                    'email', 'ftp', 'generic', 'phone', 'shell',
+                    'remote-desktop', 'vnc', 'website')
     add_parser.add_argument('--type',
-                            choices=('folder', 'credit-card', 'crypto-key',
-                                     'database', 'door', 'email', 'ftp',
-                                     'generic', 'phone', 'shell',
-                                     'remote-desktop', 'vnc', 'website'),
+                            choices=type_choices,
                             default='generic',
                             help="entry type (the default is generic)")
+    edit_parser.add_argument('--type', choices=type_choices, help="entry type")
 
     for sub_parser in (add_parser, edit_parser):
         _add_property_arguments(sub_parser)
@@ -538,11 +684,13 @@ def main():
     # Do further command-specific checks of the command line options.
     if args.command == 'add':
         res = _validate_add_command(args)
+    elif args.command == 'edit':
+        res = _validate_edit_command(args)
     else:
         # No extra checks needed.
         res = 0
 
-    # Bail out if the checks failed.
+    # Bail out if any check failed.
     if res != 0:
         return res
 
