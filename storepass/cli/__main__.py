@@ -4,7 +4,6 @@
 """StorePass command line interface."""
 
 import argparse
-import datetime
 import getpass
 import logging
 import os
@@ -165,7 +164,7 @@ class _EntryGenerator:
             self.username = self._normalize_argument(args.username)
 
         # Finally, set the updated value.
-        self.updated = datetime.datetime.now(datetime.timezone.utc)
+        self.updated = storepass.util.get_current_datetime()
 
     def get_entry(self):
         if self.type == storepass.model.Folder:
