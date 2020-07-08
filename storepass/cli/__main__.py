@@ -13,6 +13,7 @@ import sys
 import storepass.exc
 import storepass.model
 import storepass.storage
+import storepass.util
 from storepass.cli import view
 
 
@@ -111,55 +112,57 @@ class _EntryGenerator:
 
         entry.accept(self, single=True)
 
+    def _normalize_argument(self, value):
+        return storepass.util.normalize_empty_to_none(value)
+
     def set_from_args(self, args):
         if args.type is not None:
             self.type = _ACCOUNT_STR_TO_TYPE[args.type]
 
         # Process options valid for all entries.
         if args.description is not None:
-            self.description = args.description
+            self.description = self._normalize_argument(args.description)
         if args.notes is not None:
-            self.notes = args.notes
+            self.notes = self._normalize_argument(args.notes)
 
         # Process password entry-specific options.
         if args.card_number is not None:
-            self.card_number = args.card_number
+            self.card_number = self._normalize_argument(args.card_number)
         if args.card_type is not None:
-            self.card_type = args.card_type
+            self.card_type = self._normalize_argument(args.card_type)
         if args.ccv is not None:
-            self.ccv = args.ccv
+            self.ccv = self._normalize_argument(args.ccv)
         if args.certificate is not None:
-            self.certificate = args.certificate
+            self.certificate = self._normalize_argument(args.certificate)
         if args.code is not None:
-            self.code = args.code
+            self.code = self._normalize_argument(args.code)
         if args.database is not None:
-            self.database = args.database
+            self.database = self._normalize_argument(args.database)
         if args.domain is not None:
-            self.domain = args.domain
+            self.domain = self._normalize_argument(args.domain)
         if args.email is not None:
-            self.email = args.email
+            self.email = self._normalize_argument(args.email)
         if args.expiry_date is not None:
-            self.expiry_date = args.expiry_date
+            self.expiry_date = self._normalize_argument(args.expiry_date)
         if args.hostname is not None:
-            self.hostname = args.hostname
+            self.hostname = self._normalize_argument(args.hostname)
         if args.keyfile is not None:
-            self.keyfile = args.keyfile
+            self.keyfile = self._normalize_argument(args.keyfile)
         if args.location is not None:
-            self.location = args.location
+            self.location = self._normalize_argument(args.location)
         if args.password is not None:
-            self.password = getpass.getpass("Entry password: ")
-            if self.password == '':
-                self.password = None
+            password = getpass.getpass("Entry password: ")
+            self.password = self._normalize_argument(password)
         if args.phone_number is not None:
-            self.phone_number = args.phone_number
+            self.phone_number = self._normalize_argument(args.phone_number)
         if args.pin is not None:
-            self.pin = args.pin
+            self.pin = self._normalize_argument(args.pin)
         if args.port is not None:
-            self.port = args.port
+            self.port = self._normalize_argument(args.port)
         if args.url is not None:
-            self.url = args.url
+            self.url = self._normalize_argument(args.url)
         if args.username is not None:
-            self.username = args.username
+            self.username = self._normalize_argument(args.username)
 
         # Finally, set the updated value.
         self.updated = datetime.datetime.now(datetime.timezone.utc)
