@@ -370,6 +370,7 @@ def _process_add_command(args, model):
     """
 
     assert args.command == 'add'
+    assert len(args.entry) == 1
 
     # Create the entry specified on the command line.
     entry_name = args.entry[0]
@@ -476,7 +477,7 @@ def _process_dump_command(args, storage):
     return 0
 
 
-ACCOUNT_ARGUMENT_VALIDITY = {
+_ACCOUNT_ARGUMENT_VALIDITY = {
     'credit-card': ['card-type', 'card-number', 'expiry-date', 'ccv', 'pin'],
     'crypto-key': ['hostname', 'certificate', 'keyfile', 'password'],
     'database': ['hostname', 'username', 'password', 'database'],
@@ -505,7 +506,7 @@ def _check_property_arguments(args, type_):
     if type_ == 'folder':
         accepted_options = set()
     else:
-        accepted_options = set(ACCOUNT_ARGUMENT_VALIDITY[type_])
+        accepted_options = set(_ACCOUNT_ARGUMENT_VALIDITY[type_])
 
     def _check_one(option, value):
         if value is not None and option not in accepted_options:
@@ -630,7 +631,7 @@ def _build_parser():
         'show', description="show a password entry and its details")
     add_edit_epilog = "option validity for account types:\n" + "\n".join([
         f"  {type_ + ':':22}{', '.join(args)}"
-        for type_, args in ACCOUNT_ARGUMENT_VALIDITY.items()
+        for type_, args in _ACCOUNT_ARGUMENT_VALIDITY.items()
     ])
     add_parser = subparsers.add_parser(
         'add',
