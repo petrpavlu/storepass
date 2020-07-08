@@ -3,7 +3,6 @@
 
 """Dialogs to edit database properties and add/edit password entries."""
 
-import datetime
 import enum
 import importlib.resources
 
@@ -13,22 +12,8 @@ from gi.repository import GObject
 from gi.repository import Gtk
 
 import storepass.model
+import storepass.util
 from storepass.gtk import util
-
-
-def _normalize_empty_to_none(text):
-    """Return verbatim a given string if it is not empty or None otherwise."""
-    return text if text != "" else None
-
-
-def _normalize_none_to_empty(text):
-    """Return verbatim a given text or an empty string if the value is None."""
-    return text if text is not None else ""
-
-
-def _get_current_datetime():
-    """Obtain the current date+time in the UTC timezone."""
-    return datetime.datetime.now(datetime.timezone.utc)
 
 
 @Gtk.Template.from_string(
@@ -50,7 +35,8 @@ class EditDatabaseDialog(Gtk.Dialog):
 
         self.connect('response', self._on_response)
 
-        self._password_entry.set_text(_normalize_none_to_empty(password))
+        self._password_entry.set_text(
+            storepass.util.normalize_none_to_empty(password))
 
     def _on_response(self, dialog, response_id):
         """Process a response signal from the dialog."""
@@ -118,9 +104,9 @@ class EditFolderDialog(Gtk.Dialog):
 
         self._name_entry.set_text(entry.name)
         self._description_entry.set_text(
-            _normalize_none_to_empty(entry.description))
+            storepass.util.normalize_none_to_empty(entry.description))
         self._notes_text_view.get_buffer().set_text(
-            _normalize_none_to_empty(entry.notes))
+            storepass.util.normalize_none_to_empty(entry.notes))
 
     def _on_response(self, dialog, response_id):
         """Process a response signal from the dialog."""
@@ -138,17 +124,19 @@ class EditFolderDialog(Gtk.Dialog):
 
     def get_entry(self):
         """Create a new folder based on the information input by the user."""
-        name = _normalize_empty_to_none(self._name_entry.get_text())
+        name = storepass.util.normalize_empty_to_none(
+            self._name_entry.get_text())
         assert name is not None
-        description = _normalize_empty_to_none(
+        description = storepass.util.normalize_empty_to_none(
             self._description_entry.get_text())
         text_buffer = self._notes_text_view.get_buffer()
         text = text_buffer.get_text(text_buffer.get_start_iter(),
                                     text_buffer.get_end_iter(), True)
-        notes = _normalize_empty_to_none(text)
+        notes = storepass.util.normalize_empty_to_none(text)
 
         return storepass.model.Folder(name, description,
-                                      _get_current_datetime(), notes, [])
+                                      storepass.util.get_current_datetime(),
+                                      notes, [])
 
 
 class _AccountClassGObject(GObject.Object):
@@ -230,22 +218,22 @@ class EditAccountDialog(Gtk.Dialog):
 
         self._name_entry.set_text(entry.name)
         self._description_entry.set_text(
-            _normalize_none_to_empty(entry.description))
+            storepass.util.normalize_none_to_empty(entry.description))
         self._notes_text_view.get_buffer().set_text(
-            _normalize_none_to_empty(entry.notes))
+            storepass.util.normalize_none_to_empty(entry.notes))
 
         # TODO Select the correct type based on entry's type.
         self._type_combo_box.set_active(0)
 
         if isinstance(entry, storepass.model.Generic):
             self._hostname_entry.set_text(
-                _normalize_none_to_empty(entry.hostname))
+                storepass.util.normalize_none_to_empty(entry.hostname))
         if isinstance(entry, storepass.model.Generic):
             self._username_entry.set_text(
-                _normalize_none_to_empty(entry.username))
+                storepass.util.normalize_none_to_empty(entry.username))
         if isinstance(entry, storepass.model.Generic):
             self._password_entry.set_text(
-                _normalize_none_to_empty(entry.password))
+                storepass.util.normalize_none_to_empty(entry.password))
 
     def _on_response(self, dialog, response_id):
         """Process a response signal from the dialog."""
@@ -290,15 +278,16 @@ class EditAccountDialog(Gtk.Dialog):
     def get_entry(self):
         """Create a new account based on the information input by the user."""
         # Get common properties.
-        name = _normalize_empty_to_none(self._name_entry.get_text())
+        name = storepass.util.normalize_empty_to_none(
+            self._name_entry.get_text())
         assert name is not None
-        description = _normalize_empty_to_none(
+        description = storepass.util.normalize_empty_to_none(
             self._description_entry.get_text())
-        updated = _get_current_datetime()
+        updated = storepass.util.get_current_datetime()
         text_buffer = self._notes_text_view.get_buffer()
         text = text_buffer.get_text(text_buffer.get_start_iter(),
                                     text_buffer.get_end_iter(), True)
-        notes = _normalize_empty_to_none(text)
+        notes = storepass.util.normalize_empty_to_none(text)
 
         # Get the account type.
         active_iter = self._type_combo_box.get_active_iter()
@@ -308,11 +297,11 @@ class EditAccountDialog(Gtk.Dialog):
 
         # Create a new account.
         if account_class == storepass.model.Generic:
-            hostname = _normalize_empty_to_none(
+            hostname = storepass.util.normalize_empty_to_none(
                 self._hostname_entry.get_text())
-            username = _normalize_empty_to_none(
+            username = storepass.util.normalize_empty_to_none(
                 self._username_entry.get_text())
-            password = _normalize_empty_to_none(
+            password = storepass.util.normalize_empty_to_none(
                 self._password_entry.get_text())
             entry = storepass.model.Generic(name, description, updated, notes,
                                             hostname, username, password)

@@ -3,6 +3,7 @@
 
 """Helper classes and functions."""
 
+import datetime
 import string
 
 
@@ -27,3 +28,18 @@ def escape_bytes(bytes_):
         else:
             res += "\\x%0.2x" % byte
     return res
+
+
+def normalize_empty_to_none(text):
+    """Return verbatim a given string if it is not empty or None otherwise."""
+    return text if text != "" else None
+
+
+def normalize_none_to_empty(text):
+    """Return verbatim a given text or an empty string if the value is None."""
+    return text if text is not None else ""
+
+
+def get_current_datetime():
+    """Obtain the current date+time in the UTC timezone."""
+    return datetime.datetime.now(datetime.timezone.utc)
