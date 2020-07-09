@@ -570,7 +570,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1 certificate', '--keyfile', 'E1 keyfile', '--password',
                 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -655,7 +655,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1 username', '--password', '--database', 'E1 database',
                 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -822,7 +822,7 @@ class TestCLI(util.StorePassTestCase):
                 '--email', 'E1 email', '--hostname', 'E1 hostname',
                 '--username', 'E1 username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -906,7 +906,7 @@ class TestCLI(util.StorePassTestCase):
                 '--hostname', 'E1 hostname', '--port', 'E1 port', '--username',
                 'E1 username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -990,7 +990,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1 hostname', '--username', 'E1 username', '--password',
                 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -1158,7 +1158,7 @@ class TestCLI(util.StorePassTestCase):
                 '--hostname', 'E1 hostname', '--domain', 'E1 domain',
                 '--username', 'E1 username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -1242,7 +1242,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1 notes', '--hostname', 'E1 hostname', '--port', 'E1 port',
                 '--username', 'E1 username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -1326,7 +1326,7 @@ class TestCLI(util.StorePassTestCase):
                 '--hostname', 'E1 hostname', '--port', 'E1 port', '--username',
                 'E1 username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -1410,7 +1410,7 @@ class TestCLI(util.StorePassTestCase):
                 '--url', 'E1 URL', '--username', 'E1 username', '--email',
                 'E1 email', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1 password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -1572,7 +1572,7 @@ class TestCLI(util.StorePassTestCase):
                 'storepass-cli', '-f', self.dbname, 'edit', '--description',
                 '', '--notes', '', '--username', '', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, ""]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, '']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -1819,7 +1819,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1-U hostname', '--certificate', 'E1-U certificate',
                 '--keyfile', 'E1-U keyfile', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -1878,7 +1878,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1-U hostname', '--username', 'E1-U username', '--password',
                 '--database', 'E1-U database', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -1991,7 +1991,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1-U email', '--hostname', 'E1-U hostname', '--username',
                 'E1-U username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -2050,7 +2050,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1-U hostname', '--port', 'E1-U port', '--username',
                 'E1-U username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -2108,7 +2108,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1-U hostname', '--username', 'E1-U username', '--password',
                 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -2220,7 +2220,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1-U hostname', '--domain', 'E1-U domain', '--username',
                 'E1-U username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -2279,7 +2279,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1-U hostname', '--port', 'E1-U port', '--username',
                 'E1-U username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -2338,7 +2338,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1-U hostname', '--port', 'E1-U port', '--username',
                 'E1-U username', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
@@ -2397,7 +2397,7 @@ class TestCLI(util.StorePassTestCase):
                 'E1-U URL', '--username', 'E1-U username', '--email',
                 'E1-U email', '--password', 'E1 name'
         ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, "E1-U password"]
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
             res = storepass.cli.__main__.main()
             self.assertEqual(res, 0)
             self.assertEqual(cli_mock.getpass.call_count, 2)
