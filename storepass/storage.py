@@ -45,6 +45,7 @@ class _XMLToModelConvertor:
     class _AccountProperties(dict):
         """Dict-based aggregate to hold account properties."""
         def __init__(self, *args):
+            super().__init__()
             self.valid_field_ids = tuple([*args])
 
         def __getitem__(self, key):
