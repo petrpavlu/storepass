@@ -412,7 +412,7 @@ def _process_edit_command(args, model):
 
     # If no new type is specified then validate that property arguments are
     # valid for the existing type.
-    if args.type is not None:
+    if args.type is None:
         assert (type(old_entry) in _ACCOUNT_TYPE_TO_STR and
                 "Unhandled entry type!")
         res = _check_property_arguments(args,
