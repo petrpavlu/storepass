@@ -75,7 +75,9 @@ _ACCOUNT_STR_TO_TYPE = {
 
 
 class _EntryGenerator:
+    """Generator to create a new entry."""
     def __init__(self, name):
+        """Initialize an entry generator."""
         self.type = None
 
         self.name = name
@@ -103,6 +105,7 @@ class _EntryGenerator:
         self.username = None
 
     def set_from_entry(self, entry):
+        """Update generator properties from an existing entry."""
         self.type = type(entry)
 
         self.description = entry.description
@@ -112,9 +115,11 @@ class _EntryGenerator:
         entry.accept(self, single=True)
 
     def _normalize_argument(self, value):
+        """Normalize an argument value to None if it is an empty string."""
         return storepass.util.normalize_empty_to_none(value)
 
     def set_from_args(self, args):
+        """Update generator properties from command line arguments."""
         if args.type is not None:
             self.type = _ACCOUNT_STR_TO_TYPE[args.type]
 
@@ -167,6 +172,7 @@ class _EntryGenerator:
         self.updated = storepass.util.get_current_datetime()
 
     def get_entry(self):
+        """Obtain a new entry based on the set properties."""
         if self.type == storepass.model.Folder:
             return storepass.model.Folder(self.name, self.description,
                                           self.updated, self.notes, [])
@@ -232,9 +238,11 @@ class _EntryGenerator:
         return None
 
     def visit_folder(self, folder):
+        """Update generator properties from a folder entry."""
         pass
 
     def visit_credit_card(self, credit_card):
+        """Update generator properties from a credit-card entry."""
         self.card_type = credit_card.card_type
         self.card_number = credit_card.card_number
         self.expiry_date = credit_card.expiry_date
@@ -242,61 +250,72 @@ class _EntryGenerator:
         self.pin = credit_card.pin
 
     def visit_crypto_key(self, crypto_key):
+        """Update generator properties from a crypto-key entry."""
         self.hostname = crypto_key.hostname
         self.certificate = crypto_key.certificate
         self.keyfile = crypto_key.keyfile
         self.password = crypto_key.password
 
     def visit_database(self, database):
+        """Update generator properties from a database entry."""
         self.hostname = database.hostname
         self.username = database.username
         self.password = database.password
         self.database = database.database
 
     def visit_door(self, door):
+        """Update generator properties from a door entry."""
         self.location = door.location
         self.code = door.code
 
     def visit_email(self, email):
+        """Update generator properties from an email entry."""
         self.email = email.email
         self.hostname = email.hostname
         self.username = email.username
         self.password = email.password
 
     def visit_ftp(self, ftp):
+        """Update generator properties from an FTP entry."""
         self.hostname = ftp.hostname
         self.port = ftp.port
         self.username = ftp.username
         self.password = ftp.password
 
     def visit_generic(self, generic):
+        """Update generator properties from a generic account entry."""
         self.hostname = generic.hostname
         self.username = generic.username
         self.password = generic.password
 
     def visit_phone(self, phone):
+        """Update generator properties from a phone entry."""
         self.phone_number = phone.phone_number
         self.pin = phone.pin
 
     def visit_shell(self, shell):
+        """Update generator properties from a shell entry."""
         self.hostname = shell.hostname
         self.domain = shell.domain
         self.username = shell.username
         self.password = shell.password
 
     def visit_remote_desktop(self, remote_desktop):
+        """Update generator properties from a remote-desktop entry."""
         self.hostname = remote_desktop.hostname
         self.port = remote_desktop.port
         self.username = remote_desktop.username
         self.password = remote_desktop.password
 
     def visit_vnc(self, vnc):
+        """Update generator properties from a VNC entry."""
         self.hostname = vnc.hostname
         self.port = vnc.port
         self.username = vnc.username
         self.password = vnc.password
 
     def visit_website(self, website):
+        """Update generator properties from a website entry."""
         self.url = website.url
         self.username = website.username
         self.email = website.email
@@ -337,7 +356,7 @@ def _validate_edit_command(args):
     if res != 0:
         return res
 
-    # If no new type is specified on the command-line then leave validation of
+    # If no new type is specified on the command line then leave validation of
     # property arguments to _process_edit_command() when a type of the existing
     # entry is determined.
     if args.type is None:
@@ -347,10 +366,7 @@ def _validate_edit_command(args):
 
 
 def _process_init_command(args, _model):
-    """
-    Handle the init command which is used to create an empty password database.
-    """
-
+    """Handle the init command: create an empty password database."""
     assert args.command == 'init'
 
     # Keep the model empty and let the main() function write out the database.
@@ -358,11 +374,7 @@ def _process_init_command(args, _model):
 
 
 def _process_list_command(args, model):
-    """
-    Handle the list command which is used to print short information about all
-    stored password entries.
-    """
-
+    """Handle the list command: print short information about all entries."""
     assert args.command == 'list'
 
     plain_view = view.ListView()
@@ -371,11 +383,7 @@ def _process_list_command(args, model):
 
 
 def _process_show_command(args, model):
-    """
-    Handle the show command which is used to print detailed information about a
-    single password entry.
-    """
-
+    """Handle the show command: print detailed information about one entry."""
     assert args.command == 'show'
 
     # Find the entry specified on the command line.
@@ -392,10 +400,7 @@ def _process_show_command(args, model):
 
 
 def _process_add_command(args, model):
-    """
-    Handle the add command which is used to insert a new single password entry.
-    """
-
+    """Handle the add command: insert a new password entry."""
     assert args.command == 'add'
 
     # Create the entry specified on the command line.
@@ -420,7 +425,7 @@ def _process_add_command(args, model):
 
 
 def _process_edit_command(args, model):
-    """Handle the edit command which is used to modify an existing entry."""
+    """Handle the edit command: modify an existing password entry."""
     assert args.command == 'edit'
 
     # Find the entry specified on the command line.
@@ -457,10 +462,7 @@ def _process_edit_command(args, model):
 
 
 def _process_delete_command(args, model):
-    """
-    Handle the delete command which is used to wipe a single password entry.
-    """
-
+    """Handle the delete command: remove a single password entry."""
     assert args.command == 'delete'
 
     # Delete the entry specified on the command line.
@@ -476,11 +478,7 @@ def _process_delete_command(args, model):
 
 
 def _process_dump_command(args, storage):
-    """
-    Handle the dump command which is used to print the raw XML content of a
-    password database.
-    """
-
+    """Handle the dump command: print the raw XML content of a database."""
     assert args.command == 'dump'
 
     # Load the database content.
@@ -691,8 +689,10 @@ def _build_parser():
 
 def main():
     """
-    Main entry function. Returns 0 if the operation was successful and a
-    non-zero value otherwise.
+    Run the CLI interface.
+
+    Run the StorePass command line interface. Returns 0 if the execution was
+    successful and a non-zero value otherwise.
     """
 
     # Parse the command-line arguments.
