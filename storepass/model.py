@@ -291,10 +291,10 @@ class Entry:
         return self._name
 
     def get_path(self):
-        """Obtain a full path from the database root to this entry."""
+        """Obtain a full path from the database root to the entry."""
         if self._parent is None:
             return [self.name]
-        return [self.name] + self._parent.get_path()
+        return self._parent.get_path() + [self.name]
 
     def get_full_name(self):
         """Obtain a full name of the entry."""
