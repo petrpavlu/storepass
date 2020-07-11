@@ -303,20 +303,42 @@ class _EntryGenerator:
         self.password = website.password
 
 
-def _validate_add_command(args):
-    """Pre-validate command-line options for the add command."""
+def _check_entry_name(args):
+    """Validate an entry name specified on the command line."""
     # Reject an empty entry name.
     assert len(args.entry) == 1
     entry_name = args.entry[0]
     if entry_name == '':
         _logger.error("specified entry name is empty")
         return 1
+    return 0
+
+
+def _validate_show_command(args):
+    """Pre-validate command-line options for the show command."""
+    return _check_entry_name(args)
+
+
+def _validate_add_command(args):
+    """Pre-validate command-line options for the add command."""
+    res = _check_entry_name(args)
+    if res != 0:
+        return res
 
     return _check_property_arguments(args, args.type)
 
 
+def _validate_delete_command(args):
+    """Pre-validate command-line options for the delete command."""
+    return _check_entry_name(args)
+
+
 def _validate_edit_command(args):
     """Pre-validate command-line options for the edit command."""
+    res = _check_entry_name(args)
+    if res != 0:
+        return res
+
     # If no new type is specified on the command-line then leave validation of
     # property arguments to _process_edit_command() when a type of the existing
     # entry is determined.
@@ -692,8 +714,12 @@ def main():
         return e.code
 
     # Do further command-specific checks of the command line options.
-    if args.command == 'add':
+    if args.command == 'show':
+        res = _validate_show_command(args)
+    elif args.command == 'add':
         res = _validate_add_command(args)
+    elif args.command == 'delete':
+        res = _validate_delete_command(args)
     elif args.command == 'edit':
         res = _validate_edit_command(args)
     else:
