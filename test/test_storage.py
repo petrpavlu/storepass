@@ -408,6 +408,26 @@ class TestStorage(util.StorePassTestCase):
             "Element '/revelationdata/entry[1]/name' has unrecognized "
             "attribute 'invalid-attribute'")
 
+    def test_read_wrong_name_value(self):
+        """Check rejection of an empty <name> value."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<name></name>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Element '/revelationdata/entry[1]/name' has invalid value '': "
+            "string is empty")
+
     def test_read_wrong_updated_value(self):
         """Check rejection of invalid <updated> values."""
         # Empty value is rejected.

@@ -136,6 +136,9 @@ class _XMLToModelConvertor:
         self._validate_element_attributes(xml_elem, xpath, ())
 
         if xml_elem.tag == 'name':
+            if xml_elem.text is None:
+                raise storepass.exc.StorageReadException(
+                    f"Element '{xpath}' has invalid value '': string is empty")
             entry_props.name = xml_elem.text
         elif xml_elem.tag == 'description':
             entry_props.description = xml_elem.text
