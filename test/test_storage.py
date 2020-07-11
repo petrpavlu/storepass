@@ -339,55 +339,6 @@ class TestStorage(util.StorePassTestCase):
             "Element '/revelationdata/entry[1]' has unrecognized attribute "
             "'invalid-attr'")
 
-    def test_read_folder_entry(self):
-        """Check parsing of a single folder entry."""
-        util.write_password_db(
-            self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
-                <revelationdata dataversion="1">
-                \t<entry type="folder">
-                \t\t<name>E1 name</name>
-                \t\t<description>E1 description</description>
-                \t\t<updated>1546300800</updated>
-                \t\t<notes>E1 notes</notes>
-                \t</entry>
-                </revelationdata>
-                '''))
-
-        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        root = storage.read_tree()
-
-        self.assertTrue(isinstance(root, storepass.model.Root))
-        self.assertEqual(len(root.children), 1)
-
-        child_0 = root.children[0]
-        self.assertIs(type(child_0), storepass.model.Folder)
-        self.assertEqual(child_0.name, "E1 name")
-        self.assertEqual(child_0.description, "E1 description")
-        self.assertEqual(
-            child_0.updated,
-            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
-        self.assertEqual(child_0.children, [])
-
-    def test_read_wrong_folder_entry_property(self):
-        """Check rejection of a wrong property element for a folder entry."""
-        util.write_password_db(
-            self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
-                <revelationdata dataversion="1">
-                \t<entry type="folder">
-                \t\t<invalid-property>invalid-value</invalid-property>
-                \t</entry>
-                </revelationdata>
-                '''))
-
-        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        with self.assertRaises(storepass.exc.StorageReadException) as cm:
-            _ = storage.read_tree()
-        self.assertEqual(
-            str(cm.exception), "Unrecognized folder element "
-            "'/revelationdata/entry[1]/invalid-property'")
-
     def test_read_wrong_name_attribute(self):
         """Check rejection of a wrong <name> attribute."""
         util.write_password_db(
@@ -506,6 +457,55 @@ class TestStorage(util.StorePassTestCase):
             "Element '/revelationdata/entry[1]/updated' has invalid value "
             "'100020003000400050006000700090000000': timestamp out of range "
             "for platform time_t")
+
+    def test_read_folder_entry(self):
+        """Check parsing of a single folder entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.Folder)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.children, [])
+
+    def test_read_wrong_folder_entry_property(self):
+        """Check rejection of a wrong property element for a folder entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t\t<invalid-property>invalid-value</invalid-property>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception), "Unrecognized folder element "
+            "'/revelationdata/entry[1]/invalid-property'")
 
     def test_read_credit_card_entry(self):
         """Check parsing of a single credit card entry."""
