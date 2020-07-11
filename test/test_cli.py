@@ -389,6 +389,25 @@ class TestCLI(util.StorePassTestCase):
                     storepass-cli: error: Entry 'E1 name' already exists
                     """))
 
+    def test_add_empty(self):
+        """Check rejection to add a new entry with an empty name."""
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Try to add a new entry with an empty name.
+        with cli_context(['storepass-cli', '-f', self.dbname, 'add',
+                          '']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    storepass-cli: error: specified entry name is empty
+                    """))
+
     def test_add_folder(self):
         """Check that a folder entry can be added to a database."""
         # Create a new empty password database.

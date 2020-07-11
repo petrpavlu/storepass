@@ -352,6 +352,13 @@ def _process_show_command(args, model):
 
 def _validate_add_command(args):
     """Pre-validate command-line options for the add command."""
+    # Reject an empty entry name.
+    assert len(args.entry) == 1
+    entry_name = args.entry[0]
+    if entry_name == '':
+        _logger.error("specified entry name is empty")
+        return 1
+
     return _check_property_arguments(args, args.type)
 
 
