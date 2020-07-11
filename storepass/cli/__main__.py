@@ -306,9 +306,7 @@ class _EntryGenerator:
 def _check_entry_name(args):
     """Validate an entry name specified on the command line."""
     # Reject an empty entry name.
-    assert len(args.entry) == 1
-    entry_name = args.entry[0]
-    if entry_name == '':
+    if args.entry == '':
         _logger.error("specified entry name is empty")
         return 1
     return 0
@@ -379,12 +377,10 @@ def _process_show_command(args, model):
     """
 
     assert args.command == 'show'
-    assert len(args.entry) == 1
 
     # Find the entry specified on the command line.
-    entry_name = args.entry[0]
     try:
-        path_spec = storepass.model.path_string_to_spec(entry_name)
+        path_spec = storepass.model.path_string_to_spec(args.entry)
         entry = model.get_entry(path_spec)
     except storepass.exc.ModelException as e:
         _logger.error("%s", e)
@@ -401,12 +397,10 @@ def _process_add_command(args, model):
     """
 
     assert args.command == 'add'
-    assert len(args.entry) == 1
 
     # Create the entry specified on the command line.
-    entry_name = args.entry[0]
     try:
-        path_spec = storepass.model.path_string_to_spec(entry_name)
+        path_spec = storepass.model.path_string_to_spec(args.entry)
     except storepass.exc.ModelException as e:
         _logger.error("%s", e)
         return 1
@@ -428,12 +422,10 @@ def _process_add_command(args, model):
 def _process_edit_command(args, model):
     """Handle the edit command which is used to modify an existing entry."""
     assert args.command == 'edit'
-    assert len(args.entry) == 1
 
     # Find the entry specified on the command line.
-    entry_name = args.entry[0]
     try:
-        path_spec = storepass.model.path_string_to_spec(entry_name)
+        path_spec = storepass.model.path_string_to_spec(args.entry)
         old_entry = model.get_entry(path_spec)
     except storepass.exc.ModelException as e:
         _logger.error("%s", e)
@@ -470,12 +462,10 @@ def _process_delete_command(args, model):
     """
 
     assert args.command == 'delete'
-    assert len(args.entry) == 1
 
     # Delete the entry specified on the command line.
-    entry_name = args.entry[0]
     try:
-        path_spec = storepass.model.path_string_to_spec(entry_name)
+        path_spec = storepass.model.path_string_to_spec(args.entry)
         entry = model.get_entry(path_spec)
         model.remove_entry(entry)
     except storepass.exc.ModelException as e:
@@ -693,7 +683,6 @@ def _build_parser():
 
     for sub_parser in (show_parser, add_parser, delete_parser, edit_parser):
         sub_parser.add_argument('entry',
-                                nargs=1,
                                 metavar='ENTRY',
                                 help="password entry")
 
