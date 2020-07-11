@@ -521,9 +521,8 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             _ = storage.read_tree()
-        self.assertEqual(
-            str(cm.exception),
-            "Entry '/revelationdata/entry[1]' has no name")
+        self.assertEqual(str(cm.exception),
+                         "Entry '/revelationdata/entry[1]' has no name")
 
     def test_read_credit_card_entry(self):
         """Check parsing of a single credit card entry."""
@@ -1006,9 +1005,8 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
             _ = storage.read_tree()
-        self.assertEqual(
-            str(cm.exception),
-            "Entry '/revelationdata/entry[1]' has no name")
+        self.assertEqual(str(cm.exception),
+                         "Entry '/revelationdata/entry[1]' has no name")
 
     def test_read_wrong_account_field_attribute(self):
         """Check rejection of a wrong account-entry <field> attribute."""
