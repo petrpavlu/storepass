@@ -243,6 +243,10 @@ class Root(Container):
         """Obtain a trivial path to the database root."""
         return []
 
+    def get_full_name(self):
+        """Obtain a trivial full name of the database root."""
+        return ''
+
     def __str__(self, indent=""):
         res = indent + "Root:"
         for child in self._children:
@@ -291,6 +295,10 @@ class Entry:
         if self._parent is None:
             return [self.name]
         return [self.name] + self._parent.get_path()
+
+    def get_full_name(self):
+        """Obtain a full name of the entry."""
+        return path_spec_to_string(self.get_path())
 
     def inline_str(self):
         """Get a string describing the entry properties."""
@@ -689,9 +697,8 @@ class Model:
         ModelException if the entry is a non-empty folder.
         """
         if isinstance(entry, Container) and len(entry.children) > 0:
-            path_string = path_spec_to_string(entry.get_path())
             raise storepass.exc.ModelException(
-                f"Entry '{path_string}' is not empty")
+                f"Entry '{entry.get_full_name()}' is not empty")
 
         parent = entry.parent
         assert parent is not None
@@ -724,10 +731,9 @@ class Model:
 
         if isinstance(old_entry, Folder) and len(old_entry.children) > 0:
             if not isinstance(new_entry, Folder):
-                path_string = path_spec_to_string(old_entry.get_path())
                 raise storepass.exc.ModelException(
-                    f"Entry '{path_string}' is not empty and cannot be "
-                    f"replaced by a non-folder type")
+                    f"Entry '{old_entry.get_full_name()}' is not empty and "
+                    f"cannot be replaced by a non-folder type")
             old_entry.move_children_to(new_entry)
         parent.remove_child(old_entry)
         res = parent.add_child(new_entry)
