@@ -265,6 +265,9 @@ class Entry:
     """Database entry base class."""
     def __init__(self, name, description, updated, notes):
         """Initialize an abstract database entry."""
+        assert name is not None
+        assert name != ''
+
         # Parent container. The value is managed by the Container class.
         self._parent = None
 

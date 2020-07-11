@@ -507,6 +507,24 @@ class TestStorage(util.StorePassTestCase):
             str(cm.exception), "Unrecognized folder element "
             "'/revelationdata/entry[1]/invalid-property'")
 
+    def test_read_folder_no_name(self):
+        """Check rejection of a folder entry with no name."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="folder">
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Entry '/revelationdata/entry[1]' has no name")
+
     def test_read_credit_card_entry(self):
         """Check parsing of a single credit card entry."""
         util.write_password_db(
@@ -973,6 +991,24 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(
             str(cm.exception), "Unrecognized account element "
             "'/revelationdata/entry[1]/invalid-property'")
+
+    def test_read_account_no_name(self):
+        """Check rejection of an account entry with no name."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="generic">
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Entry '/revelationdata/entry[1]' has no name")
 
     def test_read_wrong_account_field_attribute(self):
         """Check rejection of a wrong account-entry <field> attribute."""

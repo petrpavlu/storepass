@@ -181,6 +181,12 @@ class _XMLToModelConvertor:
 
         return children
 
+    def _validate_entry_name(self, _xml_elem, xpath, entry_name):
+        """Validate an entry name."""
+        if entry_name is None:
+            raise storepass.exc.StorageReadException(
+                f"Entry '{xpath}' has no name")
+
     def _parse_folder(self, xml_elem, xpath):
         """Parse a <entry type='folder'> element."""
         assert xml_elem.tag == 'entry'
@@ -208,6 +214,8 @@ class _XMLToModelConvertor:
             xpath.pop()
 
         children = self._parse_subentries(xml_elem, xpath, xml_subelem_iter)
+
+        self._validate_entry_name(xml_elem, xpath, entry_props.name)
 
         return storepass.model.Folder(entry_props.name,
                                       entry_props.description,
@@ -305,6 +313,8 @@ class _XMLToModelConvertor:
                     f"Unrecognized account element '{xpath}'")
 
             xpath.pop()
+
+        self._validate_entry_name(xml_elem, xpath, entry_props.name)
 
         # Return the resulting account object.
         if type_ == 'creditcard':
