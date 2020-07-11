@@ -3321,7 +3321,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    + E2 name (folder)
+                    + E1 name/E2 name (folder)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -3336,7 +3336,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    + E3 name (generic account)
+                    + E1 name/E2 name/E3 name (generic account)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
