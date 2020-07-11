@@ -303,6 +303,29 @@ class _EntryGenerator:
         self.password = website.password
 
 
+def _validate_add_command(args):
+    """Pre-validate command-line options for the add command."""
+    # Reject an empty entry name.
+    assert len(args.entry) == 1
+    entry_name = args.entry[0]
+    if entry_name == '':
+        _logger.error("specified entry name is empty")
+        return 1
+
+    return _check_property_arguments(args, args.type)
+
+
+def _validate_edit_command(args):
+    """Pre-validate command-line options for the edit command."""
+    # If no new type is specified on the command-line then leave validation of
+    # property arguments to _process_edit_command() when a type of the existing
+    # entry is determined.
+    if args.type is None:
+        return 0
+
+    return _check_property_arguments(args, args.type)
+
+
 def _process_init_command(args, _model):
     """
     Handle the init command which is used to create an empty password database.
@@ -348,29 +371,6 @@ def _process_show_command(args, model):
     detail_view = view.DetailView()
     entry.accept(detail_view, single=True)
     return 0
-
-
-def _validate_add_command(args):
-    """Pre-validate command-line options for the add command."""
-    # Reject an empty entry name.
-    assert len(args.entry) == 1
-    entry_name = args.entry[0]
-    if entry_name == '':
-        _logger.error("specified entry name is empty")
-        return 1
-
-    return _check_property_arguments(args, args.type)
-
-
-def _validate_edit_command(args):
-    """Pre-validate command-line options for the edit command."""
-    # If no new type is specified on the command-line then leave validation of
-    # property arguments to _process_edit_command() when a type of the existing
-    # entry is determined.
-    if args.type is None:
-        return 0
-
-    return _check_property_arguments(args, args.type)
 
 
 def _process_add_command(args, model):
