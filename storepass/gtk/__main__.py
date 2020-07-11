@@ -1245,6 +1245,12 @@ class _App(Gtk.Application):
 
 
 def main():
+    """
+    Run the GTK interface.
+
+    Run the StorePass graphical interface. Returns 0 if the execution was
+    successful and a non-zero value otherwise.
+    """
     app = _App()
     return app.run(sys.argv)
 
