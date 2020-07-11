@@ -694,16 +694,19 @@ class Model:
         assert parent is not None
         parent.remove_child(entry)
 
-    def replace_entry(self, old_entry, new_entry, move_children=True):
+    def replace_entry(self, old_entry, new_entry):
         """
         Replace a specified entry with another one.
 
-        Remove an old entry and add a new one instead. Throws ModelException if
-        the new entry has a same name as an already existing entry and it is
-        not the old entry.
+        Remove an old entry and add a new one instead. If the old entry is a
+        Folder then all its children are moved to the new entry, which must be
+        a Folder as well. An empty Folder can be replaced by any type.
 
-        If move_children is True and the entries are both Folder's then the
-        code moves all children rooted at the old entry to the new one.
+        Throws ModelException in the following cases:
+        * The new entry has a same name as an already existing entry and it is
+          not the old entry.
+        * The old entry is a non-empty Folder but the new entry is not
+          a Folder.
         """
         parent = old_entry.parent
         assert parent is not None
@@ -716,8 +719,12 @@ class Model:
                 raise storepass.exc.ModelException(
                     f"Entry '{path_string}' already exists")
 
-        if (move_children and isinstance(old_entry, Folder) and
-                isinstance(new_entry, Folder)):
+        if isinstance(old_entry, Folder) and len(old_entry.children) > 0:
+            if not isinstance(new_entry, Folder):
+                path_string = path_spec_to_string(old_entry.get_path())
+                raise storepass.exc.ModelException(
+                    f"Entry '{path_string}' is not empty and cannot be "
+                    f"replaced by a non-folder type")
             old_entry.move_children_to(new_entry)
         parent.remove_child(old_entry)
         res = parent.add_child(new_entry)
