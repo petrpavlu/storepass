@@ -239,7 +239,6 @@ class _EntryGenerator:
 
     def visit_folder(self, folder):
         """Update generator properties from a folder entry."""
-        pass
 
     def visit_credit_card(self, credit_card):
         """Update generator properties from a credit-card entry."""
