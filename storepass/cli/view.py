@@ -124,10 +124,12 @@ class DetailView(storepass.model.ModelVisitor):
         if entry.notes is not None:
             print(f"  - Notes: {entry.notes}")
 
-    def _print_property(self, name, value):
-        """Print a single property."""
-        if value is not None:
-            print(f"  - {name}: {value}")
+    def _print_properties(self, entry):
+        """Print all entry-specific properties."""
+        for field in entry.get_entry_fields():
+            value = entry.properties[field]
+            if value is not None:
+                print(f"  - {field.label}: {value}")
 
     def visit_folder(self, folder):
         """Print detailed information about a folder entry."""
@@ -137,103 +139,71 @@ class DetailView(storepass.model.ModelVisitor):
     def visit_credit_card(self, credit_card):
         """Print detailed information about a credit-card entry."""
         print(f"+ {credit_card.get_full_name()} (credit card)")
-        self._print_property("Card type", credit_card.card_type)
-        self._print_property("Card number", credit_card.card_number)
-        self._print_property("Expiry date", credit_card.expiry_date)
-        self._print_property("CCV", credit_card.ccv)
-        self._print_property("PIN", credit_card.pin)
+        self._print_properties(credit_card)
         self._print_common_info(credit_card)
 
     def visit_crypto_key(self, crypto_key):
         """Print detailed information about a crypto-key entry."""
         print(f"+ {crypto_key.get_full_name()} (crypto key)")
-        self._print_property("Hostname", crypto_key.hostname)
-        self._print_property("Certificate", crypto_key.certificate)
-        self._print_property("Keyfile", crypto_key.keyfile)
-        self._print_property("Password", crypto_key.password)
+        self._print_properties(crypto_key)
         self._print_common_info(crypto_key)
 
     def visit_database(self, database):
         """Print detailed information about a database entry."""
         print(f"+ {database.get_full_name()} (database)")
-        self._print_property("Hostname", database.hostname)
-        self._print_property("Username", database.username)
-        self._print_property("Password", database.password)
-        self._print_property("Database", database.database)
+        self._print_properties(database)
         self._print_common_info(database)
 
     def visit_door(self, door):
         """Print detailed information about a door entry."""
         print(f"+ {door.get_full_name()} (door)")
-        self._print_property("Location", door.location)
-        self._print_property("Code", door.code)
+        self._print_properties(door)
         self._print_common_info(door)
 
     def visit_email(self, email):
         """Print detailed information about an email entry."""
         print(f"+ {email.get_full_name()} (email)")
-        self._print_property("Email", email.email)
-        self._print_property("Hostname", email.hostname)
-        self._print_property("Username", email.username)
-        self._print_property("Password", email.password)
+        self._print_properties(email)
         self._print_common_info(email)
 
     def visit_ftp(self, ftp):
         """Print detailed information about an FTP entry."""
         print(f"+ {ftp.get_full_name()} (FTP)")
-        self._print_property("Hostname", ftp.hostname)
-        self._print_property("Port", ftp.port)
-        self._print_property("Username", ftp.username)
-        self._print_property("Password", ftp.password)
+        self._print_properties(ftp)
         self._print_common_info(ftp)
 
     def visit_generic(self, generic):
         """Print detailed information about a generic account entry."""
         print(f"+ {generic.get_full_name()} (generic account)")
-        self._print_property("Hostname", generic.hostname)
-        self._print_property("Username", generic.username)
-        self._print_property("Password", generic.password)
+        self._print_properties(generic)
         self._print_common_info(generic)
 
     def visit_phone(self, phone):
         """Print detailed information about a phone account entry."""
         print(f"+ {phone.get_full_name()} (phone)")
-        self._print_property("Phone number", phone.phone_number)
-        self._print_property("PIN", phone.pin)
+        self._print_properties(phone)
         self._print_common_info(phone)
 
     def visit_shell(self, shell):
         """Print detailed information about a shell account entry."""
         print(f"+ {shell.get_full_name()} (shell)")
-        self._print_property("Hostname", shell.hostname)
-        self._print_property("Domain", shell.domain)
-        self._print_property("Username", shell.username)
-        self._print_property("Password", shell.password)
+        self._print_properties(shell)
         self._print_common_info(shell)
 
     def visit_remote_desktop(self, remote_desktop):
         """Print detailed information about a remote-desktop account entry."""
         print(f"+ {remote_desktop.get_full_name()} (remote desktop)")
-        self._print_property("Hostname", remote_desktop.hostname)
-        self._print_property("Port", remote_desktop.port)
-        self._print_property("Username", remote_desktop.username)
-        self._print_property("Password", remote_desktop.password)
+        self._print_properties(remote_desktop)
         self._print_common_info(remote_desktop)
 
     def visit_vnc(self, vnc):
         """Print detailed information about a VNC account entry."""
         print(f"+ {vnc.get_full_name()} (VNC)")
-        self._print_property("Hostname", vnc.hostname)
-        self._print_property("Port", vnc.port)
-        self._print_property("Username", vnc.username)
-        self._print_property("Password", vnc.password)
+        self._print_properties(vnc)
         self._print_common_info(vnc)
 
     def visit_website(self, website):
         """Print detailed information about a website account entry."""
         print(f"+ {website.get_full_name()} (website)")
-        self._print_property("URL", website.url)
-        self._print_property("Username", website.username)
-        self._print_property("Email", website.email)
-        self._print_property("Password", website.password)
+        self._print_properties(website)
         self._print_common_info(website)
