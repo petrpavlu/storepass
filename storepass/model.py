@@ -319,6 +319,16 @@ class Entry:
     _entry_type_name = 'entry'
     _entry_fields = ()
 
+    class _PropertyProxy:
+        def __init__(self, entry):
+            self.entry = entry
+
+        def __getitem__(self, field):
+            return self.entry._get_field(field)
+
+        def __setitem__(self, field, value):
+            self.entry._set_field(field, value)
+
     def __init__(self, name, description, updated, notes):
         """Initialize an abstract database entry."""
         assert name is not None
@@ -331,6 +341,7 @@ class Entry:
         self.description = description
         self.updated = updated
         self.notes = notes
+        self.properties = self._PropertyProxy(self)
 
     @classmethod
     def get_entry_type_name(cls):
@@ -351,6 +362,14 @@ class Entry:
     def name(self):
         """Obtain a name of the entry."""
         return self._name
+
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        assert 0 and "Unimplemented method _get_field()!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        assert 0 and "Unimplemented method _set_field()!"
 
     def get_path(self):
         """Obtain a full path from the database root to the entry."""
@@ -380,6 +399,14 @@ class Folder(Entry, Container):
         """Initialize a password folder."""
         Container.__init__(self, children)
         Entry.__init__(self, name, description, updated, notes)
+
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        assert 0 and "Invalid Folder field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        assert 0 and "Invalid Folder field!"
 
     def move_children_to(self, container):
         """
@@ -442,6 +469,34 @@ class CreditCard(Account):
         self.ccv = ccv
         self.pin = pin
 
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == CARD_TYPE_FIELD:
+            return self.card_type
+        if field == CARD_NUMBER_FIELD:
+            return self.card_number
+        if field == EXPIRY_DATE_FIELD:
+            return self.expiry_date
+        if field == CCV_FIELD:
+            return self.ccv
+        if field == PIN_FIELD:
+            return self.pin
+        assert 0 and "Invalid CreditCard field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == CARD_TYPE_FIELD:
+            self.card_type = value
+        elif field == CARD_NUMBER_FIELD:
+            self.card_number = value
+        elif field == EXPIRY_DATE_FIELD:
+            self.expiry_date = value
+        elif field == CCV_FIELD:
+            self.ccv = value
+        elif field == PIN_FIELD:
+            self.pin = value
+        assert 0 and "Invalid Folder field!"
+
     def __str__(self, indent=""):
         parent = super().inline_str()
         return (indent + f"CreditCard({parent}, card_type={self.card_type}, "
@@ -469,6 +524,30 @@ class CryptoKey(Account):
         self.keyfile = keyfile
         self.password = password
 
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            return self.hostname
+        if field == CERTIFICATE_FIELD:
+            return self.certificate
+        if field == KEYFILE_FIELD:
+            return self.keyfile
+        if field == PASSWORD_FIELD:
+            return self.password
+        assert 0 and "Invalid CryptoKey field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            self.hostname = value
+        elif field == CERTIFICATE_FIELD:
+            self.certificate = value
+        elif field == KEYFILE_FIELD:
+            self.keyfile = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        assert 0 and "Invalid CryptoKey field!"
+
     def __str__(self, indent=""):
         parent = super().inline_str()
         return (indent + f"CryptoKey({parent}, hostname={self.hostname}, "
@@ -495,6 +574,30 @@ class Database(Account):
         self.password = password
         self.database = database
 
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            return self.hostname
+        if field == USERNAME_FIELD:
+            return self.username
+        if field == PASSWORD_FIELD:
+            return self.password
+        if field == DATABASE_FIELD:
+            return self.database
+        assert 0 and "Invalid Database field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            self.hostname = value
+        elif field == USERNAME_FIELD:
+            self.username = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        elif field == DATABASE_FIELD:
+            self.database = value
+        assert 0 and "Invalid Database field!"
+
     def __str__(self, indent=""):
         parent = super().inline_str()
         return (indent + f"Database({parent}, hostname={self.hostname}, "
@@ -516,6 +619,22 @@ class Door(Account):
         Account.__init__(self, name, description, updated, notes)
         self.location = location
         self.code = code
+
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == LOCATION_FIELD:
+            return self.location
+        if field == CODE_FIELD:
+            return self.code
+        assert 0 and "Invalid Door field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == LOCATION_FIELD:
+            self.location = value
+        elif field == CODE_FIELD:
+            self.code = value
+        assert 0 and "Invalid Door field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -541,6 +660,30 @@ class Email(Account):
         self.hostname = hostname
         self.username = username
         self.password = password
+
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == EMAIL_FIELD:
+            return self.email
+        if field == HOSTNAME_FIELD:
+            return self.hostname
+        if field == USERNAME_FIELD:
+            return self.username
+        if field == PASSWORD_FIELD:
+            return self.password
+        assert 0 and "Invalid Email field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == EMAIL_FIELD:
+            self.email = value
+        elif field == HOSTNAME_FIELD:
+            self.hostname = value
+        elif field == USERNAME_FIELD:
+            self.username = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        assert 0 and "Invalid Email field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -568,6 +711,30 @@ class FTP(Account):
         self.username = username
         self.password = password
 
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            return self.hostname
+        if field == PORT_FIELD:
+            return self.port
+        if field == USERNAME_FIELD:
+            return self.username
+        if field == PASSWORD_FIELD:
+            return self.password
+        assert 0 and "Invalid FTP field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            self.hostname = value
+        elif field == PORT_FIELD:
+            self.port = value
+        elif field == USERNAME_FIELD:
+            self.username = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        assert 0 and "Invalid FTP field!"
+
     def __str__(self, indent=""):
         parent = super().inline_str()
         return (indent + f"FTP({parent}, hostname={self.hostname}, "
@@ -592,6 +759,26 @@ class Generic(Account):
         self.username = username
         self.password = password
 
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            return self.hostname
+        if field == USERNAME_FIELD:
+            return self.username
+        if field == PASSWORD_FIELD:
+            return self.password
+        assert 0 and "Invalid Generic field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            self.hostname = value
+        elif field == USERNAME_FIELD:
+            self.username = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        assert 0 and "Invalid Generic field!"
+
     def __str__(self, indent=""):
         parent = super().inline_str()
         return (indent + f"Generic({parent}, hostname={self.hostname}, "
@@ -612,6 +799,22 @@ class Phone(Account):
         Account.__init__(self, name, description, updated, notes)
         self.phone_number = phone_number
         self.pin = pin
+
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == PHONE_NUMBER_FIELD:
+            return self.phone_number
+        if field == PIN_FIELD:
+            return self.pin
+        assert 0 and "Invalid Phone field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == PHONE_NUMBER_FIELD:
+            self.phone_number = value
+        elif field == PIN_FIELD:
+            self.pin = value
+        assert 0 and "Invalid Phone field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -637,6 +840,30 @@ class Shell(Account):
         self.domain = domain
         self.username = username
         self.password = password
+
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            return self.hostname
+        if field == DOMAIN_FIELD:
+            return self.domain
+        if field == USERNAME_FIELD:
+            return self.username
+        if field == PASSWORD_FIELD:
+            return self.password
+        assert 0 and "Invalid Shell field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            self.hostname = value
+        elif field == DOMAIN_FIELD:
+            self.domain = value
+        elif field == USERNAME_FIELD:
+            self.username = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        assert 0 and "Invalid Shell field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -664,6 +891,30 @@ class RemoteDesktop(Account):
         self.username = username
         self.password = password
 
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            return self.hostname
+        if field == PORT_FIELD:
+            return self.port
+        if field == USERNAME_FIELD:
+            return self.username
+        if field == PASSWORD_FIELD:
+            return self.password
+        assert 0 and "Invalid RemoteDesktop field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            self.hostname = value
+        elif field == PORT_FIELD:
+            self.port = value
+        elif field == USERNAME_FIELD:
+            self.username = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        assert 0 and "Invalid RemoteDesktop field!"
+
     def __str__(self, indent=""):
         parent = super().inline_str()
         return (indent + f"RemoteDesktop({parent}, hostname={self.hostname}, "
@@ -690,6 +941,30 @@ class VNC(Account):
         self.username = username
         self.password = password
 
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            return self.hostname
+        if field == PORT_FIELD:
+            return self.port
+        if field == USERNAME_FIELD:
+            return self.username
+        if field == PASSWORD_FIELD:
+            return self.password
+        assert 0 and "Invalid VNC field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            self.hostname = value
+        elif field == PORT_FIELD:
+            self.port = value
+        elif field == USERNAME_FIELD:
+            self.username = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        assert 0 and "Invalid VNC field!"
+
     def __str__(self, indent=""):
         parent = super().inline_str()
         return (indent + f"VNC({parent}, hostname={self.hostname}, "
@@ -714,6 +989,30 @@ class Website(Account):
         self.username = username
         self.email = email
         self.password = password
+
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == URL_FIELD:
+            return self.url
+        if field == USERNAME_FIELD:
+            return self.username
+        if field == EMAIL_FIELD:
+            return self.email
+        if field == PASSWORD_FIELD:
+            return self.password
+        assert 0 and "Invalid Website field!"
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == URL_FIELD:
+            self.url = value
+        elif field == USERNAME_FIELD:
+            self.username = value
+        elif field == EMAIL_FIELD:
+            self.email = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        assert 0 and "Invalid Website field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
