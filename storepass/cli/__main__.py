@@ -52,22 +52,6 @@ logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s",
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
-_ENTRY_TYPES = {
-    'folder': storepass.model.Folder,
-    'credit-card': storepass.model.CreditCard,
-    'crypto-key': storepass.model.CryptoKey,
-    'database': storepass.model.Database,
-    'door': storepass.model.Door,
-    'email': storepass.model.Email,
-    'ftp': storepass.model.FTP,
-    'generic': storepass.model.Generic,
-    'phone': storepass.model.Phone,
-    'shell': storepass.model.Shell,
-    'remote-desktop': storepass.model.RemoteDesktop,
-    'vnc': storepass.model.VNC,
-    'website': storepass.model.Website,
-}
-
 
 class _EntryGenerator:
     """Generator to create a new entry."""
@@ -500,8 +484,11 @@ def _check_property_arguments(args, type_):
     # Determine the entry class. It can be either specified via its name or
     # directly.
     if isinstance(type_, str):
-        entry_cls = _ENTRY_TYPES[type_]
-        assert entry_cls.entry_type_name == type_
+        for entry_cls in storepass.model.ENTRY_TYPES:
+            if entry_cls.entry_type_name == type_:
+                break
+        else:
+            assert 0 and "Unhandled entry type!"
     else:
         assert issubclass(type_, storepass.model.Entry)
         entry_cls = type_
@@ -629,9 +616,9 @@ def _build_parser():
                                          description="list password entries")
     show_parser = subparsers.add_parser(
         'show', description="show a password entry and its details")
-    argument_validity = [(entry_name,
+    argument_validity = [(cls.entry_type_name,
                           [field.name for field in cls.entry_fields])
-                         for entry_name, cls in _ENTRY_TYPES.items()]
+                         for cls in storepass.model.ENTRY_TYPES]
     add_edit_epilog = "option validity for entry types:\n" + "\n".join([
         f"  {name + ':':22}{', '.join(args) if len(args) > 0 else '--'}"
         for name, args in argument_validity
@@ -651,9 +638,7 @@ def _build_parser():
     _dump_parser = subparsers.add_parser(
         'dump', description="dump raw database content")
 
-    type_choices = ('folder', 'credit-card', 'crypto-key', 'database', 'door',
-                    'email', 'ftp', 'generic', 'phone', 'shell',
-                    'remote-desktop', 'vnc', 'website')
+    type_choices = [cls.entry_type_name for cls in storepass.model.ENTRY_TYPES]
     add_parser.add_argument('--type',
                             choices=type_choices,
                             default='generic',

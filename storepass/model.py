@@ -1087,6 +1087,23 @@ class Website(Account):
             visitor.visit_account(self)
 
 
+ENTRY_TYPES = (
+    Folder,
+    CreditCard,
+    CryptoKey,
+    Database,
+    Door,
+    Email,
+    FTP,
+    Generic,
+    Phone,
+    Shell,
+    RemoteDesktop,
+    VNC,
+    Website,
+)
+
+
 class Model:
     """Database model."""
     def __init__(self):
