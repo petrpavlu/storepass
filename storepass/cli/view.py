@@ -126,13 +126,13 @@ class DetailView(storepass.model.ModelVisitor):
 
     def visit_folder(self, folder):
         """Print detailed information about a folder entry."""
-        print(f"+ {folder.get_full_name()} ({folder.ENTRY_LABEL})")
+        print(f"+ {folder.get_full_name()} ({folder.entry_label})")
         self._print_common_info(folder)
 
     def visit_account(self, account):
-        """Print detailed information about an account entry."""
-        print(f"+ {account.get_full_name()} ({account.ENTRY_LABEL})")
-        for field in account.ENTRY_FIELDS:
+        """print detailed information about an account entry."""
+        print(f"+ {account.get_full_name()} ({account.entry_label})")
+        for field in account.entry_fields:
             value = account.properties[field]
             if value is not None:
                 print(f"  - {field.label}: {value}")

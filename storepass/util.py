@@ -7,6 +7,21 @@ import datetime
 import string
 
 
+class classproperty:
+    """Limited read-only class property."""
+    def __init__(self, fget):
+        self._fget = fget
+
+    def __get__(self, instance, owner=None):
+        return self._fget(owner)
+
+    def __set__(self, instance, value):
+        raise AttributeError("can't set attribute")
+
+    def __delete__(self, instance):
+        raise AttributeError("can't delete attribute")
+
+
 def escape_bytes(bytes_):
     """
     Convert a bytes object to an escaped string.
