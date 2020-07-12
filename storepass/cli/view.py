@@ -126,7 +126,7 @@ class DetailView(storepass.model.ModelVisitor):
 
     def _print_properties(self, entry):
         """Print all entry-specific properties."""
-        for field in entry.get_entry_fields():
+        for field in entry.ENTRY_FIELDS:
             value = entry.properties[field]
             if value is not None:
                 print(f"  - {field.label}: {value}")

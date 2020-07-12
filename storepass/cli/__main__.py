@@ -101,7 +101,7 @@ class _EntryGenerator:
 
     def set_from_entry(self, entry):
         """Update generator properties from an existing entry."""
-        self.type = entry.get_entry_type_name()
+        self.type = entry.ENTRY_TYPE_NAME
 
         self.description = entry.description
         self.updated = entry.updated
@@ -501,18 +501,17 @@ def _check_property_arguments(args, type_):
     # directly.
     if isinstance(type_, str):
         entry_cls = _ENTRY_TYPES[type_]
-        assert entry_cls.get_entry_type_name() == type_
+        assert entry_cls.ENTRY_TYPE_NAME == type_
     else:
         assert issubclass(type_, storepass.model.Entry)
         entry_cls = type_
 
-    accepted_options = set(
-        [field.name for field in entry_cls.get_entry_fields()])
+    accepted_options = set([field.name for field in entry_cls.ENTRY_FIELDS])
 
     def _check_one(option, value):
         if value is not None and option not in accepted_options:
             _logger.error("option --%s is not valid for entry type '%s'",
-                          option, entry_cls.get_entry_type_name())
+                          option, entry_cls.ENTRY_TYPE_NAME)
             return 1
         return 0
 
@@ -631,7 +630,7 @@ def _build_parser():
     show_parser = subparsers.add_parser(
         'show', description="show a password entry and its details")
     argument_validity = [(entry_name,
-                          [field.name for field in cls.get_entry_fields()])
+                          [field.name for field in cls.ENTRY_FIELDS])
                          for entry_name, cls in _ENTRY_TYPES.items()]
     add_edit_epilog = "option validity for entry types:\n" + "\n".join([
         f"  {name + ':':22}{', '.join(args) if len(args) > 0 else '--'}"
