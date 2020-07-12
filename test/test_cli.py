@@ -3225,7 +3225,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    + E1 name (generic account)
+                    + E1 name (Generic)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -3254,7 +3254,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (generic account)
+                    |+ E1 name (Generic)
                     |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3270,7 +3270,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (generic account)
+                    |+ E1 name (Generic)
                     |  - Last modified: Tue Jan  1 01:00:00 2019 GMT
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3308,7 +3308,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    + E1 name (folder)
+                    + E1 name (Folder)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -3322,7 +3322,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    + E1 name/E2 name (folder)
+                    + E1 name/E2 name (Folder)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -3337,7 +3337,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    + E1 name/E2 name/E3 name (generic account)
+                    + E1 name/E2 name/E3 name (Generic)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -3351,7 +3351,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent("""\
-                    + E4 name (folder)
+                    + E4 name (Folder)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
@@ -3382,7 +3382,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (folder)
+                    |+ E1 name (Folder)
                     |  - Description: E1 description
                     |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
                     |  - Notes: E1 notes
@@ -3421,7 +3421,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (credit card)
+                    |+ E1 name (Credit card)
                     |  - Card type: E1 card type
                     |  - Card number: E1 card number
                     |  - Expiry date: E1 expiry date
@@ -3464,7 +3464,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (crypto key)
+                    |+ E1 name (Crypto key)
                     |  - Hostname: E1 hostname
                     |  - Certificate: E1 certificate
                     |  - Keyfile: E1 keyfile
@@ -3506,7 +3506,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (database)
+                    |+ E1 name (Database)
                     |  - Hostname: E1 hostname
                     |  - Username: E1 username
                     |  - Password: E1 password
@@ -3546,7 +3546,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (door)
+                    |+ E1 name (Door)
                     |  - Location: E1 location
                     |  - Code: E1 code
                     |  - Description: E1 description
@@ -3586,7 +3586,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (email)
+                    |+ E1 name (Email)
                     |  - Email: E1 email
                     |  - Hostname: E1 hostname
                     |  - Username: E1 username
@@ -3669,7 +3669,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (generic account)
+                    |+ E1 name (Generic)
                     |  - Hostname: E1 hostname
                     |  - Username: E1 username
                     |  - Password: E1 password
@@ -3708,7 +3708,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (phone)
+                    |+ E1 name (Phone)
                     |  - Phone number: E1 phone number
                     |  - PIN: E1 PIN
                     |  - Description: E1 description
@@ -3748,7 +3748,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (shell)
+                    |+ E1 name (Shell)
                     |  - Hostname: E1 hostname
                     |  - Domain: E1 domain
                     |  - Username: E1 username
@@ -3790,7 +3790,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (remote desktop)
+                    |+ E1 name (Remote desktop)
                     |  - Hostname: E1 hostname
                     |  - Port: E1 port
                     |  - Username: E1 username
@@ -3874,7 +3874,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
-                    |+ E1 name (website)
+                    |+ E1 name (Website)
                     |  - URL: E1 URL
                     |  - Username: E1 username
                     |  - Email: E1 email
