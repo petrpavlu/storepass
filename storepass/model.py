@@ -104,29 +104,30 @@ def path_spec_to_string(path_spec):
 
 class Field:
     """Entry field."""
-    def __init__(self, name):
+    def __init__(self, name, label):
         """Initialize an account field."""
         self.name = name
+        self.label = label
 
 
-CARD_NUMBER_FIELD = Field('card-number')
-CARD_TYPE_FIELD = Field('card-type')
-CCV_FIELD = Field('ccv')
-CERTIFICATE_FIELD = Field('certificate')
-CODE_FIELD = Field('code')
-DATABASE_FIELD = Field('database')
-DOMAIN_FIELD = Field('domain')
-EMAIL_FIELD = Field('email')
-EXPIRY_DATE_FIELD = Field('expiry-date')
-HOSTNAME_FIELD = Field('hostname')
-KEYFILE_FIELD = Field('keyfile')
-LOCATION_FIELD = Field('location')
-PASSWORD_FIELD = Field('password')
-PHONE_NUMBER_FIELD = Field('phone-number')
-PIN_FIELD = Field('pin')
-PORT_FIELD = Field('port')
-URL_FIELD = Field('url')
-USERNAME_FIELD = Field('username')
+CARD_NUMBER_FIELD = Field('card-number', "Card number")
+CARD_TYPE_FIELD = Field('card-type', "Card type")
+CCV_FIELD = Field('ccv', "CCV")
+CERTIFICATE_FIELD = Field('certificate', "Certificate")
+CODE_FIELD = Field('code', "Code")
+DATABASE_FIELD = Field('database', "Database")
+DOMAIN_FIELD = Field('domain', "Domain")
+EMAIL_FIELD = Field('email', "Email")
+EXPIRY_DATE_FIELD = Field('expiry-date', "Expiry date")
+HOSTNAME_FIELD = Field('hostname', "Hostname")
+KEYFILE_FIELD = Field('keyfile', "Keyfile")
+LOCATION_FIELD = Field('location', "Location")
+PASSWORD_FIELD = Field('password', "Password")
+PHONE_NUMBER_FIELD = Field('phone-number', "Phone number")
+PIN_FIELD = Field('pin', "PIN")
+PORT_FIELD = Field('port', "Port")
+URL_FIELD = Field('url', "URL")
+USERNAME_FIELD = Field('username', "Username")
 
 ENTRY_FIELDS = (
     CARD_NUMBER_FIELD,
