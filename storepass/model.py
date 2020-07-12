@@ -409,6 +409,13 @@ class Folder(Entry, Container):
         """Set a new value of a specified field."""
         assert 0 and "Invalid Folder field!"
 
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        res = indent + f"Folder({parent}):"
+        for child in self._children:
+            res += "\n" + child.__str__(indent + "  ")
+        return res
+
     def move_children_to(self, container):
         """
         Move children from this folder to another container.
@@ -427,13 +434,6 @@ class Folder(Entry, Container):
         self._children = []
         for child in container._children:
             child._parent = container
-
-    def __str__(self, indent=""):
-        parent = super().inline_str()
-        res = indent + f"Folder({parent}):"
-        for child in self._children:
-            res += "\n" + child.__str__(indent + "  ")
-        return res
 
     def accept(self, visitor, single=False):
         """
