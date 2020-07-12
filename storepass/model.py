@@ -497,7 +497,10 @@ class CreditCard(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the credit card entry."""
-        visitor.visit_credit_card(self)
+        if hasattr(visitor, 'visit_credit_card'):
+            visitor.visit_credit_card(self)
+        else:
+            visitor.visit_account(self)
 
 
 class CryptoKey(Account):
@@ -547,7 +550,10 @@ class CryptoKey(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the crypto key entry."""
-        visitor.visit_crypto_key(self)
+        if hasattr(visitor, 'visit_crypto_key'):
+            visitor.visit_crypto_key(self)
+        else:
+            visitor.visit_account(self)
 
 
 class Database(Account):
@@ -597,7 +603,10 @@ class Database(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the database entry."""
-        visitor.visit_database(self)
+        if hasattr(visitor, 'visit_database'):
+            visitor.visit_database(self)
+        else:
+            visitor.visit_account(self)
 
 
 class Door(Account):
@@ -634,7 +643,10 @@ class Door(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the door entry."""
-        visitor.visit_door(self)
+        if hasattr(visitor, 'visit_door'):
+            visitor.visit_door(self)
+        else:
+            visitor.visit_account(self)
 
 
 class Email(Account):
@@ -684,7 +696,10 @@ class Email(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the email entry."""
-        visitor.visit_email(self)
+        if hasattr(visitor, 'visit_email'):
+            visitor.visit_email(self)
+        else:
+            visitor.visit_account(self)
 
 
 class FTP(Account):
@@ -733,7 +748,10 @@ class FTP(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the FTP entry."""
-        visitor.visit_ftp(self)
+        if hasattr(visitor, 'visit_ftp'):
+            visitor.visit_ftp(self)
+        else:
+            visitor.visit_account(self)
 
 
 class Generic(Account):
@@ -776,7 +794,10 @@ class Generic(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the generic account entry."""
-        visitor.visit_generic(self)
+        if hasattr(visitor, 'visit_generic'):
+            visitor.visit_generic(self)
+        else:
+            visitor.visit_account(self)
 
 
 class Phone(Account):
@@ -813,7 +834,10 @@ class Phone(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the phone entry."""
-        visitor.visit_phone(self)
+        if hasattr(visitor, 'visit_phone'):
+            visitor.visit_phone(self)
+        else:
+            visitor.visit_account(self)
 
 
 class Shell(Account):
@@ -863,7 +887,10 @@ class Shell(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the shell entry."""
-        visitor.visit_shell(self)
+        if hasattr(visitor, 'visit_shell'):
+            visitor.visit_shell(self)
+        else:
+            visitor.visit_account(self)
 
 
 class RemoteDesktop(Account):
@@ -912,7 +939,10 @@ class RemoteDesktop(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the remote desktop entry."""
-        visitor.visit_remote_desktop(self)
+        if hasattr(visitor, 'visit_remote_desktop'):
+            visitor.visit_remote_desktop(self)
+        else:
+            visitor.visit_account(self)
 
 
 class VNC(Account):
@@ -961,7 +991,10 @@ class VNC(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the VNC entry."""
-        visitor.visit_vnc(self)
+        if hasattr(visitor, 'visit_vnc'):
+            visitor.visit_vnc(self)
+        else:
+            visitor.visit_account(self)
 
 
 class Website(Account):
@@ -1010,7 +1043,10 @@ class Website(Account):
 
     def accept(self, visitor, single=False):  # pylint: disable=unused-argument
         """Visit the web site entry."""
-        visitor.visit_website(self)
+        if hasattr(visitor, 'visit_website'):
+            visitor.visit_website(self)
+        else:
+            visitor.visit_account(self)
 
 
 class Model:
