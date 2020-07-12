@@ -44,7 +44,7 @@ def path_string_to_spec(path_string):
     Split a name of a password entry into a list of its path elements.
 
     Parse a name of a password entry and return a list of its path elements.
-    Character '/' is expected as the path separator and '\' starts an escape
+    Character '/' is expected as the path separator and '\\' starts an escape
     sequence.
     """
     class _State(enum.IntEnum):
