@@ -318,6 +318,7 @@ class Entry:
     """Database entry base class."""
 
     ENTRY_TYPE_NAME = 'entry'
+    ENTRY_LABEL = "Entry"
     ENTRY_FIELDS = ()
 
     class _PropertyProxy:
@@ -384,6 +385,7 @@ class Entry:
 class Folder(Entry, Container):
     """Password folder."""
     ENTRY_TYPE_NAME = 'folder'
+    ENTRY_LABEL = "Folder"
     ENTRY_FIELDS = ()
 
     def __init__(self, name, description, updated, notes, children):
@@ -447,6 +449,7 @@ class Account(Entry):
 class CreditCard(Account):
     """Credit card entry."""
     ENTRY_TYPE_NAME = 'credit-card'
+    ENTRY_LABEL = "Credit card"
     ENTRY_FIELDS = (CARD_TYPE_FIELD, CARD_NUMBER_FIELD, EXPIRY_DATE_FIELD,
                     CCV_FIELD, PIN_FIELD)
 
@@ -506,6 +509,7 @@ class CreditCard(Account):
 class CryptoKey(Account):
     """Crypto key entry."""
     ENTRY_TYPE_NAME = 'crypto-key'
+    ENTRY_LABEL = "Crypto key"
     ENTRY_FIELDS = (HOSTNAME_FIELD, CERTIFICATE_FIELD, KEYFILE_FIELD,
                     PASSWORD_FIELD)
 
@@ -559,6 +563,7 @@ class CryptoKey(Account):
 class Database(Account):
     """Database entry."""
     ENTRY_TYPE_NAME = 'database'
+    ENTRY_LABEL = "Database"
     ENTRY_FIELDS = (HOSTNAME_FIELD, USERNAME_FIELD, PASSWORD_FIELD,
                     DATABASE_FIELD)
 
@@ -612,6 +617,7 @@ class Database(Account):
 class Door(Account):
     """Door entry."""
     ENTRY_TYPE_NAME = 'door'
+    ENTRY_LABEL = "Door"
     ENTRY_FIELDS = (LOCATION_FIELD, CODE_FIELD)
 
     def __init__(self, name, description, updated, notes, location, code):
@@ -652,6 +658,7 @@ class Door(Account):
 class Email(Account):
     """Email entry."""
     ENTRY_TYPE_NAME = 'email'
+    ENTRY_LABEL = "Email"
     ENTRY_FIELDS = (EMAIL_FIELD, HOSTNAME_FIELD, USERNAME_FIELD,
                     PASSWORD_FIELD)
 
@@ -705,6 +712,7 @@ class Email(Account):
 class FTP(Account):
     """File Transfer Protocol entry."""
     ENTRY_TYPE_NAME = 'ftp'
+    ENTRY_LABEL = "FTP"
     ENTRY_FIELDS = (HOSTNAME_FIELD, PORT_FIELD, USERNAME_FIELD, PASSWORD_FIELD)
 
     def __init__(self, name, description, updated, notes, hostname, port,
@@ -757,6 +765,7 @@ class FTP(Account):
 class Generic(Account):
     """Generic account entry."""
     ENTRY_TYPE_NAME = 'generic'
+    ENTRY_LABEL = "Generic"
     ENTRY_FIELDS = (HOSTNAME_FIELD, USERNAME_FIELD, PASSWORD_FIELD)
 
     def __init__(self, name, description, updated, notes, hostname, username,
@@ -803,6 +812,7 @@ class Generic(Account):
 class Phone(Account):
     """Phone entry."""
     ENTRY_TYPE_NAME = 'phone'
+    ENTRY_LABEL = "Phone"
     ENTRY_FIELDS = (PHONE_NUMBER_FIELD, PIN_FIELD)
 
     def __init__(self, name, description, updated, notes, phone_number, pin):
@@ -843,6 +853,7 @@ class Phone(Account):
 class Shell(Account):
     """Shell entry."""
     ENTRY_TYPE_NAME = 'shell'
+    ENTRY_LABEL = "Shell"
     ENTRY_FIELDS = (HOSTNAME_FIELD, DOMAIN_FIELD, USERNAME_FIELD,
                     PASSWORD_FIELD)
 
@@ -896,6 +907,7 @@ class Shell(Account):
 class RemoteDesktop(Account):
     """Remote desktop entry."""
     ENTRY_TYPE_NAME = 'remote-desktop'
+    ENTRY_LABEL = "Remote desktop"
     ENTRY_FIELDS = (HOSTNAME_FIELD, PORT_FIELD, USERNAME_FIELD, PASSWORD_FIELD)
 
     def __init__(self, name, description, updated, notes, hostname, port,
@@ -948,6 +960,7 @@ class RemoteDesktop(Account):
 class VNC(Account):
     """Virtual Network Computing entry."""
     ENTRY_TYPE_NAME = 'vnc'
+    ENTRY_LABEL = "VNC"
     ENTRY_FIELDS = (HOSTNAME_FIELD, PORT_FIELD, USERNAME_FIELD, PASSWORD_FIELD)
 
     def __init__(self, name, description, updated, notes, hostname, port,
@@ -1000,6 +1013,7 @@ class VNC(Account):
 class Website(Account):
     """Web site entry."""
     ENTRY_TYPE_NAME = 'website'
+    ENTRY_LABEL = "Website"
     ENTRY_FIELDS = (URL_FIELD, USERNAME_FIELD, EMAIL_FIELD, PASSWORD_FIELD)
 
     def __init__(self, name, description, updated, notes, url, username, email,
