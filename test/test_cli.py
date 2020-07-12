@@ -125,7 +125,7 @@ class TestCLI(util.StorePassTestCase):
                     |  --description DESC    set entry description to the specified value
                     |  --notes NOTES         set entry notes to the specified value
                     |
-                    |optional arguments valid for specific account types:
+                    |optional arguments valid for specific entry types:
                     |  --card-number ID      set card number to the specified value
                     |  --card-type TYPE      set card type to the specified value
                     |  --ccv CCV             set CCV number to the specified value
@@ -145,7 +145,8 @@ class TestCLI(util.StorePassTestCase):
                     |  --url ADDRESS         set URL to the specified value
                     |  --username USER       set username to the specified value
                     |
-                    |option validity for account types:
+                    |option validity for entry types:
+                    |  folder:               --
                     |  credit-card:          card-type, card-number, expiry-date, ccv, pin
                     |  crypto-key:           hostname, certificate, keyfile, password
                     |  database:             hostname, username, password, database

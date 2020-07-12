@@ -52,25 +52,20 @@ logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s",
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
-_ACCOUNT_TYPE_TO_STR = {
-    storepass.model.Folder: 'folder',
-    storepass.model.CreditCard: 'credit-card',
-    storepass.model.CryptoKey: 'crypto-key',
-    storepass.model.Database: 'database',
-    storepass.model.Door: 'door',
-    storepass.model.Email: 'email',
-    storepass.model.FTP: 'ftp',
-    storepass.model.Generic: 'generic',
-    storepass.model.Phone: 'phone',
-    storepass.model.Shell: 'shell',
-    storepass.model.RemoteDesktop: 'remote-desktop',
-    storepass.model.VNC: 'vnc',
-    storepass.model.Website: 'website',
-}
-
-_ACCOUNT_STR_TO_TYPE = {
-    value: key
-    for key, value in _ACCOUNT_TYPE_TO_STR.items()
+_ENTRY_TYPES = {
+    'folder': storepass.model.Folder,
+    'credit-card': storepass.model.CreditCard,
+    'crypto-key': storepass.model.CryptoKey,
+    'database': storepass.model.Database,
+    'door': storepass.model.Door,
+    'email': storepass.model.Email,
+    'ftp': storepass.model.FTP,
+    'generic': storepass.model.Generic,
+    'phone': storepass.model.Phone,
+    'shell': storepass.model.Shell,
+    'remote-desktop': storepass.model.RemoteDesktop,
+    'vnc': storepass.model.VNC,
+    'website': storepass.model.Website,
 }
 
 
@@ -106,7 +101,7 @@ class _EntryGenerator:
 
     def set_from_entry(self, entry):
         """Update generator properties from an existing entry."""
-        self.type = type(entry)
+        self.type = entry.get_entry_type_name()
 
         self.description = entry.description
         self.updated = entry.updated
@@ -121,7 +116,7 @@ class _EntryGenerator:
     def set_from_args(self, args):
         """Update generator properties from command line arguments."""
         if args.type is not None:
-            self.type = _ACCOUNT_STR_TO_TYPE[args.type]
+            self.type = args.type
 
         # Process options valid for all entries.
         if args.description is not None:
@@ -173,62 +168,62 @@ class _EntryGenerator:
 
     def get_entry(self):
         """Obtain a new entry based on the set properties."""
-        if self.type == storepass.model.Folder:
+        if self.type == 'folder':
             return storepass.model.Folder(self.name, self.description,
                                           self.updated, self.notes, [])
-        if self.type == storepass.model.CreditCard:
+        if self.type == 'credit-card':
             return storepass.model.CreditCard(self.name, self.description,
                                               self.updated, self.notes,
                                               self.card_type, self.card_number,
                                               self.expiry_date, self.ccv,
                                               self.pin)
-        if self.type == storepass.model.CryptoKey:
+        if self.type == 'crypto-key':
             return storepass.model.CryptoKey(self.name, self.description,
                                              self.updated, self.notes,
                                              self.hostname, self.certificate,
                                              self.keyfile, self.password)
-        if self.type == storepass.model.Database:
+        if self.type == 'database':
             return storepass.model.Database(self.name, self.description,
                                             self.updated, self.notes,
                                             self.hostname, self.username,
                                             self.password, self.database)
-        if self.type == storepass.model.Door:
+        if self.type == 'door':
             return storepass.model.Door(self.name, self.description,
                                         self.updated, self.notes,
                                         self.location, self.code)
-        if self.type == storepass.model.Email:
+        if self.type == 'email':
             return storepass.model.Email(self.name, self.description,
                                          self.updated, self.notes, self.email,
                                          self.hostname, self.username,
                                          self.password)
-        if self.type == storepass.model.FTP:
+        if self.type == 'ftp':
             return storepass.model.FTP(self.name, self.description,
                                        self.updated, self.notes, self.hostname,
                                        self.port, self.username, self.password)
-        if self.type == storepass.model.Generic:
+        if self.type == 'generic':
             return storepass.model.Generic(self.name, self.description,
                                            self.updated, self.notes,
                                            self.hostname, self.username,
                                            self.password)
-        if self.type == storepass.model.Phone:
+        if self.type == 'phone':
             return storepass.model.Phone(self.name, self.description,
                                          self.updated, self.notes,
                                          self.phone_number, self.pin)
-        if self.type == storepass.model.Shell:
+        if self.type == 'shell':
             return storepass.model.Shell(self.name, self.description,
                                          self.updated, self.notes,
                                          self.hostname, self.domain,
                                          self.username, self.password)
-        if self.type == storepass.model.RemoteDesktop:
+        if self.type == 'remote-desktop':
             return storepass.model.RemoteDesktop(self.name, self.description,
                                                  self.updated, self.notes,
                                                  self.hostname, self.port,
                                                  self.username, self.password)
-        if self.type == storepass.model.VNC:
+        if self.type == 'vnc':
             return storepass.model.VNC(self.name, self.description,
                                        self.updated, self.notes, self.hostname,
                                        self.port, self.username, self.password)
-        if self.type == storepass.model.Website:
+        if self.type == 'website':
             return storepass.model.Website(self.name, self.description,
                                            self.updated, self.notes, self.url,
                                            self.username, self.email,
@@ -438,10 +433,7 @@ def _process_edit_command(args, model):
     # If no new type is specified then validate that property arguments are
     # valid for the existing type.
     if args.type is None:
-        assert (type(old_entry) in _ACCOUNT_TYPE_TO_STR and
-                "Unhandled entry type!")
-        res = _check_property_arguments(args,
-                                        _ACCOUNT_TYPE_TO_STR[type(old_entry)])
+        res = _check_property_arguments(args, type(old_entry))
         if res != 0:
             return res
 
@@ -495,22 +487,6 @@ def _process_dump_command(args, storage):
     return 0
 
 
-_ACCOUNT_ARGUMENT_VALIDITY = {
-    'credit-card': ['card-type', 'card-number', 'expiry-date', 'ccv', 'pin'],
-    'crypto-key': ['hostname', 'certificate', 'keyfile', 'password'],
-    'database': ['hostname', 'username', 'password', 'database'],
-    'door': ['location', 'code'],
-    'email': ['email', 'hostname', 'username', 'password'],
-    'ftp': ['hostname', 'port', 'username', 'password'],
-    'generic': ['hostname', 'username', 'password'],
-    'phone': ['phone-number', 'pin'],
-    'shell': ['hostname', 'domain', 'username', 'password'],
-    'remote-desktop': ['hostname', 'port', 'username', 'password'],
-    'vnc': ['hostname', 'port', 'username', 'password'],
-    'website': ['url', 'username', 'email', 'password']
-}
-
-
 def _check_property_arguments(args, type_):
     """
     Check validity of specified property arguments for a given entry type.
@@ -521,15 +497,22 @@ def _check_property_arguments(args, type_):
     """
     assert args.command in ('add', 'edit')
 
-    if type_ == 'folder':
-        accepted_options = set()
+    # Determine the entry class. It can be either specified via its name or
+    # directly.
+    if isinstance(type_, str):
+        entry_cls = _ENTRY_TYPES[type_]
+        assert entry_cls.get_entry_type_name() == type_
     else:
-        accepted_options = set(_ACCOUNT_ARGUMENT_VALIDITY[type_])
+        assert issubclass(type_, storepass.model.Entry)
+        entry_cls = type_
+
+    accepted_options = set(
+        [field.name for field in entry_cls.get_entry_fields()])
 
     def _check_one(option, value):
         if value is not None and option not in accepted_options:
             _logger.error("option --%s is not valid for entry type '%s'",
-                          option, type_)
+                          option, entry_cls.get_entry_type_name())
             return 1
         return 0
 
@@ -567,7 +550,7 @@ def _add_property_arguments(parser):
                               help="set entry notes to the specified value")
 
     account_group = parser.add_argument_group(
-        "optional arguments valid for specific account types")
+        "optional arguments valid for specific entry types")
     account_group.add_argument('--card-number',
                                metavar='ID',
                                help="set card number to the specified value")
@@ -647,9 +630,12 @@ def _build_parser():
                                          description="list password entries")
     show_parser = subparsers.add_parser(
         'show', description="show a password entry and its details")
-    add_edit_epilog = "option validity for account types:\n" + "\n".join([
-        f"  {type_ + ':':22}{', '.join(args)}"
-        for type_, args in _ACCOUNT_ARGUMENT_VALIDITY.items()
+    argument_validity = [(entry_name,
+                          [field.name for field in cls.get_entry_fields()])
+                         for entry_name, cls in _ENTRY_TYPES.items()]
+    add_edit_epilog = "option validity for entry types:\n" + "\n".join([
+        f"  {name + ':':22}{', '.join(args) if len(args) > 0 else '--'}"
+        for name, args in argument_validity
     ])
     add_parser = subparsers.add_parser(
         'add',

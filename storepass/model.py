@@ -102,6 +102,54 @@ def path_spec_to_string(path_spec):
     return "/".join([path_element_to_string(element) for element in path_spec])
 
 
+class Field:
+    """Entry field."""
+    def __init__(self, name):
+        """Initialize an account field."""
+        self.name = name
+
+
+CARD_NUMBER_FIELD = Field('card-number')
+CARD_TYPE_FIELD = Field('card-type')
+CCV_FIELD = Field('ccv')
+CERTIFICATE_FIELD = Field('certificate')
+CODE_FIELD = Field('code')
+DATABASE_FIELD = Field('database')
+DOMAIN_FIELD = Field('domain')
+EMAIL_FIELD = Field('email')
+EXPIRY_DATE_FIELD = Field('expiry-date')
+HOSTNAME_FIELD = Field('hostname')
+KEYFILE_FIELD = Field('keyfile')
+LOCATION_FIELD = Field('location')
+PASSWORD_FIELD = Field('password')
+PHONE_NUMBER_FIELD = Field('phone-number')
+PIN_FIELD = Field('pin')
+PORT_FIELD = Field('port')
+URL_FIELD = Field('url')
+USERNAME_FIELD = Field('username')
+
+ENTRY_FIELDS = (
+    CARD_NUMBER_FIELD,
+    CARD_TYPE_FIELD,
+    CCV_FIELD,
+    CERTIFICATE_FIELD,
+    CODE_FIELD,
+    DATABASE_FIELD,
+    DOMAIN_FIELD,
+    EMAIL_FIELD,
+    EXPIRY_DATE_FIELD,
+    HOSTNAME_FIELD,
+    KEYFILE_FIELD,
+    LOCATION_FIELD,
+    PASSWORD_FIELD,
+    PHONE_NUMBER_FIELD,
+    PIN_FIELD,
+    PORT_FIELD,
+    URL_FIELD,
+    USERNAME_FIELD,
+)
+
+
 class ModelVisitor:
     """
     Base data model visitor.
@@ -267,6 +315,10 @@ class Root(Container):
 
 class Entry:
     """Database entry base class."""
+
+    _entry_type_name = 'entry'
+    _entry_fields = ()
+
     def __init__(self, name, description, updated, notes):
         """Initialize an abstract database entry."""
         assert name is not None
@@ -279,6 +331,16 @@ class Entry:
         self.description = description
         self.updated = updated
         self.notes = notes
+
+    @classmethod
+    def get_entry_type_name(cls):
+        """Obtain a name of the entry type."""
+        return cls._entry_type_name
+
+    @classmethod
+    def get_entry_fields(cls):
+        """Obtain property fields for the entry type."""
+        return cls._entry_fields
 
     @property
     def parent(self):
@@ -311,6 +373,9 @@ class Entry:
 
 class Folder(Entry, Container):
     """Password folder."""
+    _entry_type_name = 'folder'
+    _entry_fields = ()
+
     def __init__(self, name, description, updated, notes, children):
         """Initialize a password folder."""
         Container.__init__(self, children)
@@ -363,6 +428,10 @@ class Account(Entry):
 
 class CreditCard(Account):
     """Credit card entry."""
+    _entry_type_name = 'credit-card'
+    _entry_fields = (CARD_TYPE_FIELD, CARD_NUMBER_FIELD, EXPIRY_DATE_FIELD,
+                     CCV_FIELD, PIN_FIELD)
+
     def __init__(self, name, description, updated, notes, card_type,
                  card_number, expiry_date, ccv, pin):
         """Initialize a credit card entry."""
@@ -387,6 +456,10 @@ class CreditCard(Account):
 
 class CryptoKey(Account):
     """Crypto key entry."""
+    _entry_type_name = 'crypto-key'
+    _entry_fields = (HOSTNAME_FIELD, CERTIFICATE_FIELD, KEYFILE_FIELD,
+                     PASSWORD_FIELD)
+
     def __init__(self, name, description, updated, notes, hostname,
                  certificate, keyfile, password):
         """Initialize a crypto key entry."""
@@ -409,6 +482,10 @@ class CryptoKey(Account):
 
 class Database(Account):
     """Database entry."""
+    _entry_type_name = 'database'
+    _entry_fields = (HOSTNAME_FIELD, USERNAME_FIELD, PASSWORD_FIELD,
+                     DATABASE_FIELD)
+
     def __init__(self, name, description, updated, notes, hostname, username,
                  password, database):
         """Initialize a database entry."""
@@ -431,6 +508,9 @@ class Database(Account):
 
 class Door(Account):
     """Door entry."""
+    _entry_type_name = 'door'
+    _entry_fields = (LOCATION_FIELD, CODE_FIELD)
+
     def __init__(self, name, description, updated, notes, location, code):
         """Initialize a door entry."""
         Account.__init__(self, name, description, updated, notes)
@@ -449,6 +529,10 @@ class Door(Account):
 
 class Email(Account):
     """Email entry."""
+    _entry_type_name = 'email'
+    _entry_fields = (EMAIL_FIELD, HOSTNAME_FIELD, USERNAME_FIELD,
+                     PASSWORD_FIELD)
+
     def __init__(self, name, description, updated, notes, email, hostname,
                  username, password):
         """Initialize an email entry."""
@@ -471,6 +555,10 @@ class Email(Account):
 
 class FTP(Account):
     """File Transfer Protocol entry."""
+    _entry_type_name = 'ftp'
+    _entry_fields = (HOSTNAME_FIELD, PORT_FIELD, USERNAME_FIELD,
+                     PASSWORD_FIELD)
+
     def __init__(self, name, description, updated, notes, hostname, port,
                  username, password):
         """Initialize a FTP entry."""
@@ -493,6 +581,9 @@ class FTP(Account):
 
 class Generic(Account):
     """Generic account entry."""
+    _entry_type_name = 'generic'
+    _entry_fields = (HOSTNAME_FIELD, USERNAME_FIELD, PASSWORD_FIELD)
+
     def __init__(self, name, description, updated, notes, hostname, username,
                  password):
         """Initialize a generic account entry."""
@@ -513,6 +604,9 @@ class Generic(Account):
 
 class Phone(Account):
     """Phone entry."""
+    _entry_type_name = 'phone'
+    _entry_fields = (PHONE_NUMBER_FIELD, PIN_FIELD)
+
     def __init__(self, name, description, updated, notes, phone_number, pin):
         """Initialize a phone entry."""
         Account.__init__(self, name, description, updated, notes)
@@ -531,6 +625,10 @@ class Phone(Account):
 
 class Shell(Account):
     """Shell entry."""
+    _entry_type_name = 'shell'
+    _entry_fields = (HOSTNAME_FIELD, DOMAIN_FIELD, USERNAME_FIELD,
+                     PASSWORD_FIELD)
+
     def __init__(self, name, description, updated, notes, hostname, domain,
                  username, password):
         """Initialize a shell entry."""
@@ -553,6 +651,10 @@ class Shell(Account):
 
 class RemoteDesktop(Account):
     """Remote desktop entry."""
+    _entry_type_name = 'remote-desktop'
+    _entry_fields = (HOSTNAME_FIELD, PORT_FIELD, USERNAME_FIELD,
+                     PASSWORD_FIELD)
+
     def __init__(self, name, description, updated, notes, hostname, port,
                  username, password):
         """Initialize a remote desktop entry."""
@@ -575,6 +677,10 @@ class RemoteDesktop(Account):
 
 class VNC(Account):
     """Virtual Network Computing entry."""
+    _entry_type_name = 'vnc'
+    _entry_fields = (HOSTNAME_FIELD, PORT_FIELD, USERNAME_FIELD,
+                     PASSWORD_FIELD)
+
     def __init__(self, name, description, updated, notes, hostname, port,
                  username, password):
         """Initialize a VNC entry."""
@@ -597,6 +703,9 @@ class VNC(Account):
 
 class Website(Account):
     """Web site entry."""
+    _entry_type_name = 'website'
+    _entry_fields = (URL_FIELD, USERNAME_FIELD, EMAIL_FIELD, PASSWORD_FIELD)
+
     def __init__(self, name, description, updated, notes, url, username, email,
                  password):
         """Initialize a web site entry."""
