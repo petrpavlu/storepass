@@ -105,10 +105,11 @@ def path_spec_to_string(path_spec):
 
 class Field:
     """Entry field."""
-    def __init__(self, name, label):
+    def __init__(self, name, label, is_protected=False):
         """Initialize an account field."""
         self._name = name
         self._label = label
+        self._is_protected = is_protected
 
     @property
     def name(self):
@@ -117,6 +118,10 @@ class Field:
     @property
     def label(self):
         return self._label
+
+    @property
+    def is_protected(self):
+        return self._is_protected
 
 
 CARD_NUMBER_FIELD = Field('card-number', "Card number")
@@ -131,7 +136,7 @@ EXPIRY_DATE_FIELD = Field('expiry-date', "Expiry date")
 HOSTNAME_FIELD = Field('hostname', "Hostname")
 KEYFILE_FIELD = Field('keyfile', "Keyfile")
 LOCATION_FIELD = Field('location', "Location")
-PASSWORD_FIELD = Field('password', "Password")
+PASSWORD_FIELD = Field('password', "Password", is_protected=True)
 PHONE_NUMBER_FIELD = Field('phone-number', "Phone number")
 PIN_FIELD = Field('pin', "PIN")
 PORT_FIELD = Field('port', "Port")
