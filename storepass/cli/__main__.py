@@ -493,105 +493,28 @@ def _check_property_arguments(args, type_):
         assert issubclass(type_, storepass.model.Entry)
         entry_cls = type_
 
-    accepted_options = set([field.name for field in entry_cls.entry_fields])
-
-    def _check_one(option, value):
-        if value is not None and option not in accepted_options:
+    res = 0
+    for field in storepass.model.ENTRY_FIELDS:
+        if field in args.properties and field not in entry_cls.entry_fields:
             _logger.error("option --%s is not valid for entry type '%s'",
-                          option, entry_cls.entry_type_name)
-            return 1
-        return 0
-
-    invalid = 0
-    invalid += _check_one('card-number', args.card_number)
-    invalid += _check_one('card-type', args.card_type)
-    invalid += _check_one('ccv', args.ccv)
-    invalid += _check_one('certificate', args.certificate)
-    invalid += _check_one('code', args.code)
-    invalid += _check_one('database', args.database)
-    invalid += _check_one('domain', args.domain)
-    invalid += _check_one('email', args.email)
-    invalid += _check_one('expiry-date', args.expiry_date)
-    invalid += _check_one('hostname', args.hostname)
-    invalid += _check_one('keyfile', args.keyfile)
-    invalid += _check_one('location', args.location)
-    invalid += _check_one('password', args.password)
-    invalid += _check_one('phone-number', args.phone_number)
-    invalid += _check_one('pin', args.pin)
-    invalid += _check_one('port', args.port)
-    invalid += _check_one('url', args.url)
-    invalid += _check_one('username', args.username)
-    return 1 if invalid > 0 else 0
+                          field.name, entry_cls.entry_type_name)
+            res = 1
+    return res
 
 
-def _add_property_arguments(parser):
-    """Add all command-line arguments to set entry properties."""
-    common_group = parser.add_argument_group(
-        "optional arguments valid for all entry types")
-    common_group.add_argument(
-        '--description',
-        metavar='DESC',
-        help="set entry description to the specified value")
-    common_group.add_argument('--notes',
-                              help="set entry notes to the specified value")
+class _PropertyAction(argparse.Action):
+    def __init__(self, option_strings, dest, field, **kwargs):
+        super().__init__(option_strings, dest, **kwargs)
+        self._field = field
 
-    account_group = parser.add_argument_group(
-        "optional arguments valid for specific entry types")
-    account_group.add_argument('--card-number',
-                               metavar='ID',
-                               help="set card number to the specified value")
-    account_group.add_argument('--card-type',
-                               metavar='TYPE',
-                               help="set card type to the specified value")
-    account_group.add_argument('--ccv',
-                               metavar='CCV',
-                               help="set CCV number to the specified value")
-    account_group.add_argument('--certificate',
-                               metavar='CERT',
-                               help="set certificate to the specified value")
-    account_group.add_argument('--code',
-                               metavar='CODE',
-                               help="set code to the specified value")
-    account_group.add_argument('--database',
-                               metavar='NAME',
-                               help="set database name to the specified value")
-    account_group.add_argument('--domain',
-                               metavar='NAME',
-                               help="set domain name to the specified value")
-    account_group.add_argument('--email',
-                               metavar='ADDRESS',
-                               help="set email to the specified value")
-    account_group.add_argument('--expiry-date',
-                               metavar='DATE',
-                               help="set expiry date to the specified value")
-    account_group.add_argument('--hostname',
-                               metavar='HOST',
-                               help="set hostname to the specified value")
-    account_group.add_argument('--keyfile',
-                               metavar='FILE',
-                               help="set keyfile to the specified value")
-    account_group.add_argument('--location',
-                               metavar='PLACE',
-                               help="set location to the specified value")
-    account_group.add_argument('--password',
-                               action='store_true',
-                               default=None,
-                               help="prompt for a password value")
-    account_group.add_argument('--phone-number',
-                               metavar='PHONE',
-                               help="set phone number to the specified value")
-    account_group.add_argument('--pin',
-                               metavar='PIN',
-                               help="set PIN to the specified value")
-    account_group.add_argument('--port',
-                               metavar='NUMBER',
-                               help="set port to the specified value")
-    account_group.add_argument('--url',
-                               metavar='ADDRESS',
-                               help="set URL to the specified value")
-    account_group.add_argument('--username',
-                               metavar='USER',
-                               help="set username to the specified value")
+    def __call__(self, parser, namespace, values, option_string=None):
+        # TODO Remove once all code is converted to use args.properties.
+        if self.nargs == 0:
+            setattr(namespace, self.dest, True)
+        else:
+            setattr(namespace, self.dest, values)
+
+        namespace.properties[self._field] = values
 
 
 def _build_parser():
@@ -645,8 +568,35 @@ def _build_parser():
                             help="entry type (the default is generic)")
     edit_parser.add_argument('--type', choices=type_choices, help="entry type")
 
+    # Add command-line arguments to set entry properties.
     for sub_parser in (add_parser, edit_parser):
-        _add_property_arguments(sub_parser)
+        common_group = sub_parser.add_argument_group(
+            "optional arguments valid for all entry types")
+        common_group.add_argument(
+            '--description',
+            metavar='DESC',
+            help="set the entry description to the specified value")
+        common_group.add_argument(
+            '--notes', help="set the entry notes to the specified value")
+
+        account_group = sub_parser.add_argument_group(
+            "optional arguments valid for specific entry types")
+        sub_parser.set_defaults(properties={})
+        for field in storepass.model.ENTRY_FIELDS:
+            if field.is_protected:
+                nargs = 0
+                help_ = f"prompt for a value of the {field.name} property"
+            else:
+                nargs = None
+                help_ = f"set the {field.name} property to the specified value"
+            account_group.add_argument(
+                '--' + field.name,
+                metavar="VALUE",
+                action=_PropertyAction,
+                field=field,
+                nargs=nargs,
+                #default=argparse.SUPPRESS,
+                help=help_)
 
     for sub_parser in (show_parser, add_parser, delete_parser, edit_parser):
         sub_parser.add_argument('entry',

@@ -102,13 +102,13 @@ class TestCLI(util.StorePassTestCase):
                     |usage: storepass-cli add [-h]
                     |                         [--type {folder,credit-card,crypto-key,database,door,email,ftp,generic,phone,shell,remote-desktop,vnc,website}]
                     |                         [--description DESC] [--notes NOTES]
-                    |                         [--card-number ID] [--card-type TYPE] [--ccv CCV]
-                    |                         [--certificate CERT] [--code CODE] [--database NAME]
-                    |                         [--domain NAME] [--email ADDRESS]
-                    |                         [--expiry-date DATE] [--hostname HOST]
-                    |                         [--keyfile FILE] [--location PLACE] [--password]
-                    |                         [--phone-number PHONE] [--pin PIN] [--port NUMBER]
-                    |                         [--url ADDRESS] [--username USER]
+                    |                         [--card-number VALUE] [--card-type VALUE]
+                    |                         [--ccv VALUE] [--certificate VALUE] [--code VALUE]
+                    |                         [--database VALUE] [--domain VALUE] [--email VALUE]
+                    |                         [--expiry-date VALUE] [--hostname VALUE]
+                    |                         [--keyfile VALUE] [--location VALUE] [--password]
+                    |                         [--phone-number VALUE] [--pin VALUE] [--port VALUE]
+                    |                         [--url VALUE] [--username VALUE]
                     |                         ENTRY
                     |
                     |add a new password entry
@@ -122,28 +122,28 @@ class TestCLI(util.StorePassTestCase):
                     |                        entry type (the default is generic)
                     |
                     |optional arguments valid for all entry types:
-                    |  --description DESC    set entry description to the specified value
-                    |  --notes NOTES         set entry notes to the specified value
+                    |  --description DESC    set the entry description to the specified value
+                    |  --notes NOTES         set the entry notes to the specified value
                     |
                     |optional arguments valid for specific entry types:
-                    |  --card-number ID      set card number to the specified value
-                    |  --card-type TYPE      set card type to the specified value
-                    |  --ccv CCV             set CCV number to the specified value
-                    |  --certificate CERT    set certificate to the specified value
-                    |  --code CODE           set code to the specified value
-                    |  --database NAME       set database name to the specified value
-                    |  --domain NAME         set domain name to the specified value
-                    |  --email ADDRESS       set email to the specified value
-                    |  --expiry-date DATE    set expiry date to the specified value
-                    |  --hostname HOST       set hostname to the specified value
-                    |  --keyfile FILE        set keyfile to the specified value
-                    |  --location PLACE      set location to the specified value
-                    |  --password            prompt for a password value
-                    |  --phone-number PHONE  set phone number to the specified value
-                    |  --pin PIN             set PIN to the specified value
-                    |  --port NUMBER         set port to the specified value
-                    |  --url ADDRESS         set URL to the specified value
-                    |  --username USER       set username to the specified value
+                    |  --card-number VALUE   set the card-number property to the specified value
+                    |  --card-type VALUE     set the card-type property to the specified value
+                    |  --ccv VALUE           set the ccv property to the specified value
+                    |  --certificate VALUE   set the certificate property to the specified value
+                    |  --code VALUE          set the code property to the specified value
+                    |  --database VALUE      set the database property to the specified value
+                    |  --domain VALUE        set the domain property to the specified value
+                    |  --email VALUE         set the email property to the specified value
+                    |  --expiry-date VALUE   set the expiry-date property to the specified value
+                    |  --hostname VALUE      set the hostname property to the specified value
+                    |  --keyfile VALUE       set the keyfile property to the specified value
+                    |  --location VALUE      set the location property to the specified value
+                    |  --password            prompt for a value of the password property
+                    |  --phone-number VALUE  set the phone-number property to the specified value
+                    |  --pin VALUE           set the pin property to the specified value
+                    |  --port VALUE          set the port property to the specified value
+                    |  --url VALUE           set the url property to the specified value
+                    |  --username VALUE      set the username property to the specified value
                     |
                     |option validity for entry types:
                     |  folder:               --
