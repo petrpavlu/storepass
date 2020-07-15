@@ -52,6 +52,11 @@ logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s",
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
+_NAME_TO_ENTRY_TYPE_MAP = {
+    cls.entry_type_name: cls
+    for cls in storepass.model.ENTRY_TYPES
+}
+
 
 class _EntryGenerator:
     """Generator to create a new entry."""
@@ -63,44 +68,26 @@ class _EntryGenerator:
         self.description = None
         self.updated = None
         self.notes = None
-
-        self.card_number = None
-        self.card_type = None
-        self.ccv = None
-        self.certificate = None
-        self.code = None
-        self.database = None
-        self.domain = None
-        self.email = None
-        self.expiry_date = None
-        self.hostname = None
-        self.keyfile = None
-        self.location = None
-        self.password = None
-        self.phone_number = None
-        self.pin = None
-        self.port = None
-        self.url = None
-        self.username = None
-
-    def set_from_entry(self, entry):
-        """Update generator properties from an existing entry."""
-        self.type = entry.entry_type_name
-
-        self.description = entry.description
-        self.updated = entry.updated
-        self.notes = entry.notes
-
-        entry.accept(self, single=True)
+        self.properties = {}
 
     def _normalize_argument(self, value):
         """Normalize an argument value to None if it is an empty string."""
         return storepass.util.normalize_empty_to_none(value)
 
+    def set_from_entry(self, entry):
+        """Update generator properties from an existing entry."""
+        self.type = type(entry)
+
+        self.description = entry.description
+        self.updated = entry.updated
+        self.notes = entry.notes
+        for field in entry.entry_fields:
+            self.properties[field] = entry.properties[field]
+
     def set_from_args(self, args):
         """Update generator properties from command line arguments."""
         if args.type is not None:
-            self.type = args.type
+            self.type = _NAME_TO_ENTRY_TYPE_MAP[args.type]
 
         # Process options valid for all entries.
         if args.description is not None:
@@ -108,196 +95,26 @@ class _EntryGenerator:
         if args.notes is not None:
             self.notes = self._normalize_argument(args.notes)
 
-        # Process password entry-specific options.
-        if args.card_number is not None:
-            self.card_number = self._normalize_argument(args.card_number)
-        if args.card_type is not None:
-            self.card_type = self._normalize_argument(args.card_type)
-        if args.ccv is not None:
-            self.ccv = self._normalize_argument(args.ccv)
-        if args.certificate is not None:
-            self.certificate = self._normalize_argument(args.certificate)
-        if args.code is not None:
-            self.code = self._normalize_argument(args.code)
-        if args.database is not None:
-            self.database = self._normalize_argument(args.database)
-        if args.domain is not None:
-            self.domain = self._normalize_argument(args.domain)
-        if args.email is not None:
-            self.email = self._normalize_argument(args.email)
-        if args.expiry_date is not None:
-            self.expiry_date = self._normalize_argument(args.expiry_date)
-        if args.hostname is not None:
-            self.hostname = self._normalize_argument(args.hostname)
-        if args.keyfile is not None:
-            self.keyfile = self._normalize_argument(args.keyfile)
-        if args.location is not None:
-            self.location = self._normalize_argument(args.location)
-        if args.password is not None:
-            password = getpass.getpass("Entry password: ")
-            self.password = self._normalize_argument(password)
-        if args.phone_number is not None:
-            self.phone_number = self._normalize_argument(args.phone_number)
-        if args.pin is not None:
-            self.pin = self._normalize_argument(args.pin)
-        if args.port is not None:
-            self.port = self._normalize_argument(args.port)
-        if args.url is not None:
-            self.url = self._normalize_argument(args.url)
-        if args.username is not None:
-            self.username = self._normalize_argument(args.username)
+        # Process entry-specific options.
+        for field, value in args.properties.items():
+            if field.is_protected:
+                value = getpass.getpass(f"Entry {field.name}: ")
+            self.properties[field] = self._normalize_argument(value)
 
         # Finally, set the updated value.
         self.updated = storepass.util.get_current_datetime()
 
     def get_entry(self):
         """Obtain a new entry based on the set properties."""
-        if self.type == 'folder':
-            return storepass.model.Folder(self.name, self.description,
-                                          self.updated, self.notes, [])
-        if self.type == 'credit-card':
-            return storepass.model.CreditCard(self.name, self.description,
-                                              self.updated, self.notes,
-                                              self.card_type, self.card_number,
-                                              self.expiry_date, self.ccv,
-                                              self.pin)
-        if self.type == 'crypto-key':
-            return storepass.model.CryptoKey(self.name, self.description,
-                                             self.updated, self.notes,
-                                             self.hostname, self.certificate,
-                                             self.keyfile, self.password)
-        if self.type == 'database':
-            return storepass.model.Database(self.name, self.description,
-                                            self.updated, self.notes,
-                                            self.hostname, self.username,
-                                            self.password, self.database)
-        if self.type == 'door':
-            return storepass.model.Door(self.name, self.description,
-                                        self.updated, self.notes,
-                                        self.location, self.code)
-        if self.type == 'email':
-            return storepass.model.Email(self.name, self.description,
-                                         self.updated, self.notes, self.email,
-                                         self.hostname, self.username,
-                                         self.password)
-        if self.type == 'ftp':
-            return storepass.model.FTP(self.name, self.description,
-                                       self.updated, self.notes, self.hostname,
-                                       self.port, self.username, self.password)
-        if self.type == 'generic':
-            return storepass.model.Generic(self.name, self.description,
-                                           self.updated, self.notes,
-                                           self.hostname, self.username,
-                                           self.password)
-        if self.type == 'phone':
-            return storepass.model.Phone(self.name, self.description,
-                                         self.updated, self.notes,
-                                         self.phone_number, self.pin)
-        if self.type == 'shell':
-            return storepass.model.Shell(self.name, self.description,
-                                         self.updated, self.notes,
-                                         self.hostname, self.domain,
-                                         self.username, self.password)
-        if self.type == 'remote-desktop':
-            return storepass.model.RemoteDesktop(self.name, self.description,
-                                                 self.updated, self.notes,
-                                                 self.hostname, self.port,
-                                                 self.username, self.password)
-        if self.type == 'vnc':
-            return storepass.model.VNC(self.name, self.description,
-                                       self.updated, self.notes, self.hostname,
-                                       self.port, self.username, self.password)
-        if self.type == 'website':
-            return storepass.model.Website(self.name, self.description,
-                                           self.updated, self.notes, self.url,
-                                           self.username, self.email,
-                                           self.password)
+        # Filter out any fields that are invalid for the type of a new entry.
+        properties = {
+            field: value
+            for field, value in self.properties.items()
+            if field in self.type.entry_fields
+        }
 
-        assert 0 and "Unhandled entry type!"
-        return None
-
-    def visit_folder(self, folder):
-        """Update generator properties from a folder entry."""
-
-    def visit_credit_card(self, credit_card):
-        """Update generator properties from a credit-card entry."""
-        self.card_type = credit_card.card_type
-        self.card_number = credit_card.card_number
-        self.expiry_date = credit_card.expiry_date
-        self.ccv = credit_card.ccv
-        self.pin = credit_card.pin
-
-    def visit_crypto_key(self, crypto_key):
-        """Update generator properties from a crypto-key entry."""
-        self.hostname = crypto_key.hostname
-        self.certificate = crypto_key.certificate
-        self.keyfile = crypto_key.keyfile
-        self.password = crypto_key.password
-
-    def visit_database(self, database):
-        """Update generator properties from a database entry."""
-        self.hostname = database.hostname
-        self.username = database.username
-        self.password = database.password
-        self.database = database.database
-
-    def visit_door(self, door):
-        """Update generator properties from a door entry."""
-        self.location = door.location
-        self.code = door.code
-
-    def visit_email(self, email):
-        """Update generator properties from an email entry."""
-        self.email = email.email
-        self.hostname = email.hostname
-        self.username = email.username
-        self.password = email.password
-
-    def visit_ftp(self, ftp):
-        """Update generator properties from an FTP entry."""
-        self.hostname = ftp.hostname
-        self.port = ftp.port
-        self.username = ftp.username
-        self.password = ftp.password
-
-    def visit_generic(self, generic):
-        """Update generator properties from a generic account entry."""
-        self.hostname = generic.hostname
-        self.username = generic.username
-        self.password = generic.password
-
-    def visit_phone(self, phone):
-        """Update generator properties from a phone entry."""
-        self.phone_number = phone.phone_number
-        self.pin = phone.pin
-
-    def visit_shell(self, shell):
-        """Update generator properties from a shell entry."""
-        self.hostname = shell.hostname
-        self.domain = shell.domain
-        self.username = shell.username
-        self.password = shell.password
-
-    def visit_remote_desktop(self, remote_desktop):
-        """Update generator properties from a remote-desktop entry."""
-        self.hostname = remote_desktop.hostname
-        self.port = remote_desktop.port
-        self.username = remote_desktop.username
-        self.password = remote_desktop.password
-
-    def visit_vnc(self, vnc):
-        """Update generator properties from a VNC entry."""
-        self.hostname = vnc.hostname
-        self.port = vnc.port
-        self.username = vnc.username
-        self.password = vnc.password
-
-    def visit_website(self, website):
-        """Update generator properties from a website entry."""
-        self.url = website.url
-        self.username = website.username
-        self.email = website.email
-        self.password = website.password
+        return self.type.from_proxy(self.name, self.description, self.updated,
+                                    self.notes, properties)
 
 
 def _check_entry_name(args):
@@ -484,11 +301,7 @@ def _check_property_arguments(args, type_):
     # Determine the entry class. It can be either specified via its name or
     # directly.
     if isinstance(type_, str):
-        for entry_cls in storepass.model.ENTRY_TYPES:
-            if entry_cls.entry_type_name == type_:
-                break
-        else:
-            assert 0 and "Unhandled entry type!"
+        entry_cls = _NAME_TO_ENTRY_TYPE_MAP[type_]
     else:
         assert issubclass(type_, storepass.model.Entry)
         entry_cls = type_
@@ -508,12 +321,6 @@ class _PropertyAction(argparse.Action):
         self._field = field
 
     def __call__(self, parser, namespace, values, option_string=None):
-        # TODO Remove once all code is converted to use args.properties.
-        if self.nargs == 0:
-            setattr(namespace, self.dest, True)
-        else:
-            setattr(namespace, self.dest, values)
-
         namespace.properties[self._field] = values
 
 
@@ -539,9 +346,8 @@ def _build_parser():
                                          description="list password entries")
     show_parser = subparsers.add_parser(
         'show', description="show a password entry and its details")
-    argument_validity = [(cls.entry_type_name,
-                          [field.name for field in cls.entry_fields])
-                         for cls in storepass.model.ENTRY_TYPES]
+    argument_validity = [(name, [field.name for field in cls.entry_fields])
+                         for name, cls in _NAME_TO_ENTRY_TYPE_MAP.items()]
     add_edit_epilog = "option validity for entry types:\n" + "\n".join([
         f"  {name + ':':22}{', '.join(args) if len(args) > 0 else '--'}"
         for name, args in argument_validity
@@ -561,12 +367,13 @@ def _build_parser():
     _dump_parser = subparsers.add_parser(
         'dump', description="dump raw database content")
 
-    type_choices = [cls.entry_type_name for cls in storepass.model.ENTRY_TYPES]
     add_parser.add_argument('--type',
-                            choices=type_choices,
+                            choices=_NAME_TO_ENTRY_TYPE_MAP.keys(),
                             default='generic',
                             help="entry type (the default is generic)")
-    edit_parser.add_argument('--type', choices=type_choices, help="entry type")
+    edit_parser.add_argument('--type',
+                             choices=_NAME_TO_ENTRY_TYPE_MAP.keys(),
+                             help="entry type")
 
     # Add command-line arguments to set entry properties.
     for sub_parser in (add_parser, edit_parser):
