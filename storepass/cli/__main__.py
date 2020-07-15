@@ -62,7 +62,7 @@ class _EntryGenerator:
     """Generator to create a new entry."""
     def __init__(self, name):
         """Initialize an entry generator."""
-        self.type = None
+        self.type_cls = None
 
         self.name = name
         self.description = None
@@ -76,7 +76,7 @@ class _EntryGenerator:
 
     def set_from_entry(self, entry):
         """Update generator properties from an existing entry."""
-        self.type = type(entry)
+        self.type_cls = type(entry)
 
         self.description = entry.description
         self.updated = entry.updated
@@ -87,7 +87,7 @@ class _EntryGenerator:
     def set_from_args(self, args):
         """Update generator properties from command line arguments."""
         if args.type is not None:
-            self.type = _NAME_TO_ENTRY_TYPE_MAP[args.type]
+            self.type_cls = _NAME_TO_ENTRY_TYPE_MAP[args.type]
 
         # Process options valid for all entries.
         if args.description is not None:
@@ -110,11 +110,11 @@ class _EntryGenerator:
         properties = {
             field: value
             for field, value in self.properties.items()
-            if field in self.type.entry_fields
+            if field in self.type_cls.entry_fields
         }
 
-        return self.type.from_proxy(self.name, self.description, self.updated,
-                                    self.notes, properties)
+        return self.type_cls.from_proxy(self.name, self.description,
+                                        self.updated, self.notes, properties)
 
 
 def _check_entry_name(args):
