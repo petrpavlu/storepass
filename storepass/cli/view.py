@@ -38,8 +38,17 @@ class ListView(storepass.model.ModelVisitor):
 
 class DetailView(storepass.model.ModelVisitor):
     """View that shows detailed information about visited entries."""
-    def _print_common_info(self, entry):
-        """Process common entry properties and print their values."""
+    def visit_entry(self, entry):
+        """Print detailed information about an entry."""
+        print(f"+ {entry.get_full_name()} ({entry.entry_label})")
+
+        # Process entry-specific properties and print their values.
+        for field in entry.entry_fields:
+            value = entry.properties[field]
+            if value is not None:
+                print(f"  - {field.label}: {value}")
+
+        # Process common entry properties and print their values.
         if entry.description is not None:
             print(f"  - Description: {entry.description}")
         if entry.updated is not None:
@@ -47,17 +56,3 @@ class DetailView(storepass.model.ModelVisitor):
             print(f"  - Last modified: {updated}")
         if entry.notes is not None:
             print(f"  - Notes: {entry.notes}")
-
-    def visit_folder(self, folder):
-        """Print detailed information about a folder entry."""
-        print(f"+ {folder.get_full_name()} ({folder.entry_label})")
-        self._print_common_info(folder)
-
-    def visit_account(self, account):
-        """print detailed information about an account entry."""
-        print(f"+ {account.get_full_name()} ({account.entry_label})")
-        for field in account.entry_fields:
-            value = account.properties[field]
-            if value is not None:
-                print(f"  - {field.label}: {value}")
-        self._print_common_info(account)
