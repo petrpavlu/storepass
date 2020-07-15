@@ -312,8 +312,13 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
         self._xml_root.set('dataversion', '1')
         return self._xml_root
 
-    def _add_entry_properties(self, entry, xml_entry):
-        """Create XML representation for common password entry properties."""
+    def visit_entry(self, entry):
+        """Create XML representation for an entry."""
+        xml_parent = self.get_path_data(entry.parent)
+        xml_entry = ET.SubElement(xml_parent, 'entry')
+        xml_entry.set('type', entry.storage_id)
+
+        # Create XML representation for common entry properties.
         xml_name = ET.SubElement(xml_entry, 'name')
         xml_name.text = entry.name
 
@@ -329,163 +334,14 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
             xml_notes = ET.SubElement(xml_entry, 'notes')
             xml_notes.text = entry.notes
 
-    def _add_field(self, xml_entry, id_, value):
-        """Add a new <field> sub-element to a given XML node."""
-        if value is not None:
-            xml_field = ET.SubElement(xml_entry, 'field')
-            xml_field.set('id', id_)
-            xml_field.text = value
+        # Create XML representation for entry-specific properties.
+        for field in entry.entry_fields:
+            value = entry.properties[field]
+            if value is not None:
+                xml_field = ET.SubElement(xml_entry, 'field')
+                xml_field.set('id', field.storage_id)
+                xml_field.text = value
 
-    def visit_folder(self, folder):
-        """Create XML representation for a folder entry."""
-        xml_parent = self.get_path_data(folder.parent)
-        xml_folder = ET.SubElement(xml_parent, 'entry')
-        xml_folder.set('type', 'folder')
-        self._add_entry_properties(folder, xml_folder)
-        return xml_folder
-
-    def visit_credit_card(self, credit_card):
-        """Create XML representation for a credit-card entry."""
-        xml_parent = self.get_path_data(credit_card.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'creditcard')
-        self._add_entry_properties(credit_card, xml_entry)
-        self._add_field(xml_entry, 'creditcard-cardtype',
-                        credit_card.card_type)
-        self._add_field(xml_entry, 'creditcard-cardnumber',
-                        credit_card.card_number)
-        self._add_field(xml_entry, 'creditcard-expirydate',
-                        credit_card.expiry_date)
-        self._add_field(xml_entry, 'creditcard-ccv', credit_card.ccv)
-        self._add_field(xml_entry, 'generic-pin', credit_card.pin)
-        return xml_entry
-
-    def visit_crypto_key(self, crypto_key):
-        """Create XML representation for a crypto-key entry."""
-        xml_parent = self.get_path_data(crypto_key.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'cryptokey')
-        self._add_entry_properties(crypto_key, xml_entry)
-        self._add_field(xml_entry, 'generic-hostname', crypto_key.hostname)
-        self._add_field(xml_entry, 'generic-certificate',
-                        crypto_key.certificate)
-        self._add_field(xml_entry, 'generic-keyfile', crypto_key.keyfile)
-        self._add_field(xml_entry, 'generic-password', crypto_key.password)
-        return xml_entry
-
-    def visit_database(self, database):
-        """Create XML representation for a database entry."""
-        xml_parent = self.get_path_data(database.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'database')
-        self._add_entry_properties(database, xml_entry)
-        self._add_field(xml_entry, 'generic-hostname', database.hostname)
-        self._add_field(xml_entry, 'generic-username', database.username)
-        self._add_field(xml_entry, 'generic-password', database.password)
-        self._add_field(xml_entry, 'generic-database', database.database)
-        return xml_entry
-
-    def visit_door(self, door):
-        """Create XML representation for a door entry."""
-        xml_parent = self.get_path_data(door.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'door')
-        self._add_entry_properties(door, xml_entry)
-        self._add_field(xml_entry, 'generic-location', door.location)
-        self._add_field(xml_entry, 'generic-code', door.code)
-        return xml_entry
-
-    def visit_email(self, email):
-        """Create XML representation for an email entry."""
-        xml_parent = self.get_path_data(email.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'email')
-        self._add_entry_properties(email, xml_entry)
-        self._add_field(xml_entry, 'generic-email', email.email)
-        self._add_field(xml_entry, 'generic-hostname', email.hostname)
-        self._add_field(xml_entry, 'generic-username', email.username)
-        self._add_field(xml_entry, 'generic-password', email.password)
-        return xml_entry
-
-    def visit_ftp(self, ftp):
-        """Create XML representation for an FTP entry."""
-        xml_parent = self.get_path_data(ftp.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'ftp')
-        self._add_entry_properties(ftp, xml_entry)
-        self._add_field(xml_entry, 'generic-hostname', ftp.hostname)
-        self._add_field(xml_entry, 'generic-port', ftp.port)
-        self._add_field(xml_entry, 'generic-username', ftp.username)
-        self._add_field(xml_entry, 'generic-password', ftp.password)
-        return xml_entry
-
-    def visit_generic(self, generic):
-        """Create XML representation for a generic account entry."""
-        xml_parent = self.get_path_data(generic.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'generic')
-        self._add_entry_properties(generic, xml_entry)
-        self._add_field(xml_entry, 'generic-hostname', generic.hostname)
-        self._add_field(xml_entry, 'generic-username', generic.username)
-        self._add_field(xml_entry, 'generic-password', generic.password)
-        return xml_entry
-
-    def visit_phone(self, phone):
-        """Create XML representation for a phone entry."""
-        xml_parent = self.get_path_data(phone.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'phone')
-        self._add_entry_properties(phone, xml_entry)
-        self._add_field(xml_entry, 'phone-phonenumber', phone.phone_number)
-        self._add_field(xml_entry, 'generic-pin', phone.pin)
-        return xml_entry
-
-    def visit_shell(self, shell):
-        """Create XML representation for a shell entry."""
-        xml_parent = self.get_path_data(shell.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'shell')
-        self._add_entry_properties(shell, xml_entry)
-        self._add_field(xml_entry, 'generic-hostname', shell.hostname)
-        self._add_field(xml_entry, 'generic-domain', shell.domain)
-        self._add_field(xml_entry, 'generic-username', shell.username)
-        self._add_field(xml_entry, 'generic-password', shell.password)
-        return xml_entry
-
-    def visit_remote_desktop(self, remote_desktop):
-        """Create XML representation for a remote desktop entry."""
-        xml_parent = self.get_path_data(remote_desktop.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'remotedesktop')
-        self._add_entry_properties(remote_desktop, xml_entry)
-        self._add_field(xml_entry, 'generic-hostname', remote_desktop.hostname)
-        self._add_field(xml_entry, 'generic-port', remote_desktop.port)
-        self._add_field(xml_entry, 'generic-username', remote_desktop.username)
-        self._add_field(xml_entry, 'generic-password', remote_desktop.password)
-        return xml_entry
-
-    def visit_vnc(self, vnc):
-        """Create XML representation for a VNC entry."""
-        xml_parent = self.get_path_data(vnc.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'vnc')
-        self._add_entry_properties(vnc, xml_entry)
-        self._add_field(xml_entry, 'generic-hostname', vnc.hostname)
-        self._add_field(xml_entry, 'generic-port', vnc.port)
-        self._add_field(xml_entry, 'generic-username', vnc.username)
-        self._add_field(xml_entry, 'generic-password', vnc.password)
-        return xml_entry
-
-    def visit_website(self, website):
-        """Create XML representation for a website entry."""
-        xml_parent = self.get_path_data(website.parent)
-        xml_entry = ET.SubElement(xml_parent, 'entry')
-        xml_entry.set('type', 'website')
-        self._add_entry_properties(website, xml_entry)
-        self._add_field(xml_entry, 'generic-url', website.url)
-        self._add_field(xml_entry, 'generic-username', website.username)
-        self._add_field(xml_entry, 'generic-email', website.email)
-        self._add_field(xml_entry, 'generic-password', website.password)
         return xml_entry
 
 
