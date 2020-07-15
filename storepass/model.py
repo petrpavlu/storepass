@@ -105,10 +105,11 @@ def path_spec_to_string(path_spec):
 
 class Field:
     """Entry field."""
-    def __init__(self, name, label, is_protected=False):
+    def __init__(self, name, label, storage_id, is_protected=False):
         """Initialize an account field."""
         self._name = name
         self._label = label
+        self._storage_id = storage_id
         self._is_protected = is_protected
 
     @property
@@ -120,28 +121,37 @@ class Field:
         return self._label
 
     @property
+    def storage_id(self):
+        return self._storage_id
+
+    @property
     def is_protected(self):
         return self._is_protected
 
 
-CARD_NUMBER_FIELD = Field('card-number', "Card number")
-CARD_TYPE_FIELD = Field('card-type', "Card type")
-CCV_FIELD = Field('ccv', "CCV")
-CERTIFICATE_FIELD = Field('certificate', "Certificate")
-CODE_FIELD = Field('code', "Code")
-DATABASE_FIELD = Field('database', "Database")
-DOMAIN_FIELD = Field('domain', "Domain")
-EMAIL_FIELD = Field('email', "Email")
-EXPIRY_DATE_FIELD = Field('expiry-date', "Expiry date")
-HOSTNAME_FIELD = Field('hostname', "Hostname")
-KEYFILE_FIELD = Field('keyfile', "Keyfile")
-LOCATION_FIELD = Field('location', "Location")
-PASSWORD_FIELD = Field('password', "Password", is_protected=True)
-PHONE_NUMBER_FIELD = Field('phone-number', "Phone number")
-PIN_FIELD = Field('pin', "PIN")
-PORT_FIELD = Field('port', "Port")
-URL_FIELD = Field('url', "URL")
-USERNAME_FIELD = Field('username', "Username")
+CARD_NUMBER_FIELD = Field('card-number', "Card number",
+                          'creditcard-cardnumber')
+CARD_TYPE_FIELD = Field('card-type', "Card type", 'creditcard-cardtype')
+CCV_FIELD = Field('ccv', "CCV", 'creditcard-ccv')
+CERTIFICATE_FIELD = Field('certificate', "Certificate", 'generic-certificate')
+CODE_FIELD = Field('code', "Code", 'generic-code')
+DATABASE_FIELD = Field('database', "Database", 'generic-database')
+DOMAIN_FIELD = Field('domain', "Domain", 'generic-domain')
+EMAIL_FIELD = Field('email', "Email", 'generic-email')
+EXPIRY_DATE_FIELD = Field('expiry-date', "Expiry date",
+                          'creditcard-expirydate')
+HOSTNAME_FIELD = Field('hostname', "Hostname", 'generic-hostname')
+KEYFILE_FIELD = Field('keyfile', "Keyfile", 'generic-keyfile')
+LOCATION_FIELD = Field('location', "Location", 'generic-location')
+PASSWORD_FIELD = Field('password',
+                       "Password",
+                       'generic-password',
+                       is_protected=True)
+PHONE_NUMBER_FIELD = Field('phone-number', "Phone number", 'phone-phonenumber')
+PIN_FIELD = Field('pin', "PIN", 'generic-pin')
+PORT_FIELD = Field('port', "Port", 'generic-port')
+URL_FIELD = Field('url', "URL", 'generic-url')
+USERNAME_FIELD = Field('username', "Username", 'generic-username')
 
 ENTRY_FIELDS = (
     CARD_NUMBER_FIELD,
@@ -334,6 +344,7 @@ class Entry:
     _entry_type_name = 'entry'
     _entry_label = "Entry"
     _entry_fields = ()
+    _storage_id = 'entry'
 
     @storepass.util.classproperty
     def entry_type_name(cls):
@@ -346,6 +357,10 @@ class Entry:
     @storepass.util.classproperty
     def entry_fields(cls):
         return cls._entry_fields
+
+    @storepass.util.classproperty
+    def storage_id(cls):
+        return cls._storage_id
 
     class _PropertyProxy:
         def __init__(self, entry):
@@ -421,6 +436,7 @@ class Folder(Entry, Container):
     _entry_type_name = 'folder'
     _entry_label = "Folder"
     _entry_fields = ()
+    _storage_id = 'folder'
 
     def __init__(self, name, description, updated, notes, children):
         """Initialize a password folder."""
@@ -492,6 +508,7 @@ class CreditCard(Account):
     _entry_label = "Credit card"
     _entry_fields = (CARD_TYPE_FIELD, CARD_NUMBER_FIELD, EXPIRY_DATE_FIELD,
                      CCV_FIELD, PIN_FIELD)
+    _storage_id = 'creditcard'
 
     def __init__(self, name, description, updated, notes, card_type,
                  card_number, expiry_date, ccv, pin):
@@ -560,6 +577,7 @@ class CryptoKey(Account):
     _entry_label = "Crypto key"
     _entry_fields = (HOSTNAME_FIELD, CERTIFICATE_FIELD, KEYFILE_FIELD,
                      PASSWORD_FIELD)
+    _storage_id = 'cryptokey'
 
     def __init__(self, name, description, updated, notes, hostname,
                  certificate, keyfile, password):
@@ -622,6 +640,7 @@ class Database(Account):
     _entry_label = "Database"
     _entry_fields = (HOSTNAME_FIELD, USERNAME_FIELD, PASSWORD_FIELD,
                      DATABASE_FIELD)
+    _storage_id = 'database'
 
     def __init__(self, name, description, updated, notes, hostname, username,
                  password, database):
@@ -683,6 +702,7 @@ class Door(Account):
     _entry_type_name = 'door'
     _entry_label = "Door"
     _entry_fields = (LOCATION_FIELD, CODE_FIELD)
+    _storage_id = 'door'
 
     def __init__(self, name, description, updated, notes, location, code):
         """Initialize a door entry."""
@@ -732,6 +752,7 @@ class Email(Account):
     _entry_label = "Email"
     _entry_fields = (EMAIL_FIELD, HOSTNAME_FIELD, USERNAME_FIELD,
                      PASSWORD_FIELD)
+    _storage_id = 'email'
 
     def __init__(self, name, description, updated, notes, email, hostname,
                  username, password):
@@ -793,6 +814,7 @@ class FTP(Account):
     _entry_label = "FTP"
     _entry_fields = (HOSTNAME_FIELD, PORT_FIELD, USERNAME_FIELD,
                      PASSWORD_FIELD)
+    _storage_id = 'ftp'
 
     def __init__(self, name, description, updated, notes, hostname, port,
                  username, password):
@@ -853,6 +875,7 @@ class Generic(Account):
     _entry_type_name = 'generic'
     _entry_label = "Generic"
     _entry_fields = (HOSTNAME_FIELD, USERNAME_FIELD, PASSWORD_FIELD)
+    _storage_id = 'generic'
 
     def __init__(self, name, description, updated, notes, hostname, username,
                  password):
@@ -907,6 +930,7 @@ class Phone(Account):
     _entry_type_name = 'phone'
     _entry_label = "Phone"
     _entry_fields = (PHONE_NUMBER_FIELD, PIN_FIELD)
+    _storage_id = 'phone'
 
     def __init__(self, name, description, updated, notes, phone_number, pin):
         """Initialize a phone entry."""
@@ -956,6 +980,7 @@ class Shell(Account):
     _entry_label = "Shell"
     _entry_fields = (HOSTNAME_FIELD, DOMAIN_FIELD, USERNAME_FIELD,
                      PASSWORD_FIELD)
+    _storage_id = 'shell'
 
     def __init__(self, name, description, updated, notes, hostname, domain,
                  username, password):
@@ -1017,6 +1042,7 @@ class RemoteDesktop(Account):
     _entry_label = "Remote desktop"
     _entry_fields = (HOSTNAME_FIELD, PORT_FIELD, USERNAME_FIELD,
                      PASSWORD_FIELD)
+    _storage_id = 'remotedesktop'
 
     def __init__(self, name, description, updated, notes, hostname, port,
                  username, password):
@@ -1079,6 +1105,7 @@ class VNC(Account):
     _entry_label = "VNC"
     _entry_fields = (HOSTNAME_FIELD, PORT_FIELD, USERNAME_FIELD,
                      PASSWORD_FIELD)
+    _storage_id = 'vnc'
 
     def __init__(self, name, description, updated, notes, hostname, port,
                  username, password):
@@ -1139,6 +1166,7 @@ class Website(Account):
     _entry_type_name = 'website'
     _entry_label = "Website"
     _entry_fields = (URL_FIELD, USERNAME_FIELD, EMAIL_FIELD, PASSWORD_FIELD)
+    _storage_id = 'website'
 
     def __init__(self, name, description, updated, notes, url, username, email,
                  password):
