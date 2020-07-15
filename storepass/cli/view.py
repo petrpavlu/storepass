@@ -16,100 +16,24 @@ class ListView(storepass.model.ModelVisitor):
         """Obtain current indentation."""
         return "  " * (len(self._path) - 1)
 
-    def _format_address(self, hostname):
-        """Prepare an address string."""
-        return f" [{hostname}]" if hostname is not None else ""
-
-    def _format_description(self, description):
-        """Prepare a description string."""
-        return f": {description}" if description is not None else ""
-
     def visit_folder(self, folder):
         """Print one-line information about a folder entry."""
         indent = self._get_current_indent()
-        description = self._format_description(folder.description)
+        description = f": {folder.description}" if folder.description is not None else ""
         print(f"{indent}+ {folder.name}{description}")
 
-    def visit_credit_card(self, credit_card):
-        """Print one-line information about a credit-card entry."""
+    def visit_account(self, account):
+        """Print one-line information about an account entry."""
         indent = self._get_current_indent()
-        description = self._format_description(credit_card.description)
-        print(f"{indent}- {credit_card.name}{description}")
-
-    def visit_crypto_key(self, crypto_key):
-        """Print one-line information about a crypto-key entry."""
-        indent = self._get_current_indent()
-        address = self._format_address(crypto_key.hostname)
-        description = self._format_description(crypto_key.description)
-        print(f"{indent}- {crypto_key.name}{address}{description}")
-
-    def visit_database(self, database):
-        """Print one-line information about a database entry."""
-        indent = self._get_current_indent()
-        address = self._format_address(database.hostname)
-        description = self._format_description(database.description)
-        print(f"{indent}- {database.name}{address}{description}")
-
-    def visit_door(self, door):
-        """Print one-line information about a door entry."""
-        indent = self._get_current_indent()
-        description = self._format_description(door.description)
-        print(f"{indent}- {door.name}{description}")
-
-    def visit_email(self, email):
-        """Print one-line information about an email entry."""
-        indent = self._get_current_indent()
-        address = self._format_address(email.hostname)
-        description = self._format_description(email.description)
-        print(f"{indent}- {email.name}{address}{description}")
-
-    def visit_ftp(self, ftp):
-        """Print one-line information about an FTP entry."""
-        indent = self._get_current_indent()
-        address = self._format_address(ftp.hostname)
-        description = self._format_description(ftp.description)
-        print(f"{indent}- {ftp.name}{address}{description}")
-
-    def visit_generic(self, generic):
-        """Print one-line information about a generic account entry."""
-        indent = self._get_current_indent()
-        address = self._format_address(generic.hostname)
-        description = self._format_description(generic.description)
-        print(f"{indent}- {generic.name}{address}{description}")
-
-    def visit_phone(self, phone):
-        """Print one-line information about a phone entry."""
-        indent = self._get_current_indent()
-        description = self._format_description(phone.description)
-        print(f"{indent}- {phone.name}{description}")
-
-    def visit_shell(self, shell):
-        """Print one-line information about a shell entry."""
-        indent = self._get_current_indent()
-        address = self._format_address(shell.hostname)
-        description = self._format_description(shell.description)
-        print(f"{indent}- {shell.name}{address}{description}")
-
-    def visit_remote_desktop(self, remote_desktop):
-        """Print one-line information about a remote-desktop entry."""
-        indent = self._get_current_indent()
-        address = self._format_address(remote_desktop.hostname)
-        description = self._format_description(remote_desktop.description)
-        print(f"{indent}- {remote_desktop.name}{address}{description}")
-
-    def visit_vnc(self, vnc):
-        """Print one-line information about a VNC entry."""
-        indent = self._get_current_indent()
-        address = self._format_address(vnc.hostname)
-        description = self._format_description(vnc.description)
-        print(f"{indent}- {vnc.name}{address}{description}")
-
-    def visit_website(self, website):
-        """Print one-line information about a website entry."""
-        indent = self._get_current_indent()
-        address = self._format_address(website.url)
-        description = self._format_description(website.description)
-        print(f"{indent}- {website.name}{address}{description}")
+        if storepass.model.HOSTNAME_FIELD in account.entry_fields:
+            address = account.properties[storepass.model.HOSTNAME_FIELD]
+        elif storepass.model.URL_FIELD in account.entry_fields:
+            address = account.properties[storepass.model.URL_FIELD]
+        else:
+            address = None
+        address = f" [{address}]" if address is not None else ""
+        description = f": {account.description}" if account.description is not None else ""
+        print(f"{indent}- {account.name}{address}{description}")
 
 
 class DetailView(storepass.model.ModelVisitor):
