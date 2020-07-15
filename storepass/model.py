@@ -490,7 +490,12 @@ class Folder(Entry, Container):
         Call a given visitor to process the folder and its children. If single
         is set to False then only the folder object is visited.
         """
-        parent_data = visitor.visit_folder(self)
+        if hasattr(visitor, 'visit_folder'):
+            parent_data = visitor.visit_folder(self)
+        elif hasattr(visitor, 'visit_entry'):
+            parent_data = visitor.visit_entry(self)
+        else:
+            assert 0 and "Unimplemented visitor method!"
         if not single:
             self._accept_children(visitor, parent_data)
 
@@ -500,6 +505,15 @@ class Account(Entry):
     def __init__(self, name, description, updated, notes):
         """Initialize an abstract account entry."""
         Entry.__init__(self, name, description, updated, notes)
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the account entry."""
+        if hasattr(visitor, 'visit_account'):
+            visitor.visit_account(self)
+        elif hasattr(visitor, 'visit_entry'):
+            visitor.visit_entry(self)
+        else:
+            assert 0 and "Unimplemented visitor method!"
 
 
 class CreditCard(Account):
@@ -568,7 +582,7 @@ class CreditCard(Account):
         if hasattr(visitor, 'visit_credit_card'):
             visitor.visit_credit_card(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class CryptoKey(Account):
@@ -631,7 +645,7 @@ class CryptoKey(Account):
         if hasattr(visitor, 'visit_crypto_key'):
             visitor.visit_crypto_key(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class Database(Account):
@@ -694,7 +708,7 @@ class Database(Account):
         if hasattr(visitor, 'visit_database'):
             visitor.visit_database(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class Door(Account):
@@ -743,7 +757,7 @@ class Door(Account):
         if hasattr(visitor, 'visit_door'):
             visitor.visit_door(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class Email(Account):
@@ -805,7 +819,7 @@ class Email(Account):
         if hasattr(visitor, 'visit_email'):
             visitor.visit_email(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class FTP(Account):
@@ -867,7 +881,7 @@ class FTP(Account):
         if hasattr(visitor, 'visit_ftp'):
             visitor.visit_ftp(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class Generic(Account):
@@ -922,7 +936,7 @@ class Generic(Account):
         if hasattr(visitor, 'visit_generic'):
             visitor.visit_generic(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class Phone(Account):
@@ -971,7 +985,7 @@ class Phone(Account):
         if hasattr(visitor, 'visit_phone'):
             visitor.visit_phone(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class Shell(Account):
@@ -1033,7 +1047,7 @@ class Shell(Account):
         if hasattr(visitor, 'visit_shell'):
             visitor.visit_shell(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class RemoteDesktop(Account):
@@ -1096,7 +1110,7 @@ class RemoteDesktop(Account):
         if hasattr(visitor, 'visit_remote_desktop'):
             visitor.visit_remote_desktop(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class VNC(Account):
@@ -1158,7 +1172,7 @@ class VNC(Account):
         if hasattr(visitor, 'visit_vnc'):
             visitor.visit_vnc(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 class Website(Account):
@@ -1220,7 +1234,7 @@ class Website(Account):
         if hasattr(visitor, 'visit_website'):
             visitor.visit_website(self)
         else:
-            visitor.visit_account(self)
+            super().accept(visitor, single)
 
 
 ENTRY_TYPES = (
