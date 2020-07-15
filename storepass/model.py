@@ -515,7 +515,8 @@ class CreditCard(Account):
             self.ccv = value
         elif field == PIN_FIELD:
             self.pin = value
-        assert 0 and "Invalid Folder field!"
+        else:
+            assert 0 and "Invalid Folder field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -570,7 +571,8 @@ class CryptoKey(Account):
             self.keyfile = value
         elif field == PASSWORD_FIELD:
             self.password = value
-        assert 0 and "Invalid CryptoKey field!"
+        else:
+            assert 0 and "Invalid CryptoKey field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -624,7 +626,8 @@ class Database(Account):
             self.password = value
         elif field == DATABASE_FIELD:
             self.database = value
-        assert 0 and "Invalid Database field!"
+        else:
+            assert 0 and "Invalid Database field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -666,7 +669,8 @@ class Door(Account):
             self.location = value
         elif field == CODE_FIELD:
             self.code = value
-        assert 0 and "Invalid Door field!"
+        else:
+            assert 0 and "Invalid Door field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -719,7 +723,8 @@ class Email(Account):
             self.username = value
         elif field == PASSWORD_FIELD:
             self.password = value
-        assert 0 and "Invalid Email field!"
+        else:
+            assert 0 and "Invalid Email field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -773,7 +778,8 @@ class FTP(Account):
             self.username = value
         elif field == PASSWORD_FIELD:
             self.password = value
-        assert 0 and "Invalid FTP field!"
+        else:
+            assert 0 and "Invalid FTP field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -821,7 +827,8 @@ class Generic(Account):
             self.username = value
         elif field == PASSWORD_FIELD:
             self.password = value
-        assert 0 and "Invalid Generic field!"
+        else:
+            assert 0 and "Invalid Generic field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -862,7 +869,8 @@ class Phone(Account):
             self.phone_number = value
         elif field == PIN_FIELD:
             self.pin = value
-        assert 0 and "Invalid Phone field!"
+        else:
+            assert 0 and "Invalid Phone field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -915,7 +923,8 @@ class Shell(Account):
             self.username = value
         elif field == PASSWORD_FIELD:
             self.password = value
-        assert 0 and "Invalid Shell field!"
+        else:
+            assert 0 and "Invalid Shell field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -969,7 +978,8 @@ class RemoteDesktop(Account):
             self.username = value
         elif field == PASSWORD_FIELD:
             self.password = value
-        assert 0 and "Invalid RemoteDesktop field!"
+        else:
+            assert 0 and "Invalid RemoteDesktop field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -1023,7 +1033,8 @@ class VNC(Account):
             self.username = value
         elif field == PASSWORD_FIELD:
             self.password = value
-        assert 0 and "Invalid VNC field!"
+        else:
+            assert 0 and "Invalid VNC field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
@@ -1076,7 +1087,8 @@ class Website(Account):
             self.email = value
         elif field == PASSWORD_FIELD:
             self.password = value
-        assert 0 and "Invalid Website field!"
+        else:
+            assert 0 and "Invalid Website field!"
 
     def __str__(self, indent=""):
         parent = super().inline_str()
