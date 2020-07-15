@@ -371,6 +371,10 @@ class Entry:
         self.notes = notes
         self.properties = self._PropertyProxy(self)
 
+    @classmethod
+    def from_proxy(cls, name, description, updated, notes, properties):
+        assert 0 and "Unimplemented method from_properties()!"
+
     @property
     def parent(self):
         """Obtain the parent container."""
@@ -388,6 +392,10 @@ class Entry:
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
         assert 0 and "Unimplemented method _set_field()!"
+
+    def update_fields(self, properties):
+        for field, value in properties.items():
+            self._set_field(field, value)
 
     def get_path(self):
         """Obtain a full path from the database root to the entry."""
@@ -418,6 +426,12 @@ class Folder(Entry, Container):
         """Initialize a password folder."""
         Container.__init__(self, children)
         Entry.__init__(self, name, description, updated, notes)
+
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = Folder(name, description, updated, notes, [])
+        res.update_fields(properties)
+        return res
 
     def _get_field(self, field):
         """Get a value of a specified field."""
@@ -489,6 +503,13 @@ class CreditCard(Account):
         self.ccv = ccv
         self.pin = pin
 
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = CreditCard(name, description, updated, notes, None, None, None,
+                         None, None)
+        res.update_fields(properties)
+        return res
+
     def _get_field(self, field):
         """Get a value of a specified field."""
         if field == CARD_TYPE_FIELD:
@@ -549,6 +570,13 @@ class CryptoKey(Account):
         self.keyfile = keyfile
         self.password = password
 
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = CryptoKey(name, description, updated, notes, None, None, None,
+                        None)
+        res.update_fields(properties)
+        return res
+
     def _get_field(self, field):
         """Get a value of a specified field."""
         if field == HOSTNAME_FIELD:
@@ -604,6 +632,13 @@ class Database(Account):
         self.password = password
         self.database = database
 
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = Database(name, description, updated, notes, None, None, None,
+                       None)
+        res.update_fields(properties)
+        return res
+
     def _get_field(self, field):
         """Get a value of a specified field."""
         if field == HOSTNAME_FIELD:
@@ -655,6 +690,12 @@ class Door(Account):
         self.location = location
         self.code = code
 
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = Door(name, description, updated, notes, None, None)
+        res.update_fields(properties)
+        return res
+
     def _get_field(self, field):
         """Get a value of a specified field."""
         if field == LOCATION_FIELD:
@@ -700,6 +741,12 @@ class Email(Account):
         self.hostname = hostname
         self.username = username
         self.password = password
+
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = Email(name, description, updated, notes, None, None, None, None)
+        res.update_fields(properties)
+        return res
 
     def _get_field(self, field):
         """Get a value of a specified field."""
@@ -756,6 +803,12 @@ class FTP(Account):
         self.username = username
         self.password = password
 
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = FTP(name, description, updated, notes, None, None, None, None)
+        res.update_fields(properties)
+        return res
+
     def _get_field(self, field):
         """Get a value of a specified field."""
         if field == HOSTNAME_FIELD:
@@ -809,6 +862,12 @@ class Generic(Account):
         self.username = username
         self.password = password
 
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = Generic(name, description, updated, notes, None, None, None)
+        res.update_fields(properties)
+        return res
+
     def _get_field(self, field):
         """Get a value of a specified field."""
         if field == HOSTNAME_FIELD:
@@ -855,6 +914,12 @@ class Phone(Account):
         self.phone_number = phone_number
         self.pin = pin
 
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = Phone(name, description, updated, notes, None, None)
+        res.update_fields(properties)
+        return res
+
     def _get_field(self, field):
         """Get a value of a specified field."""
         if field == PHONE_NUMBER_FIELD:
@@ -900,6 +965,12 @@ class Shell(Account):
         self.domain = domain
         self.username = username
         self.password = password
+
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = Shell(name, description, updated, notes, None, None, None, None)
+        res.update_fields(properties)
+        return res
 
     def _get_field(self, field):
         """Get a value of a specified field."""
@@ -956,6 +1027,13 @@ class RemoteDesktop(Account):
         self.username = username
         self.password = password
 
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = RemoteDesktop(name, description, updated, notes, None, None,
+                            None, None)
+        res.update_fields(properties)
+        return res
+
     def _get_field(self, field):
         """Get a value of a specified field."""
         if field == HOSTNAME_FIELD:
@@ -1011,6 +1089,12 @@ class VNC(Account):
         self.username = username
         self.password = password
 
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = VNC(name, description, updated, notes, None, None, None, None)
+        res.update_fields(properties)
+        return res
+
     def _get_field(self, field):
         """Get a value of a specified field."""
         if field == HOSTNAME_FIELD:
@@ -1064,6 +1148,13 @@ class Website(Account):
         self.username = username
         self.email = email
         self.password = password
+
+    @classmethod
+    def from_proxy(self, name, description, updated, notes, properties):
+        res = Website(name, description, updated, notes, None, None, None,
+                      None)
+        res.update_fields(properties)
+        return res
 
     def _get_field(self, field):
         """Get a value of a specified field."""
