@@ -387,7 +387,7 @@ class Entry:
         self.properties = self._PropertyProxy(self)
 
     @classmethod
-    def from_proxy(cls, name, description, updated, notes, properties):
+    def from_proxy(cls, _name, _description, _updated, _notes, _properties):
         assert 0 and "Unimplemented method from_properties()!"
 
     @property
@@ -400,11 +400,11 @@ class Entry:
         """Obtain a name of the entry."""
         return self._name
 
-    def _get_field(self, field):
+    def _get_field(self, _field):
         """Get a value of a specified field."""
         assert 0 and "Unimplemented method _get_field()!"
 
-    def _set_field(self, field, value):
+    def _set_field(self, _field, _value):
         """Set a new value of a specified field."""
         assert 0 and "Unimplemented method _set_field()!"
 
@@ -449,11 +449,11 @@ class Folder(Entry, Container):
         res.update_fields(properties)
         return res
 
-    def _get_field(self, field):
+    def _get_field(self, _field):
         """Get a value of a specified field."""
         assert 0 and "Invalid Folder field!"
 
-    def _set_field(self, field, value):
+    def _set_field(self, _field, _value):
         """Set a new value of a specified field."""
         assert 0 and "Invalid Folder field!"
 
