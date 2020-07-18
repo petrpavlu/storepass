@@ -554,6 +554,7 @@ class CreditCard(Account):
         if field == PIN_FIELD:
             return self.pin
         assert 0 and "Invalid CreditCard field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -620,6 +621,7 @@ class CryptoKey(Account):
         if field == PASSWORD_FIELD:
             return self.password
         assert 0 and "Invalid CryptoKey field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -683,6 +685,7 @@ class Database(Account):
         if field == DATABASE_FIELD:
             return self.database
         assert 0 and "Invalid Database field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -737,6 +740,7 @@ class Door(Account):
         if field == CODE_FIELD:
             return self.code
         assert 0 and "Invalid Door field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -794,6 +798,7 @@ class Email(Account):
         if field == PASSWORD_FIELD:
             return self.password
         assert 0 and "Invalid Email field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -856,6 +861,7 @@ class FTP(Account):
         if field == PASSWORD_FIELD:
             return self.password
         assert 0 and "Invalid FTP field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -914,6 +920,7 @@ class Generic(Account):
         if field == PASSWORD_FIELD:
             return self.password
         assert 0 and "Invalid Generic field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -965,6 +972,7 @@ class Phone(Account):
         if field == PIN_FIELD:
             return self.pin
         assert 0 and "Invalid Phone field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -1022,6 +1030,7 @@ class Shell(Account):
         if field == PASSWORD_FIELD:
             return self.password
         assert 0 and "Invalid Shell field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -1085,6 +1094,7 @@ class RemoteDesktop(Account):
         if field == PASSWORD_FIELD:
             return self.password
         assert 0 and "Invalid RemoteDesktop field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -1147,6 +1157,7 @@ class VNC(Account):
         if field == PASSWORD_FIELD:
             return self.password
         assert 0 and "Invalid VNC field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
@@ -1209,6 +1220,7 @@ class Website(Account):
         if field == PASSWORD_FIELD:
             return self.password
         assert 0 and "Invalid Website field!"
+        return None
 
     def _set_field(self, field, value):
         """Set a new value of a specified field."""
