@@ -33,10 +33,11 @@ class EditDatabaseDialog(Gtk.Dialog):
         # Hint correct types to pylint.
         self._password_entry = util.Hint.GtkEntry(self._password_entry)
 
-        self.connect('response', self._on_response)
-
+        # Initialize the dialog.
         self._password_entry.set_text(
             storepass.util.normalize_none_to_empty(password))
+
+        self.connect('response', self._on_response)
 
     def _on_response(self, dialog, response_id):
         """Process a response signal from the dialog."""
@@ -72,7 +73,7 @@ class EditFolderDialog(Gtk.Dialog):
     _notes_text_view = Gtk.Template.Child('notes_text_view')
     _apply_button = Gtk.Template.Child('apply_button')
 
-    def __init__(self, parent_window, entry):
+    def __init__(self, parent_window, folder):
         """
         Initialize an add/edit folder dialog.
 
@@ -90,23 +91,23 @@ class EditFolderDialog(Gtk.Dialog):
         self._notes_text_view = util.Hint.GtkTextView(self._notes_text_view)
         self._apply_button = util.Hint.GtkButton(self._apply_button)
 
-        self.connect('response', self._on_response)
+        # Initialize the dialog.
+        if folder is not None:
+            self.set_title("Edit Folder")
+            self._modify_folder_label.set_text("Edit Folder")
+            self._apply_button.set_label("_Apply")
 
-        if entry is None:
+            self._name_entry.set_text(folder.name)
+            self._description_entry.set_text(
+                storepass.util.normalize_none_to_empty(folder.description))
+            self._notes_text_view.get_buffer().set_text(
+                storepass.util.normalize_none_to_empty(folder.notes))
+        else:
             self.set_title("Add Folder")
             self._modify_folder_label.set_text("Add Folder")
             self._apply_button.set_label("_Add")
-            return
 
-        self.set_title("Edit Folder")
-        self._modify_folder_label.set_text("Edit Folder")
-        self._apply_button.set_label("_Apply")
-
-        self._name_entry.set_text(entry.name)
-        self._description_entry.set_text(
-            storepass.util.normalize_none_to_empty(entry.description))
-        self._notes_text_view.get_buffer().set_text(
-            storepass.util.normalize_none_to_empty(entry.notes))
+        self.connect('response', self._on_response)
 
     def _on_response(self, dialog, response_id):
         """Process a response signal from the dialog."""
