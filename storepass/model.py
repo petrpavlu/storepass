@@ -444,7 +444,7 @@ class Folder(Entry, Container):
         Entry.__init__(self, name, description, updated, notes)
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = Folder(name, description, updated, notes, [])
         res.update_fields(properties)
         return res
@@ -535,7 +535,7 @@ class CreditCard(Account):
         self.pin = pin
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = CreditCard(name, description, updated, notes, None, None, None,
                          None, None)
         res.update_fields(properties)
@@ -603,7 +603,7 @@ class CryptoKey(Account):
         self.password = password
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = CryptoKey(name, description, updated, notes, None, None, None,
                         None)
         res.update_fields(properties)
@@ -666,7 +666,7 @@ class Database(Account):
         self.database = database
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = Database(name, description, updated, notes, None, None, None,
                        None)
         res.update_fields(properties)
@@ -725,7 +725,7 @@ class Door(Account):
         self.code = code
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = Door(name, description, updated, notes, None, None)
         res.update_fields(properties)
         return res
@@ -778,7 +778,7 @@ class Email(Account):
         self.password = password
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = Email(name, description, updated, notes, None, None, None, None)
         res.update_fields(properties)
         return res
@@ -840,7 +840,7 @@ class FTP(Account):
         self.password = password
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = FTP(name, description, updated, notes, None, None, None, None)
         res.update_fields(properties)
         return res
@@ -900,7 +900,7 @@ class Generic(Account):
         self.password = password
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = Generic(name, description, updated, notes, None, None, None)
         res.update_fields(properties)
         return res
@@ -953,7 +953,7 @@ class Phone(Account):
         self.pin = pin
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = Phone(name, description, updated, notes, None, None)
         res.update_fields(properties)
         return res
@@ -1006,7 +1006,7 @@ class Shell(Account):
         self.password = password
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = Shell(name, description, updated, notes, None, None, None, None)
         res.update_fields(properties)
         return res
@@ -1068,7 +1068,7 @@ class RemoteDesktop(Account):
         self.password = password
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = RemoteDesktop(name, description, updated, notes, None, None,
                             None, None)
         res.update_fields(properties)
@@ -1131,7 +1131,7 @@ class VNC(Account):
         self.password = password
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = VNC(name, description, updated, notes, None, None, None, None)
         res.update_fields(properties)
         return res
@@ -1192,7 +1192,7 @@ class Website(Account):
         self.password = password
 
     @classmethod
-    def from_proxy(self, name, description, updated, notes, properties):
+    def from_proxy(cls, name, description, updated, notes, properties):
         res = Website(name, description, updated, notes, None, None, None,
                       None)
         res.update_fields(properties)
