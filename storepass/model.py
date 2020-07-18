@@ -347,19 +347,19 @@ class Entry:
     _storage_id = 'entry'
 
     @storepass.util.classproperty
-    def entry_type_name(cls):
+    def entry_type_name(cls):  # pylint: disable=no-self-argument
         return cls._entry_type_name
 
     @storepass.util.classproperty
-    def entry_label(cls):
+    def entry_label(cls):  # pylint: disable=no-self-argument
         return cls._entry_label
 
     @storepass.util.classproperty
-    def entry_fields(cls):
+    def entry_fields(cls):  # pylint: disable=no-self-argument
         return cls._entry_fields
 
     @storepass.util.classproperty
-    def storage_id(cls):
+    def storage_id(cls):  # pylint: disable=no-self-argument
         return cls._storage_id
 
     class _PropertyProxy:
