@@ -164,9 +164,13 @@ class _XMLToModelConvertor:
                 account = self._parse_account(xml_subelem, xpath)
                 children.append(account)
             else:
+                accepted = ', '.join([
+                    f"'{accepted_id}'"
+                    for accepted_id in _STORAGE_ID_TO_ENTRY_TYPE_MAP.keys()
+                ])
                 raise storepass.exc.StorageReadException(
                     f"Attribute '{xpath}/@type' has unrecognized value "
-                    f"'{type_}', expected 'folder' or 'generic'")
+                    f"'{type_}', expected one of: {accepted}")
 
             xpath.pop()
 

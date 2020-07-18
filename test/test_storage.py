@@ -339,6 +339,27 @@ class TestStorage(util.StorePassTestCase):
             "Element '/revelationdata/entry[1]' has unrecognized attribute "
             "'invalid-attr'")
 
+    def test_read_wrong_entry_type(self):
+        """Check rejection of a wrong <entry> type."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="invalid-type">
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        with self.assertRaises(storepass.exc.StorageReadException) as cm:
+            _ = storage.read_tree()
+        self.assertEqual(
+            str(cm.exception),
+            "Attribute '/revelationdata/entry[1]/@type' has unrecognized "
+            "value 'invalid-type', expected one of: 'folder', 'creditcard', "
+            "'cryptokey', 'database', 'door', 'email', 'ftp', 'generic', "
+            "'phone', 'shell', 'remotedesktop', 'vnc', 'website'")
+
     def test_read_wrong_name_attribute(self):
         """Check rejection of a wrong <name> attribute."""
         util.write_password_db(
