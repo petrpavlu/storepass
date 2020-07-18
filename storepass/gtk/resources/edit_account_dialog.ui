@@ -14,7 +14,7 @@ SPDX-License-Identifier: MIT
                 <property name="orientation">vertical</property>
                 <property name="spacing">8</property>
                 <child>
-                    <object class="GtkGrid">
+                    <object class="GtkGrid" id="edit_grid">
                         <property name="visible">True</property>
                         <property name="row-spacing">5</property>
                         <property name="column-spacing">5</property>
@@ -107,7 +107,7 @@ SPDX-License-Identifier: MIT
                             </packing>
                         </child>
                         <child>
-                            <object class="GtkLabel">
+                            <object class="GtkLabel" id="account_data_label">
                                 <property name="visible">True</property>
                                 <property name="halign">start</property>
                                 <property name="label" translatable="yes">Account Data</property>
@@ -119,73 +119,6 @@ SPDX-License-Identifier: MIT
                                 <property name="left-attach">0</property>
                                 <property name="top-attach">4</property>
                                 <property name="width">2</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <object class="GtkLabel" id="hostname_label">
-                                <property name="visible">True</property>
-                                <property name="halign">start</property>
-                                <property name="margin-left">4</property>
-                                <property name="label" translatable="yes">Hostname:</property>
-                            </object>
-                            <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">5</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <object class="GtkEntry" id="hostname_entry">
-                                <property name="visible">True</property>
-                                <property name="hexpand">True</property>
-                            </object>
-                            <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">5</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <object class="GtkLabel" id="username_label">
-                                <property name="visible">True</property>
-                                <property name="halign">start</property>
-                                <property name="margin-left">4</property>
-                                <property name="label" translatable="yes">Username:</property>
-                            </object>
-                            <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">6</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <object class="GtkEntry" id="username_entry">
-                                <property name="visible">True</property>
-                                <property name="hexpand">True</property>
-                            </object>
-                            <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">6</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <object class="GtkLabel" id="password_label">
-                                <property name="visible">True</property>
-                                <property name="halign">start</property>
-                                <property name="margin-left">4</property>
-                                <property name="label" translatable="yes">Password:</property>
-                            </object>
-                            <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">7</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <object class="GtkEntry" id="password_entry">
-                                <property name="visible">True</property>
-                                <property name="hexpand">True</property>
-                                <property name="input-purpose">password</property>
-                            </object>
-                            <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">7</property>
                             </packing>
                         </child>
                         <child>

@@ -62,6 +62,11 @@ class Hint:
         return child
 
     @staticmethod
+    def GtkGrid(child):  # pylint: disable=invalid-name
+        """:rtype: Gtk.Grid"""
+        return child
+
+    @staticmethod
     def GtkLabel(child):  # pylint: disable=invalid-name
         """:rtype: Gtk.Label"""
         return child

@@ -159,20 +159,23 @@ class EditAccountDialog(Gtk.Dialog):
 
     __gtype_name__ = 'EditAccountDialog'
 
+    _edit_grid = Gtk.Template.Child('edit_grid')
     _modify_account_label = Gtk.Template.Child('modify_account_label')
     _name_entry = Gtk.Template.Child('name_entry')
     _description_entry = Gtk.Template.Child('description_entry')
     _notes_text_view = Gtk.Template.Child('notes_text_view')
     _type_combo_box = Gtk.Template.Child('type_combo_box')
-    _hostname_label = Gtk.Template.Child('hostname_label')
-    _hostname_entry = Gtk.Template.Child('hostname_entry')
-    _username_label = Gtk.Template.Child('username_label')
-    _username_entry = Gtk.Template.Child('username_entry')
-    _password_label = Gtk.Template.Child('password_label')
-    _password_entry = Gtk.Template.Child('password_entry')
+    _account_data_label = Gtk.Template.Child('account_data_label')
     _apply_button = Gtk.Template.Child('apply_button')
 
-    def __init__(self, parent_window, entry):
+    class _PropertyWidget:
+        """Aggregate to record property widgets for a specific field."""
+        def __init__(self, field, label_widget, entry_widget):
+            self.field = field
+            self.label_widget = label_widget
+            self.entry_widget = entry_widget
+
+    def __init__(self, parent_window, account):
         """
         Initialize an add/edit account dialog.
 
@@ -183,57 +186,135 @@ class EditAccountDialog(Gtk.Dialog):
         super().__init__(parent=parent_window)
 
         # Hint correct types to pylint.
+        self._edit_grid = util.Hint.GtkGrid(self._edit_grid)
         self._modify_account_label = util.Hint.GtkLabel(
             self._modify_account_label)
         self._name_entry = util.Hint.GtkEntry(self._name_entry)
         self._description_entry = util.Hint.GtkEntry(self._description_entry)
         self._notes_text_view = util.Hint.GtkTextView(self._notes_text_view)
         self._type_combo_box = util.Hint.GtkComboBox(self._type_combo_box)
-        self._hostname_label = util.Hint.GtkLabel(self._hostname_label)
-        self._hostname_entry = util.Hint.GtkEntry(self._hostname_entry)
-        self._username_label = util.Hint.GtkLabel(self._username_label)
-        self._username_entry = util.Hint.GtkEntry(self._username_entry)
-        self._password_label = util.Hint.GtkLabel(self._password_label)
-        self._password_entry = util.Hint.GtkEntry(self._password_entry)
+        self._account_data_label = util.Hint.GtkLabel(self._account_data_label)
         self._apply_button = util.Hint.GtkButton(self._apply_button)
 
+        self.properties = {}
+        self.property_widgets = []
+
+        # Initialize the account-type combo box.
         type_list_store = Gtk.ListStore(str, _AccountClassGObject)
-        type_list_store.append(
-            ["Generic",
-             _AccountClassGObject(storepass.model.Generic)])
+        for entry_cls in storepass.model.ENTRY_TYPES:
+            if entry_cls == storepass.model.Folder:
+                continue
+            type_list_store.append(
+                [entry_cls.entry_label,
+                 _AccountClassGObject(entry_cls)])
         self._type_combo_box.set_model(type_list_store)
 
-        self.connect('response', self._on_response)
+        # Initialize the dialog.
+        if account is not None:
+            self.set_title("Edit Account")
+            self._modify_account_label.set_text("Edit Account")
+            self._apply_button.set_label("_Apply")
 
-        if entry is None:
+            self._name_entry.set_text(account.name)
+            self._description_entry.set_text(
+                storepass.util.normalize_none_to_empty(account.description))
+            self._notes_text_view.get_buffer().set_text(
+                storepass.util.normalize_none_to_empty(account.notes))
+            self._set_properties_from_entry(account)
+
+            self._set_selected_type(type(account))
+        else:
             self.set_title("Add Account")
             self._modify_account_label.set_text("Add Account")
             self._apply_button.set_label("_Add")
-            self._type_combo_box.set_active(0)
-            return
+            self._set_selected_type(storepass.model.Generic)
 
-        self.set_title("Edit Account")
-        self._modify_account_label.set_text("Edit Account")
-        self._apply_button.set_label("_Apply")
+        self.connect('response', self._on_response)
 
-        self._name_entry.set_text(entry.name)
-        self._description_entry.set_text(
-            storepass.util.normalize_none_to_empty(entry.description))
-        self._notes_text_view.get_buffer().set_text(
-            storepass.util.normalize_none_to_empty(entry.notes))
+    def _set_selected_type(self, new_account_cls):
+        """Set a currently selected account type."""
+        type_list_store = self._type_combo_box.get_model()
+        iter_ = type_list_store.get_iter_first()
+        index = 0
+        while iter_ is not None:
+            account_cls = type_list_store.get_value(
+                iter_, _AccountListStoreColumn.ACCOUNT_CLASS).type_
+            if account_cls == new_account_cls:
+                self._type_combo_box.set_active(index)
+                break
 
-        # TODO Select the correct type based on entry's type.
-        self._type_combo_box.set_active(0)
+            iter_ = type_list_store.iter_next(iter_)
+            index += 1
+        else:
+            assert 0 and "Unrecognized account type!"
 
-        if isinstance(entry, storepass.model.Generic):
-            self._hostname_entry.set_text(
-                storepass.util.normalize_none_to_empty(entry.hostname))
-        if isinstance(entry, storepass.model.Generic):
-            self._username_entry.set_text(
-                storepass.util.normalize_none_to_empty(entry.username))
-        if isinstance(entry, storepass.model.Generic):
-            self._password_entry.set_text(
-                storepass.util.normalize_none_to_empty(entry.password))
+    def _update_property(self, field, value):
+        """Update a value of a specified property."""
+        if value is not None:
+            self.properties[field] = value
+        elif field in self.properties:
+            del self.properties[field]
+
+    def _set_properties_from_entry(self, account):
+        """Update properties from an existing entry."""
+        for field in account.entry_fields:
+            self._update_property(field, account.properties[field])
+
+    def _set_properties_from_widgets(self):
+        """Update properties from currently displayed property widgets."""
+        for property_widget in self.property_widgets:
+            value = storepass.util.normalize_empty_to_none(
+                property_widget.entry_widget.get_text())
+            self._update_property(property_widget.field, value)
+
+    @Gtk.Template.Callback("on_type_combo_box_changed")
+    def _on_type_combo_box_changed(self, combo_box):
+        """Handle a change of the selected account type."""
+        assert combo_box == self._type_combo_box
+
+        # Get the selected account type.
+        active_iter = combo_box.get_active_iter()
+        assert active_iter is not None
+        account_cls = combo_box.get_model().get_value(
+            active_iter, _AccountListStoreColumn.ACCOUNT_CLASS).type_
+
+        # Save properties from the current property entries.
+        self._set_properties_from_widgets()
+
+        # Destroy any current property widgets.
+        for property_widget in self.property_widgets:
+            row = self._edit_grid.child_get_property(
+                property_widget.label_widget, 'top-attach')
+            self._edit_grid.remove_row(row)
+        self.property_widgets = []
+
+        # Create and insert property widgets for the selected type.
+        insert_at = self._edit_grid.child_get_property(
+            self._account_data_label, 'top-attach') + 1
+
+        for field in account_cls.entry_fields:
+            property_xml = importlib.resources.read_text(
+                'storepass.gtk.resources', 'edit_property_widgets.ui')
+            builder = Gtk.Builder.new_from_string(property_xml, -1)
+
+            self._edit_grid.insert_row(insert_at)
+
+            label_widget = builder.get_object('property_label')
+            label_widget.set_label(field.label)
+            self._edit_grid.attach(label_widget, 0, insert_at, 1, 1)
+
+            entry_widget = builder.get_object('property_entry')
+            if field.is_protected:
+                entry_widget.set_input_purpose(Gtk.InputPurpose.PASSWORD)
+            if field in self.properties:
+                entry_widget.set_text(
+                    storepass.util.normalize_none_to_empty(
+                        self.properties[field]))
+            self._edit_grid.attach(entry_widget, 1, insert_at, 1, 1)
+
+            self.property_widgets.append(
+                self._PropertyWidget(field, label_widget, entry_widget))
+            insert_at += 1
 
     def _on_response(self, dialog, response_id):
         """Process a response signal from the dialog."""
@@ -249,32 +330,6 @@ class EditAccountDialog(Gtk.Dialog):
         util.show_error_dialog(self, "Invalid account name",
                                "Name cannot be empty.")
 
-    @Gtk.Template.Callback("on_type_combo_box_changed")
-    def _on_type_combo_box_changed(self, combo_box):
-        assert combo_box == self._type_combo_box
-
-        show_hostname = False
-        show_username = False
-        show_password = False
-
-        active_iter = combo_box.get_active_iter()
-        assert active_iter is not None
-        account_class = combo_box.get_model().get_value(
-            active_iter, _AccountListStoreColumn.ACCOUNT_CLASS)
-        if account_class.type_ == storepass.model.Generic:
-            show_hostname = True
-            show_username = True
-            show_password = True
-        else:
-            assert 0 and "Unhandled entry type!"
-
-        self._hostname_label.set_visible(show_hostname)
-        self._hostname_entry.set_visible(show_hostname)
-        self._username_label.set_visible(show_username)
-        self._username_entry.set_visible(show_username)
-        self._password_label.set_visible(show_password)
-        self._password_entry.set_visible(show_password)
-
     def get_entry(self):
         """Create a new account based on the information input by the user."""
         # Get common properties.
@@ -289,23 +344,15 @@ class EditAccountDialog(Gtk.Dialog):
                                     text_buffer.get_end_iter(), True)
         notes = storepass.util.normalize_empty_to_none(text)
 
-        # Get the account type.
+        # Save properties from the current property entries.
+        self._set_properties_from_widgets()
+
+        # Get the selected account type.
         active_iter = self._type_combo_box.get_active_iter()
         assert active_iter is not None
-        account_class = self._type_combo_box.get_model().get_value(
+        account_cls = self._type_combo_box.get_model().get_value(
             active_iter, _AccountListStoreColumn.ACCOUNT_CLASS).type_
 
-        # Create a new account.
-        if account_class == storepass.model.Generic:
-            hostname = storepass.util.normalize_empty_to_none(
-                self._hostname_entry.get_text())
-            username = storepass.util.normalize_empty_to_none(
-                self._username_entry.get_text())
-            password = storepass.util.normalize_empty_to_none(
-                self._password_entry.get_text())
-            entry = storepass.model.Generic(name, description, updated, notes,
-                                            hostname, username, password)
-        else:
-            assert 0 and "Unhandled entry type!"
-
-        return entry
+        # Return a new account.
+        return account_cls.from_proxy(name, description, updated, notes,
+                                      self.properties)
