@@ -106,7 +106,7 @@ def path_spec_to_string(path_spec):
 class Field:
     """Entry field."""
     def __init__(self, name, label, storage_id, is_protected=False):
-        """Initialize an account field."""
+        """Initialize an entry field."""
         self._name = name
         self._label = label
         self._storage_id = storage_id
@@ -114,18 +114,22 @@ class Field:
 
     @property
     def name(self):
+        """Obtain a name of the field."""
         return self._name
 
     @property
     def label(self):
+        """Obtain the field's label."""
         return self._label
 
     @property
     def storage_id(self):
+        """Obtain the field's storage ID."""
         return self._storage_id
 
     @property
     def is_protected(self):
+        """Obtain whether the field is protected, e.g. it is a password."""
         return self._is_protected
 
 
@@ -348,21 +352,26 @@ class Entry:
 
     @storepass.util.classproperty
     def entry_type_name(cls):  # pylint: disable=no-self-argument
+        """Obtain the entry type name."""
         return cls._entry_type_name
 
     @storepass.util.classproperty
     def entry_label(cls):  # pylint: disable=no-self-argument
+        """Obtain the entry's label."""
         return cls._entry_label
 
     @storepass.util.classproperty
     def entry_fields(cls):  # pylint: disable=no-self-argument
+        """Obtain fields that are valid for the entry."""
         return cls._entry_fields
 
     @storepass.util.classproperty
     def storage_id(cls):  # pylint: disable=no-self-argument
+        """Obtain entry's storage ID."""
         return cls._storage_id
 
     class _PropertyProxy:
+        """Proxy to access an entry property via a field."""
         def __init__(self, entry):
             self.entry = entry
 
@@ -388,6 +397,7 @@ class Entry:
 
     @classmethod
     def from_proxy(cls, _name, _description, _updated, _notes, _properties):
+        """Create an entry via the properties specification."""
         assert 0 and "Unimplemented method from_properties()!"
 
     @property
@@ -409,6 +419,7 @@ class Entry:
         assert 0 and "Unimplemented method _set_field()!"
 
     def update_fields(self, properties):
+        """Update entry's fields from specified property values."""
         for field, value in properties.items():
             self._set_field(field, value)
 
@@ -445,6 +456,7 @@ class Folder(Entry, Container):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a folder via the properties specification."""
         res = Folder(name, description, updated, notes, [])
         res.update_fields(properties)
         return res
@@ -536,6 +548,7 @@ class CreditCard(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a credit card entry via the properties specification."""
         res = CreditCard(name, description, updated, notes, None, None, None,
                          None, None)
         res.update_fields(properties)
@@ -605,6 +618,7 @@ class CryptoKey(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a crypto key entry via the properties specification."""
         res = CryptoKey(name, description, updated, notes, None, None, None,
                         None)
         res.update_fields(properties)
@@ -669,6 +683,7 @@ class Database(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a database entry via the properties specification."""
         res = Database(name, description, updated, notes, None, None, None,
                        None)
         res.update_fields(properties)
@@ -729,6 +744,7 @@ class Door(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a door entry via the properties specification."""
         res = Door(name, description, updated, notes, None, None)
         res.update_fields(properties)
         return res
@@ -783,6 +799,7 @@ class Email(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create an email entry via the properties specification."""
         res = Email(name, description, updated, notes, None, None, None, None)
         res.update_fields(properties)
         return res
@@ -846,6 +863,7 @@ class FTP(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a FTP entry via the properties specification."""
         res = FTP(name, description, updated, notes, None, None, None, None)
         res.update_fields(properties)
         return res
@@ -907,6 +925,7 @@ class Generic(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a generic account entry via the properties specification."""
         res = Generic(name, description, updated, notes, None, None, None)
         res.update_fields(properties)
         return res
@@ -961,6 +980,7 @@ class Phone(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a phone entry via the properties specification."""
         res = Phone(name, description, updated, notes, None, None)
         res.update_fields(properties)
         return res
@@ -1015,6 +1035,7 @@ class Shell(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a shell entry via the properties specification."""
         res = Shell(name, description, updated, notes, None, None, None, None)
         res.update_fields(properties)
         return res
@@ -1078,6 +1099,7 @@ class RemoteDesktop(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a remote desktop entry via the properties specification."""
         res = RemoteDesktop(name, description, updated, notes, None, None,
                             None, None)
         res.update_fields(properties)
@@ -1142,6 +1164,7 @@ class VNC(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a VNC entry via the properties specification."""
         res = VNC(name, description, updated, notes, None, None, None, None)
         res.update_fields(properties)
         return res
@@ -1204,6 +1227,7 @@ class Website(Account):
 
     @classmethod
     def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a website entry via the properties specification."""
         res = Website(name, description, updated, notes, None, None, None,
                       None)
         res.update_fields(properties)
