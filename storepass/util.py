@@ -7,7 +7,7 @@ import datetime
 import string
 
 
-class classproperty:
+class classproperty:  # pylint: disable=invalid-name
     """Limited read-only class property."""
     def __init__(self, fget):
         self._fget = fget
