@@ -74,18 +74,25 @@ class _EntryGenerator:
         """Normalize an argument value to None if it is an empty string."""
         return storepass.util.normalize_empty_to_none(value)
 
+    def _update_property(self, field, value):
+        """Update a value of a specified property."""
+        if value is not None:
+            self.properties[field] = value
+        elif field in self.properties:
+            del self.properties[field]
+
     def set_from_entry(self, entry):
-        """Update generator properties from an existing entry."""
+        """Update properties from an existing entry."""
         self.type_cls = type(entry)
 
         self.description = entry.description
         self.updated = entry.updated
         self.notes = entry.notes
         for field in entry.entry_fields:
-            self.properties[field] = entry.properties[field]
+            self._update_property(field, entry.properties[field])
 
     def set_from_args(self, args):
-        """Update generator properties from command line arguments."""
+        """Update properties from command line arguments."""
         if args.type is not None:
             self.type_cls = _NAME_TO_ENTRY_TYPE_MAP[args.type]
 
@@ -99,7 +106,7 @@ class _EntryGenerator:
         for field, value in args.properties.items():
             if field.is_protected:
                 value = getpass.getpass(f"Entry {field.name}: ")
-            self.properties[field] = self._normalize_argument(value)
+            self._update_property(field, self._normalize_argument(value))
 
         # Finally, set the updated value.
         self.updated = storepass.util.get_current_datetime()
