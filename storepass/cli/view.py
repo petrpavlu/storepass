@@ -44,17 +44,19 @@ class DetailView(storepass.model.ModelVisitor):
         """Print detailed information about an entry."""
         print(f"+ {entry.get_full_name()} ({entry.entry_label})")
 
+        # Process the entry's description.
+        if entry.description is not None:
+            print(f"  - Description: {entry.description}")
+
         # Process entry-specific properties and print their values.
         for field in entry.entry_fields:
             value = entry.properties[field]
             if value is not None:
                 print(f"  - {field.label}: {value}")
 
-        # Process common entry properties and print their values.
-        if entry.description is not None:
-            print(f"  - Description: {entry.description}")
+        # Process the entry's notes and updated value.
+        if entry.notes is not None:
+            print(f"  - Notes: {entry.notes}")
         if entry.updated is not None:
             updated = entry.updated.astimezone().strftime('%c %Z')
             print(f"  - Last modified: {updated}")
-        if entry.notes is not None:
-            print(f"  - Notes: {entry.notes}")
