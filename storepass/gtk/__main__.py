@@ -784,7 +784,19 @@ class _MainWindow(Gtk.ApplicationWindow):
             entry_iter, _EntriesTreeStoreColumn.ENTRY
         ).entry if entry_iter is not None else None
 
-        # Handle the root selection by displaying database properties.
+        # Process the entry's name.
+        if entry is not None:
+            if isinstance(entry, storepass.model.Root):
+                name_type = "Password Database"
+            elif isinstance(entry, storepass.model.Entry):
+                name_type = f"{entry.name} ({entry.entry_label})"
+        else:
+            name_type = None
+        self._update_entry_detail_widget_box(self._entry_name_type_box,
+                                             self._entry_name_type_label,
+                                             name_type)
+
+        # Handle the root selection by displaying the database filename.
         if entry is not None and isinstance(entry, storepass.model.Root):
             db_filename = self._get_db_filename()
         else:
@@ -792,15 +804,6 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._update_entry_detail_widget_box(self._db_filename_box,
                                              self._db_filename_label,
                                              db_filename)
-
-        # Process the entry's name.
-        if entry is not None and isinstance(entry, storepass.model.Entry):
-            name_type = f"{entry.name} ({entry.entry_label})"
-        else:
-            name_type = None
-        self._update_entry_detail_widget_box(self._entry_name_type_box,
-                                             self._entry_name_type_label,
-                                             name_type)
 
         # Process the entry's description.
         if entry is not None and isinstance(entry, storepass.model.Entry):
