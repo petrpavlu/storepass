@@ -4,12 +4,12 @@ Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
 SPDX-License-Identifier: MIT
 -->
 <interface>
-    <object class="GtkLabel" id="property_label">
+    <object class="GtkLabel" id="property_name_label">
         <property name="visible">True</property>
         <property name="halign">start</property>
         <property name="margin-left">4</property>
     </object>
-    <object class="GtkEntry" id="property_entry">
+    <object class="GtkEntry" id="property_value_entry">
         <property name="visible">True</property>
         <property name="hexpand">True</property>
     </object>

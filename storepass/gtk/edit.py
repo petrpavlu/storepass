@@ -171,10 +171,10 @@ class EditAccountDialog(Gtk.Dialog):
 
     class _PropertyWidget:
         """Aggregate to record property widgets for a specific field."""
-        def __init__(self, field, label_widget, entry_widget):
+        def __init__(self, field, name_label, value_entry):
             self.field = field
-            self.label_widget = label_widget
-            self.entry_widget = entry_widget
+            self.name_label = name_label
+            self.value_entry = value_entry
 
     def __init__(self, parent_window, account):
         """
@@ -197,8 +197,9 @@ class EditAccountDialog(Gtk.Dialog):
         self._account_data_label = util.Hint.GtkLabel(self._account_data_label)
         self._apply_button = util.Hint.GtkButton(self._apply_button)
 
-        self.properties = {}
-        self.property_widgets = []
+        # Initialize the property value and widget recorders.
+        self._properties = {}
+        self._property_widgets = []
 
         # Initialize the account-type combo box.
         type_list_store = Gtk.ListStore(str, _AccountClassGObject)
@@ -252,9 +253,9 @@ class EditAccountDialog(Gtk.Dialog):
     def _update_property(self, field, value):
         """Update a value of a specified property."""
         if value is not None:
-            self.properties[field] = value
-        elif field in self.properties:
-            del self.properties[field]
+            self._properties[field] = value
+        elif field in self._properties:
+            del self._properties[field]
 
     def _set_properties_from_entry(self, account):
         """Update properties from an existing entry."""
@@ -263,9 +264,9 @@ class EditAccountDialog(Gtk.Dialog):
 
     def _set_properties_from_widgets(self):
         """Update properties from currently displayed property widgets."""
-        for property_widget in self.property_widgets:
+        for property_widget in self._property_widgets:
             value = storepass.util.normalize_empty_to_none(
-                property_widget.entry_widget.get_text())
+                property_widget.value_entry.get_text())
             self._update_property(property_widget.field, value)
 
     @Gtk.Template.Callback("on_type_combo_box_changed")
@@ -283,11 +284,11 @@ class EditAccountDialog(Gtk.Dialog):
         self._set_properties_from_widgets()
 
         # Destroy any current property widgets.
-        for property_widget in self.property_widgets:
+        for property_widget in self._property_widgets:
             row = self._edit_grid.child_get_property(
-                property_widget.label_widget, 'top-attach')
+                property_widget.name_label, 'top-attach')
             self._edit_grid.remove_row(row)
-        self.property_widgets = []
+        self._property_widgets = []
 
         # Create and insert property widgets for the selected type.
         insert_at = self._edit_grid.child_get_property(
@@ -300,21 +301,21 @@ class EditAccountDialog(Gtk.Dialog):
 
             self._edit_grid.insert_row(insert_at)
 
-            label_widget = builder.get_object('property_label')
-            label_widget.set_label(field.label)
-            self._edit_grid.attach(label_widget, 0, insert_at, 1, 1)
+            name_label = builder.get_object('property_name_label')
+            name_label.set_label(field.label)
+            self._edit_grid.attach(name_label, 0, insert_at, 1, 1)
 
-            entry_widget = builder.get_object('property_entry')
+            value_entry = builder.get_object('property_value_entry')
             if field.is_protected:
-                entry_widget.set_input_purpose(Gtk.InputPurpose.PASSWORD)
-            if field in self.properties:
-                entry_widget.set_text(
+                value_entry.set_input_purpose(Gtk.InputPurpose.PASSWORD)
+            if field in self._properties:
+                value_entry.set_text(
                     storepass.util.normalize_none_to_empty(
-                        self.properties[field]))
-            self._edit_grid.attach(entry_widget, 1, insert_at, 1, 1)
+                        self._properties[field]))
+            self._edit_grid.attach(value_entry, 1, insert_at, 1, 1)
 
-            self.property_widgets.append(
-                self._PropertyWidget(field, label_widget, entry_widget))
+            self._property_widgets.append(
+                self._PropertyWidget(field, name_label, value_entry))
             insert_at += 1
 
     def _on_response(self, dialog, response_id):
@@ -356,4 +357,4 @@ class EditAccountDialog(Gtk.Dialog):
 
         # Return a new account.
         return account_cls.from_proxy(name, description, updated, notes,
-                                      self.properties)
+                                      self._properties)
