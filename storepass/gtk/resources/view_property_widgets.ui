@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
+SPDX-License-Identifier: MIT
+-->
+<interface>
+    <object class="GtkBox" id="property_box">
+        <property name="visible">True</property>
+        <property name="halign">center</property>
+        <child>
+            <object class="GtkLabel" id="property_name_label">
+                <property name="visible">True</property>
+                <attributes>
+                    <attribute name="weight" value="bold"/>
+                </attributes>
+            </object>
+        </child>
+        <child>
+            <object class="GtkLabel" id="property_value_label">
+                <property name="visible">True</property>
+                <property name="selectable">True</property>
+                <property name="wrap">True</property>
+            </object>
+        </child>
+    </object>
+</interface>

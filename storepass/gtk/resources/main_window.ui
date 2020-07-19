@@ -44,7 +44,7 @@ SPDX-License-Identifier: MIT
                     </object>
                 </child>
                 <child>
-                    <object class="GtkBox">
+                    <object class="GtkBox" id="details_box">
                         <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <property name="valign">center</property>
@@ -52,11 +52,10 @@ SPDX-License-Identifier: MIT
                         <child>
                             <object class="GtkBox" id="db_filename_box">
                                 <property name="halign">center</property>
-                                <property name="spacing">5</property>
                                 <child>
                                     <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Filename:</property>
+                                        <property name="label" translatable="yes">Filename: </property>
                                         <attributes>
                                             <attribute name="weight" value="bold"/>
                                         </attributes>
@@ -64,6 +63,7 @@ SPDX-License-Identifier: MIT
                                 </child>
                                 <child>
                                     <object class="GtkLabel" id="db_filename_label">
+                                        <property name="visible">True</property>
                                         <property name="selectable">True</property>
                                         <property name="wrap">True</property>
                                     </object>
@@ -71,22 +71,14 @@ SPDX-License-Identifier: MIT
                             </object>
                         </child>
                         <child>
-                            <object class="GtkBox" id="entry_name_box">
+                            <object class="GtkBox" id="entry_name_type_box">
                                 <property name="halign">center</property>
-                                <property name="spacing">5</property>
                                 <child>
-                                    <object class="GtkLabel">
+                                    <object class="GtkLabel" id="entry_name_type_label">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Name:</property>
                                         <attributes>
                                             <attribute name="weight" value="bold"/>
                                         </attributes>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkLabel" id="entry_name_label">
-                                        <property name="selectable">True</property>
-                                        <property name="wrap">True</property>
                                     </object>
                                 </child>
                             </object>
@@ -94,11 +86,10 @@ SPDX-License-Identifier: MIT
                         <child>
                             <object class="GtkBox" id="entry_description_box">
                                 <property name="halign">center</property>
-                                <property name="spacing">5</property>
                                 <child>
                                     <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Description:</property>
+                                        <property name="label" translatable="yes">Description: </property>
                                         <attributes>
                                             <attribute name="weight" value="bold"/>
                                         </attributes>
@@ -106,27 +97,7 @@ SPDX-License-Identifier: MIT
                                 </child>
                                 <child>
                                     <object class="GtkLabel" id="entry_description_label">
-                                        <property name="selectable">True</property>
-                                        <property name="wrap">True</property>
-                                    </object>
-                                </child>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="GtkBox" id="entry_updated_box">
-                                <property name="halign">center</property>
-                                <property name="spacing">5</property>
-                                <child>
-                                    <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Updated:</property>
-                                        <attributes>
-                                            <attribute name="weight" value="bold"/>
-                                        </attributes>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkLabel" id="entry_updated_label">
                                         <property name="selectable">True</property>
                                         <property name="wrap">True</property>
                                     </object>
@@ -136,11 +107,10 @@ SPDX-License-Identifier: MIT
                         <child>
                             <object class="GtkBox" id="entry_notes_box">
                                 <property name="halign">center</property>
-                                <property name="spacing">5</property>
                                 <child>
                                     <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Notes:</property>
+                                        <property name="label" translatable="yes">Notes: </property>
                                         <attributes>
                                             <attribute name="weight" value="bold"/>
                                         </attributes>
@@ -148,6 +118,7 @@ SPDX-License-Identifier: MIT
                                 </child>
                                 <child>
                                     <object class="GtkLabel" id="entry_notes_label">
+                                        <property name="visible">True</property>
                                         <property name="selectable">True</property>
                                         <property name="wrap">True</property>
                                     </object>
@@ -155,62 +126,20 @@ SPDX-License-Identifier: MIT
                             </object>
                         </child>
                         <child>
-                            <object class="GtkBox" id="entry_generic_hostname_box">
+                            <object class="GtkBox" id="entry_updated_box">
                                 <property name="halign">center</property>
-                                <property name="spacing">5</property>
                                 <child>
                                     <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Hostname:</property>
+                                        <property name="label" translatable="yes">Updated: </property>
                                         <attributes>
                                             <attribute name="weight" value="bold"/>
                                         </attributes>
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkLabel" id="entry_generic_hostname_label">
-                                        <property name="selectable">True</property>
-                                        <property name="wrap">True</property>
-                                    </object>
-                                </child>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="GtkBox" id="entry_generic_username_box">
-                                <property name="halign">center</property>
-                                <property name="spacing">5</property>
-                                <child>
-                                    <object class="GtkLabel">
+                                    <object class="GtkLabel" id="entry_updated_label">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Username:</property>
-                                        <attributes>
-                                            <attribute name="weight" value="bold"/>
-                                        </attributes>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkLabel" id="entry_generic_username_label">
-                                        <property name="selectable">True</property>
-                                        <property name="wrap">True</property>
-                                    </object>
-                                </child>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="GtkBox" id="entry_generic_password_box">
-                                <property name="halign">center</property>
-                                <property name="spacing">5</property>
-                                <child>
-                                    <object class="GtkLabel">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Password:</property>
-                                        <attributes>
-                                            <attribute name="weight" value="bold"/>
-                                        </attributes>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkLabel" id="entry_generic_password_label">
                                         <property name="selectable">True</property>
                                         <property name="wrap">True</property>
                                     </object>

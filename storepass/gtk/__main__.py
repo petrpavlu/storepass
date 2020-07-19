@@ -138,28 +138,17 @@ class _MainWindow(Gtk.ApplicationWindow):
     _entries_tree_view_column = Gtk.Template.Child('entries_tree_view_column')
     _entries_tree_view_icon_renderer = Gtk.Template.Child(
         'entries_tree_view_icon_renderer')
+    _details_box = Gtk.Template.Child('details_box')
     _db_filename_box = Gtk.Template.Child('db_filename_box')
     _db_filename_label = Gtk.Template.Child('db_filename_label')
-    _entry_name_box = Gtk.Template.Child('entry_name_box')
-    _entry_name_label = Gtk.Template.Child('entry_name_label')
+    _entry_name_type_box = Gtk.Template.Child('entry_name_type_box')
+    _entry_name_type_label = Gtk.Template.Child('entry_name_type_label')
     _entry_description_box = Gtk.Template.Child('entry_description_box')
     _entry_description_label = Gtk.Template.Child('entry_description_label')
-    _entry_updated_box = Gtk.Template.Child('entry_updated_box')
-    _entry_updated_label = Gtk.Template.Child('entry_updated_label')
     _entry_notes_box = Gtk.Template.Child('entry_notes_box')
     _entry_notes_label = Gtk.Template.Child('entry_notes_label')
-    _entry_generic_hostname_box = Gtk.Template.Child(
-        'entry_generic_hostname_box')
-    _entry_generic_hostname_label = Gtk.Template.Child(
-        'entry_generic_hostname_label')
-    _entry_generic_username_box = Gtk.Template.Child(
-        'entry_generic_username_box')
-    _entry_generic_username_label = Gtk.Template.Child(
-        'entry_generic_username_label')
-    _entry_generic_password_box = Gtk.Template.Child(
-        'entry_generic_password_box')
-    _entry_generic_password_label = Gtk.Template.Child(
-        'entry_generic_password_label')
+    _entry_updated_box = Gtk.Template.Child('entry_updated_box')
+    _entry_updated_label = Gtk.Template.Child('entry_updated_label')
 
     def __init__(self, application):
         super().__init__(application=application)
@@ -172,31 +161,24 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._entries_tree_view_icon_renderer = \
             util.Hint.GtkCellRendererPixbuf(
                 self._entries_tree_view_icon_renderer)
+        self._details_box = util.Hint.GtkBox(self._details_box)
         self._db_filename_box = util.Hint.GtkBox(self._db_filename_box)
         self._db_filename_label = util.Hint.GtkLabel(self._db_filename_label)
-        self._entry_name_box = util.Hint.GtkBox(self._entry_name_box)
-        self._entry_name_label = util.Hint.GtkLabel(self._entry_name_label)
+        self._entry_name_type_box = util.Hint.GtkBox(self._entry_name_type_box)
+        self._entry_name_type_label = util.Hint.GtkLabel(
+            self._entry_name_type_label)
         self._entry_description_box = util.Hint.GtkBox(
             self._entry_description_box)
         self._entry_description_label = util.Hint.GtkLabel(
             self._entry_description_label)
+        self._entry_notes_box = util.Hint.GtkBox(self._entry_notes_box)
+        self._entry_notes_label = util.Hint.GtkLabel(self._entry_notes_label)
         self._entry_updated_box = util.Hint.GtkBox(self._entry_updated_box)
         self._entry_updated_label = util.Hint.GtkLabel(
             self._entry_updated_label)
-        self._entry_notes_box = util.Hint.GtkBox(self._entry_notes_box)
-        self._entry_notes_label = util.Hint.GtkLabel(self._entry_notes_label)
-        self._entry_generic_hostname_box = util.Hint.GtkBox(
-            self._entry_generic_hostname_box)
-        self._entry_generic_hostname_label = util.Hint.GtkLabel(
-            self._entry_generic_hostname_label)
-        self._entry_generic_username_box = util.Hint.GtkBox(
-            self._entry_generic_username_box)
-        self._entry_generic_username_label = util.Hint.GtkLabel(
-            self._entry_generic_username_label)
-        self._entry_generic_password_box = util.Hint.GtkBox(
-            self._entry_generic_password_box)
-        self._entry_generic_password_label = util.Hint.GtkLabel(
-            self._entry_generic_password_label)
+
+        # Initialize the property widget recorder.
+        self._property_boxes = []
 
         # Connect main menu actions.
         new_action = Gio.SimpleAction.new('new', None)
@@ -782,17 +764,13 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._has_unsaved_changes = False
         self._update_title()
 
-    def _update_entry_property(self, box_widget, label_widget, text,
-                               hide_if_empty):
+    def _update_entry_detail_widget_box(self, box_widget, label_widget, text):
         if text is not None:
-            box_widget.show()
             label_widget.set_text(text)
-            label_widget.show()
+            box_widget.show()
         else:
-            if hide_if_empty:
-                box_widget.hide()
+            box_widget.hide()
             label_widget.set_text("")
-            label_widget.hide()
 
     @Gtk.Template.Callback('on_entries_tree_view_selection_changed')
     def _on_entries_tree_view_selection_changed(self, tree_selection):
@@ -811,62 +789,79 @@ class _MainWindow(Gtk.ApplicationWindow):
             db_filename = self._get_db_filename()
         else:
             db_filename = None
-        self._update_entry_property(self._db_filename_box,
-                                    self._db_filename_label, db_filename, True)
+        self._update_entry_detail_widget_box(self._db_filename_box,
+                                             self._db_filename_label,
+                                             db_filename)
 
-        if entry is None or isinstance(entry, storepass.model.Root):
-            self._update_entry_property(self._entry_name_box,
-                                        self._entry_name_label, None, True)
-            self._update_entry_property(self._entry_description_box,
-                                        self._entry_description_label, None,
-                                        True)
-            self._update_entry_property(self._entry_updated_box,
-                                        self._entry_updated_label, None, True)
-            self._update_entry_property(self._entry_notes_box,
-                                        self._entry_notes_label, None, True)
+        # Process the entry's name.
+        if entry is not None and isinstance(entry, storepass.model.Entry):
+            name_type = f"{entry.name} ({entry.entry_label})"
+        else:
+            name_type = None
+        self._update_entry_detail_widget_box(self._entry_name_type_box,
+                                             self._entry_name_type_label,
+                                             name_type)
 
-            self._update_entry_property(self._entry_generic_hostname_box,
-                                        self._entry_generic_hostname_label,
-                                        None, True)
-            self._update_entry_property(self._entry_generic_username_box,
-                                        self._entry_generic_username_label,
-                                        None, True)
-            self._update_entry_property(self._entry_generic_password_box,
-                                        self._entry_generic_password_label,
-                                        None, True)
-            return
+        # Process the entry's description.
+        if entry is not None and isinstance(entry, storepass.model.Entry):
+            description = entry.description
+        else:
+            description = None
+        self._update_entry_detail_widget_box(self._entry_description_box,
+                                             self._entry_description_label,
+                                             description)
 
-        # Show information for a password entry.
-        assert isinstance(entry, storepass.model.Entry)
+        # Process entry-specific properties.
+        # Destroy any current property widgets.
+        for property_box in self._property_boxes:
+            self._details_box.remove(property_box)
+        self._property_widgets = []
 
-        self._update_entry_property(self._entry_name_box,
-                                    self._entry_name_label, entry.name, False)
-        self._update_entry_property(self._entry_description_box,
-                                    self._entry_description_label,
-                                    entry.description, False)
-        self._update_entry_property(
-            self._entry_updated_box, self._entry_updated_label,
-            None if entry.updated is None else
-            entry.updated.astimezone().strftime('%c %Z'), False)
-        self._update_entry_property(self._entry_notes_box,
-                                    self._entry_notes_label, entry.notes,
-                                    False)
+        # Create and insert property widgets for the selected type.
+        if entry is not None and isinstance(entry, storepass.model.Entry):
+            insert_at = self._details_box.child_get_property(
+                self._entry_description_box, 'position') + 1
 
-        hostname = entry.hostname if isinstance(
-            entry, storepass.model.Generic) else None
-        self._update_entry_property(self._entry_generic_hostname_box,
-                                    self._entry_generic_hostname_label,
-                                    hostname, True)
-        username = entry.username if isinstance(
-            entry, storepass.model.Generic) else None
-        self._update_entry_property(self._entry_generic_username_box,
-                                    self._entry_generic_username_label,
-                                    username, True)
-        password = entry.password if isinstance(
-            entry, storepass.model.Generic) else None
-        self._update_entry_property(self._entry_generic_password_box,
-                                    self._entry_generic_password_label,
-                                    password, True)
+            for field in entry.entry_fields:
+                value = entry.properties[field]
+                if value is not None:
+                    property_xml = importlib.resources.read_text(
+                        'storepass.gtk.resources', 'view_property_widgets.ui')
+                    builder = Gtk.Builder.new_from_string(property_xml, -1)
+
+                    property_box = builder.get_object('property_box')
+                    self._details_box.add(property_box)
+                    self._details_box.reorder_child(property_box, insert_at)
+
+                    property_name_label = builder.get_object(
+                        'property_name_label')
+                    property_name_label.set_text(f"{field.label}: ")
+
+                    property_value_label = builder.get_object(
+                        'property_value_label')
+                    property_value_label.set_text(value)
+
+                    self._property_boxes.append(property_box)
+                    insert_at += 1
+
+        # Process the entry's notes.
+        if entry is not None and isinstance(entry, storepass.model.Entry):
+            notes = entry.notes
+        else:
+            notes = None
+        self._update_entry_detail_widget_box(self._entry_notes_box,
+                                             self._entry_notes_label, notes)
+
+        # Process the entry's updated value.
+        if entry is not None and isinstance(entry, storepass.model.Entry):
+            updated = entry.updated
+            if updated is not None:
+                updated = updated.astimezone().strftime('%c %Z')
+        else:
+            updated = None
+        self._update_entry_detail_widget_box(self._entry_updated_box,
+                                             self._entry_updated_label,
+                                             updated)
 
     @Gtk.Template.Callback('on_entries_tree_view_button_press_event')
     def _on_entries_tree_view_button_press_event(self, widget, event):
