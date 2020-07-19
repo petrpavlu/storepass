@@ -302,7 +302,7 @@ class EditAccountDialog(Gtk.Dialog):
             self._edit_grid.insert_row(insert_at)
 
             name_label = builder.get_object('property_name_label')
-            name_label.set_label(field.label)
+            name_label.set_label(f"{field.label}: ")
             self._edit_grid.attach(name_label, 0, insert_at, 1, 1)
 
             value_entry = builder.get_object('property_value_entry')
