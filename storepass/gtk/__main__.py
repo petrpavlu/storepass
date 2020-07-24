@@ -40,12 +40,14 @@ class _PasswordDialog(Gtk.Dialog):
     _password_entry = Gtk.Template.Child('password_entry')
 
     def __init__(self, parent_window):
+        """Initialize a password dialog."""
         super().__init__(parent=parent_window)
 
         # Hint correct types to pylint.
         self._password_entry = util.Hint.GtkEntry(self._password_entry)
 
     def get_password(self):
+        """Return a password input by the user."""
         return self._password_entry.get_text()
 
 
@@ -58,8 +60,9 @@ class _AboutDialog(Gtk.AboutDialog):
     __gtype_name__ = 'AboutDialog'
 
 
-# Note: Keep these constants in sync with the ui files.
+# Note: Keep these constants in sync with main_window.ui.
 class _EntriesTreeStoreColumn(enum.IntEnum):
+    """Column IDs in Gtk.TreeStore for the entries tree view."""
     NAME = 0
     ENTRY = 1
 
@@ -72,16 +75,20 @@ class _EntryGObject(GObject.Object):
 
 
 class EntriesTreeStorePopulator(storepass.model.ModelVisitor):
+    """Model visitor that populates Gtk.TreeStore for the entries tree view."""
     def __init__(self, tree_store):
+        """Initialize a populator for the entries tree view."""
         super().__init__()
         self._tree_store = tree_store
 
     def visit_root(self, root):
+        """Add the database root to the tree."""
         return self._tree_store.append(
             None,
             ["Password Database", _EntryGObject(root)])
 
     def visit_entry(self, entry):
+        """Add a database entry to the tree."""
         parent_iter = self.get_path_data(entry.parent)
         return self._tree_store.append(
             parent_iter, [entry.name, _EntryGObject(entry)])
@@ -89,13 +96,16 @@ class EntriesTreeStorePopulator(storepass.model.ModelVisitor):
 
 class EntriesTreeStore(Gtk.TreeStore, Gtk.TreeDragSource, Gtk.TreeDragDest):
     """
-    Wrapper for Gtk.TreeStore to allow implementing Gtk.TreeDragSource and
+    Entries tree store based on Gtk.TreeStore with drag-and-drop upcalls.
+
+    Wrapper for Gtk.TreeStore to allow implementing the Gtk.TreeDragSource and
     Gtk.TreeDragDest interfaces at the same logical level where the TreeStore
     is allocated.
     """
     def __init__(self, column_types, do_drag_data_delete, do_drag_data_get,
                  do_row_draggable, do_drag_data_received,
                  do_row_drop_possible):
+        """Initialize an entries tree store and its drag-and-drop callbacks."""
         super().__init__(*column_types)
         self._do_drag_data_delete = do_drag_data_delete
         self._do_drag_data_get = do_drag_data_get
@@ -127,6 +137,8 @@ class EntriesTreeStore(Gtk.TreeStore, Gtk.TreeDragSource, Gtk.TreeDragDest):
 @Gtk.Template.from_string(
     importlib.resources.read_text('storepass.gtk.resources', 'main_window.ui'))
 class _MainWindow(Gtk.ApplicationWindow):
+    """Main application window."""
+
     __gtype_name__ = 'MainWindow'
 
     _entries_tree_view = Gtk.Template.Child('entries_tree_view')
@@ -146,6 +158,7 @@ class _MainWindow(Gtk.ApplicationWindow):
     _entry_updated_label = Gtk.Template.Child('entry_updated_label')
 
     def __init__(self, application):
+        """Initialize a main application window."""
         super().__init__(application=application)
 
         # Hint correct types to pylint.
@@ -213,6 +226,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._entries_tree_view_menu.connect(
             'selection-done', self._on_entries_tree_view_menu_selection_done)
 
+        # Connect context menu actions for the entries tree view.
         edit_entry_action = Gio.SimpleAction.new('edit_entry', None)
         edit_entry_action.connect('activate', self._on_edit_entry)
         self.add_action(edit_entry_action)
@@ -239,17 +253,13 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._clear_state()
 
     def _clear_state(self):
-        """Clear the current state. The result is a blank database."""
-
+        """Reset the current state and create an empty database."""
         storage = storepass.storage.Storage(None, None)
         model = storepass.model.Model()
         self._set_new_database(storage, model)
 
     def _set_new_database(self, storage, model):
-        """
-        Set a new storage + model and prepare the UI for the new model.
-        """
-
+        """Set a new storage + model and prepare the UI for the new model."""
         self._storage = storage
         self._model = model
         self._has_unsaved_changes = False
@@ -289,11 +299,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._update_title()
 
     def run_default_actions(self):
-        """
-        Run the default actions when the main window gets constructed and
-        displayed.
-        """
-
+        """Run preset actions when the window gets constructed and shown."""
         # Try to open the default password database.
         default_database = os.path.join(os.path.expanduser('~'),
                                         '.storepass.db')
@@ -327,50 +333,43 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._open_password_database(default_database)
 
     def _safe_get_tree_model_iter(self, tree_model, path):
-        """
-        Obtain an iterator pointing to a given path, or None if the path does
-        not exist.
-        """
-
+        """Get an iterator from a path, or None if the path does not exist."""
         try:
             return tree_model.get_iter(path)
         except ValueError:
             return None
 
     def _entries_tree_store_do_drag_data_delete(self, tree_store, path):
-        """
-        Handle a callback to delete an entries-tree-store row at a given path.
-        """
-
+        """Handle a drag-and-drop callback to delete a specified entry row."""
         assert tree_store == self._entries_tree_view.get_model()
 
         # A moved row should be already removed from its original position in
         # _entries_tree_store_do_drag_data_received().
         iter_ = self._safe_get_tree_model_iter(tree_store, path)
         assert iter_ is None
-
         return False
 
     def _entries_tree_store_do_drag_data_get(self, tree_store, path,
                                              selection_data):
         """
+        Handle a drag-and-drop callback to get data for a specified entry row.
+
         Fill in selection_data with a GTK_TREE_MODEL_ROW representation of an
-        entries-tree-store row at a given path.
+        entries-tree-store row at a specified path.
         """
-
         assert tree_store == self._entries_tree_view.get_model()
-
         return Gtk.tree_set_row_drag_data(selection_data, tree_store, path)
 
     def _entries_tree_store_do_row_draggable(self, tree_store, path):
         """
+        Handle a drag-and-drop callback to query if an entry row is draggable.
+
         Return whether a particular entries-tree-store row can be used as the
         source of a drag-and-drop operation.
         """
-
         assert tree_store == self._entries_tree_view.get_model()
 
-        # Make all entries are draggable with the exception of the Root node.
+        # Make all entries draggable with the exception of the Root node.
         root_iter = tree_store.get_iter_first()
         assert root_iter is not None
         return path != tree_store.get_path(root_iter)
@@ -378,10 +377,10 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _entries_tree_store_do_drag_data_received(self, tree_store, dest_path,
                                                   selection_data):
         """
-        Handle a callback to insert an entries-tree-store row before a given
-        dest_path.
-        """
+        Handle a drag-and-drop callback to insert an entry row.
 
+        Insert an entries-tree-store row before a specified path.
+        """
         assert tree_store == self._entries_tree_view.get_model()
 
         # Get information about the source.
@@ -465,10 +464,11 @@ class _MainWindow(Gtk.ApplicationWindow):
     def _entries_tree_store_do_row_drop_possible(self, tree_store, _dest_path,
                                                  _selection_data):
         """
-        Return whether a drop of an entries-tree-store row is possible before
-        a given dest_path.
-        """
+        Handle a drag-and-drop callback to query if an entry row is droppable.
 
+        Return whether a drop of an entries-tree-store row is possible before a
+        specified path.
+        """
         assert tree_store == self._entries_tree_view.get_model()
 
         # Allow drops at all rows and instead sort out invalid conditions in
@@ -485,35 +485,33 @@ class _MainWindow(Gtk.ApplicationWindow):
         # of a leaf node, the path should contain an extra '0' element to
         # indicate that this is a drop into it, or in other words that this is
         # a drop before the first (non-existent) sub-node of this node. This
-        # case should be accepted as such.
+        # case is accepted as such.
         return True
 
     def _get_db_filename(self):
-        """
-        Return a database filename, or "<unsaved>" if it has not been saved
-        yet.
-        """
-
+        """Return a database filename, or "<unsaved>" if not yet saved."""
         return (self._storage.filename
                 if self._storage.filename is not None else "<unsaved>")
 
     def _update_title(self):
         """
+        Update the window title to reflect a modified state.
+
         Update the window title. This method should be called every time when
         the database filename is changed or the self._has_unsaved_changes flag
         changes its state.
         """
-
         unsaved_flag = "*" if self._has_unsaved_changes else ""
         filename = self._get_db_filename()
         self.set_title(f"{unsaved_flag}{filename} - StorePass")
 
     def _record_modification(self):
         """
+        Record and react to a database modification by the user.
+
         Record that the database has been modified since the last save and
         update the window title.
         """
-
         if self._has_unsaved_changes:
             return
 
@@ -521,15 +519,12 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._update_title()
 
     def _map_entry_icon(self, tree_column, cell, tree_model, iter_, _data):
-        """
-        Set an icon name for each item in the entries tree view based on its
-        type. This is a Gtk.TreeCellDataFunc callback.
-        """
-
+        """Set an icon name for a specified row in the entries tree view."""
         assert tree_column == self._entries_tree_view_column
         assert cell == self._entries_tree_view_icon_renderer
         assert tree_model == self._entries_tree_view.get_model()
 
+        # Set an icon based on the entry type.
         entry = tree_model.get_value(iter_,
                                      _EntriesTreeStoreColumn.ENTRY).entry
         if isinstance(entry, storepass.model.Root):
@@ -540,19 +535,14 @@ class _MainWindow(Gtk.ApplicationWindow):
             cell.props.icon_name = 'x-office-document'
 
     def _on_new(self, _action, _param):
-        """
-        Handle the New action which is used to start a new (empty) password
-        database.
-        """
-
+        """Handle the new action which creates a new password database."""
         self._clear_state()
 
     def _on_open(self, _action, _param):
         """
-        Handle the Open action which is used to open an already existing
-        password database.
+        Handle the open action which opens an existing password database.
 
-        The complete operation consists of the following steps:
+        Handle the open action by performing the following steps:
         1) Display a file dialog to select a password database file:
            _on_open() -> _on_open_dialog_response().
         2) Display a dialog to prompt the password for the database:
@@ -561,7 +551,6 @@ class _MainWindow(Gtk.ApplicationWindow):
         3) Complete opening the database:
            _open_password_database2().
         """
-
         # Display a dialog to select a database file to open.
         dialog = Gtk.FileChooserDialog(
             "Open File",
@@ -573,8 +562,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.show()
 
     def _on_open_dialog_response(self, dialog, response_id):
-        """Process a response from the Open File dialog."""
-
+        """Process a response from a file-open dialog."""
         assert isinstance(dialog, Gtk.FileChooserDialog)
 
         if response_id != Gtk.ResponseType.OK:
@@ -589,10 +577,11 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _open_password_database(self, filename):
         """
-        Open a password database specified by the filename. A dialog is shown
-        to prompt for its master password.
-        """
+        Open a password database specified by a filename.
 
+        Open a password database specified by a filename after prompting for
+        its master password via a dialog.
+        """
         self._clear_state()
 
         # Ask for the password via a dialog.
@@ -604,8 +593,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_open_password_database_dialog_response(self, dialog, response_id,
                                                    filename):
-        """Process a response from a Password dialog (for database open)."""
-
+        """Process a response from a password dialog, for database open."""
         assert isinstance(dialog, _PasswordDialog)
 
         if response_id != Gtk.ResponseType.OK:
@@ -620,10 +608,11 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _open_password_database2(self, filename, password):
         """
-        Complete the process of opening a password database by actually loading
-        it into the program.
-        """
+        Complete the process of opening a password database.
 
+        Load a password database specified by a filename and its master
+        password into the program.
+        """
         storage = storepass.storage.Storage(filename, password)
         model = storepass.model.Model()
 
@@ -638,12 +627,8 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._set_new_database(storage, model)
 
     def _on_save(self, action, param):
-        """
-        Handle the Save action which is used to store the currently opened
-        password database on disk.
-        """
-
-        # Redirect to the Save As action if this is a new database and its
+        """Handle the save action which saves the current password database."""
+        # Redirect to the save-as action if this is a new database and its
         # filename has not been specified yet.
         if self._storage.filename is None:
             self._on_save_as(action, param)
@@ -663,10 +648,9 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_save_as(self, _action, _param):
         """
-        Handle the Save As action which is used to store the currently opened
-        password database on disk under a new name.
+        Handle the save-as action which saves-as the current password database.
 
-        The complete operation consists of the following steps:
+        Handle the save-as action by performing the following steps:
         1) Display a file dialog to specify a new filename for the password
            database:
            _on_save_as() -> _on_save_as_dialog_response().
@@ -677,7 +661,6 @@ class _MainWindow(Gtk.ApplicationWindow):
         3) Complete saving the database:
            _save_as_password_database2().
         """
-
         # Display a dialog to specify a new filename where to store the
         # database.
         dialog = Gtk.FileChooserDialog(
@@ -690,8 +673,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.show()
 
     def _on_save_as_dialog_response(self, dialog, response_id):
-        """Process a response from the Save As dialog."""
-
+        """Process a response from a save-as dialog."""
         assert isinstance(dialog, Gtk.FileChooserDialog)
 
         if response_id != Gtk.ResponseType.OK:
@@ -711,10 +693,11 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _save_as_password_database(self, filename):
         """
-        Save a password database to the specified file. A dialog is shown to
-        prompt for its master password.
-        """
+        Save a password database to a specified file.
 
+        Save a password database to a specified file after prompting for its
+        master password via a dialog.
+        """
         # Ask for the password via a dialog.
         dialog = _PasswordDialog(self)
         dialog.connect('response',
@@ -724,8 +707,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_save_password_database_dialog_response(self, dialog, response_id,
                                                    filename):
-        """Process a response from a Password dialog (for database save)."""
-
+        """Process a response from a password dialog, for database save."""
         assert isinstance(dialog, _PasswordDialog)
 
         if response_id != Gtk.ResponseType.OK:
@@ -740,10 +722,11 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _save_as_password_database2(self, filename, password):
         """
-        Complete the process of saving a password database by actually storing
-        it into a file.
-        """
+        Complete the process of saving a password database.
 
+        Save a password database specified by a filename and its master
+        password.
+        """
         storage = storepass.storage.Storage(filename, password)
 
         try:
@@ -760,6 +743,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         self._update_title()
 
     def _update_entry_detail_widget_box(self, box_widget, label_widget, text):
+        """Set a text in an info-detail box, or hide it if the text is None."""
         if text is not None:
             label_widget.set_text(text)
             box_widget.show()
@@ -770,10 +754,11 @@ class _MainWindow(Gtk.ApplicationWindow):
     @Gtk.Template.Callback('on_entries_tree_view_selection_changed')
     def _on_entries_tree_view_selection_changed(self, tree_selection):
         """
-        Handle a changed selection in the entries tree view by updating the
-        main information panel and displaying details of a selected entry.
-        """
+        Handle a changed selection in the entries tree view.
 
+        Update the main information panel and display details of a newly
+        selected entry.
+        """
         tree_store, entry_iter = tree_selection.get_selected()
         entry = tree_store.get_value(
             entry_iter, _EntriesTreeStoreColumn.ENTRY
@@ -864,10 +849,11 @@ class _MainWindow(Gtk.ApplicationWindow):
     @Gtk.Template.Callback('on_entries_tree_view_button_press_event')
     def _on_entries_tree_view_button_press_event(self, widget, event):
         """
-        Handle a button press event inside the entries tree view by displaying
-        a context menu if the right mouse button was pressed.
-        """
+        Handle a button/mouse press event inside the entries tree view.
 
+        Display an entry context menu if the right mouse button was pressed
+        inside the entries tree view on top of some entry row.
+        """
         assert widget == self._entries_tree_view
 
         # Ignore events that are not a right mouse button press.
@@ -887,25 +873,26 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_entries_tree_view_menu_selection_done(self, menu_shell):
         """
-        Handle a completed selection in the entries tree view menu by resetting
-        the current tree view row reference. This provides accurate tracking by
-        the _entries_tree_view_menu_row_ref variable.
+        Handle a completed selection in the entries tree view menu.
+
+        Reset the current tree view row reference after a completed selection
+        in the tree view menu. This provides accurate tracking by the
+        _entries_tree_view_menu_row_ref variable.
 
         Note that the selection-done signal is emitted after a menu action is
         performed and the signal is invoked even if the menu was cancelled.
         """
-
         assert menu_shell == self._entries_tree_view_menu
-
         self._entries_tree_view_menu_row_ref = None
 
     def _unwrap_entries_tree_row_reference(self, tree_row_ref):
         """
+        Get a model, an iterator and an entry from a specified row reference.
+
         Obtain a model that a specified row reference is currently monitoring,
         an iterator that the reference points to and an actual entry object.
         The row reference must be valid.
         """
-
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
@@ -916,11 +903,12 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _get_entries_tree_view_menu_associated_entry(self, get_container):
         """
-        Obtain the entry associated with the (opened) entries tree view menu.
-        If get_container is True and the entry is not a Container then look up
-        and return its parent.
-        """
+        Obtain an entry currently associated with the entries tree view menu.
 
+        Obtain an entry associated with the currently opened entries tree view
+        menu. If get_container is True and the entry is not a Container then
+        look up and return its parent.
+        """
         assert self._entries_tree_view_menu_row_ref is not None
         assert self._entries_tree_view_menu_row_ref.valid()
 
@@ -946,11 +934,13 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _replace_entry(self, tree_row_ref, new_entry):
         """
-        Replace a previous entry in the model with a new one. Returns True if
-        the the entry has been successfully updated, otherwise an error dialog
-        is displayed and False is returned.
-        """
+        Replace an existing entry in the model with a new one.
 
+        Replace an existing entry in the model that is associated with a
+        specified row reference with a new entry. Returns True if the the entry
+        has been successfully updated, otherwise an error dialog is displayed
+        and False is returned.
+        """
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
@@ -981,6 +971,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         return True
 
     def _on_edit_entry(self, _action, _param):
+        """Handle the edit-entry action which starts an entry modification."""
         # Get the selected entry (do not require a Container).
         tree_row_ref, entry = \
             self._get_entries_tree_view_menu_associated_entry(False)
@@ -999,6 +990,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.show()
 
     def _on_edit_database_dialog_response(self, dialog, response_id):
+        """Process a response from an edit-database dialog."""
         assert isinstance(dialog, edit.EditDatabaseDialog)
 
         if response_id != Gtk.ResponseType.APPLY:
@@ -1013,6 +1005,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_edit_folder_dialog_response(self, dialog, response_id,
                                         tree_row_ref):
+        """Process a response from an edit-folder dialog."""
         assert isinstance(dialog, edit.EditFolderDialog)
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
@@ -1030,6 +1023,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_edit_account_dialog_response(self, dialog, response_id,
                                          tree_row_ref):
+        """Process a response from an edit-account dialog."""
         assert isinstance(dialog, edit.EditAccountDialog)
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
@@ -1047,10 +1041,11 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _remove_entry(self, tree_row_ref):
         """
-        Remove an entry from the model. If the entry is the Root then the
-        whole database is cleared.
-        """
+        Remove an entry from the model.
 
+        Remove an entry that is associated with a specified row reference from
+        the model. If the entry is the Root then the whole database is cleared.
+        """
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
@@ -1073,17 +1068,15 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_remove_confirmation_dialog_response(self, dialog, response_id,
                                                 tree_row_ref):
-        """
-        Handle a response from a dialog displayed to confirm removal of an
-        entry. If the user confirmed the operation the entry is removed.
-        """
-
+        """Process a response from a dialog to confirm removal of an entry."""
+        # Remove the entry if the user confirmed the operation.
         if response_id == Gtk.ResponseType.OK:
             self._remove_entry(tree_row_ref)
 
         dialog.destroy()
 
     def _on_remove_entry(self, _action, _param):
+        """Handle the remove-entry action which removes an existing entry."""
         # Get the selected entry (do not require a Container).
         tree_row_ref, entry = \
             self._get_entries_tree_view_menu_associated_entry(False)
@@ -1107,11 +1100,13 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _add_entry(self, tree_row_ref, new_entry):
         """
-        Add a new entry in the model. Returns True if the new entry has been
+        Add a new entry in the model.
+
+        Add a new entry in the model under a parent entry that is associated
+        with a specified row reference. Returns True if the new entry has been
         successfully added, otherwise an error dialog is displayed and False is
         returned.
         """
-
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
 
@@ -1139,6 +1134,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         return True
 
     def _on_add_folder(self, _action, _param):
+        """Handle the add-folder action which starts adding a new folder."""
         # Get the selected entry (lookup the closest Container).
         tree_row_ref, _entry = \
             self._get_entries_tree_view_menu_associated_entry(True)
@@ -1150,6 +1146,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_add_folder_dialog_response(self, dialog, response_id,
                                        tree_row_ref):
+        """Process a response from an add-folder dialog."""
         assert isinstance(dialog, edit.EditFolderDialog)
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
@@ -1166,6 +1163,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         dialog.destroy()
 
     def _on_add_account(self, _action, _param):
+        """Handle the add-account action which starts adding a new account."""
         # Get the selected entry (lookup the closest Container).
         tree_row_ref, _entry = \
             self._get_entries_tree_view_menu_associated_entry(True)
@@ -1177,6 +1175,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
     def _on_add_account_dialog_response(self, dialog, response_id,
                                         tree_row_ref):
+        """Process a response from an add-account dialog."""
         assert isinstance(dialog, edit.EditAccountDialog)
         assert tree_row_ref is not None
         assert tree_row_ref.valid()
@@ -1196,7 +1195,6 @@ class _MainWindow(Gtk.ApplicationWindow):
 class _App(Gtk.Application):
     def do_startup(self, *args, **kwargs):
         """Set up the application when it first starts."""
-
         Gtk.Application.do_startup(self)
         GLib.set_prgname("StorePass")
 
@@ -1214,23 +1212,17 @@ class _App(Gtk.Application):
         self.set_menubar(builder.get_object('main_menu'))
 
     def do_activate(self, *args, **kwargs):
-        """
-        Handle a launch of the application by the desktop environment. Show its
-        default first window.
-        """
-
+        """Handle activation of the application by showing its main window."""
         window = _MainWindow(self)
         window.show()
         window.run_default_actions()
 
     def _on_quit(self, _action, _param):
         """Handle the quit action by exiting the application."""
-
         self.quit()
 
     def _on_about(self, _action, _param):
         """Handle the about action by showing the about application dialog."""
-
         dialog = _AboutDialog()
         dialog.connect('response',
                        lambda dialog, response_id: dialog.destroy())

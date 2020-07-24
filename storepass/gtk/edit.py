@@ -148,6 +148,7 @@ class _AccountClassGObject(GObject.Object):
 
 
 class _AccountListStoreColumn(enum.IntEnum):
+    """Column IDs in Gtk.ListStore for the account selection combo-box."""
     NAME = 0
     ACCOUNT_CLASS = 1
 
