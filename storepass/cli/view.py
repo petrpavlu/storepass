@@ -48,7 +48,7 @@ class DetailView(storepass.model.ModelVisitor):
         if entry.description is not None:
             print(f"  - Description: {entry.description}")
 
-        # Process entry-specific properties and print their values.
+        # Process entry-specific properties.
         for field in entry.entry_fields:
             value = entry.properties[field]
             if value is not None:

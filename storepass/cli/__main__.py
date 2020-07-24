@@ -427,7 +427,6 @@ def main():
     Run the StorePass command line interface. Returns 0 if the execution was
     successful and a non-zero value otherwise.
     """
-
     # Parse the command-line arguments.
     parser = _build_parser()
     try:
