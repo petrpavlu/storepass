@@ -66,15 +66,17 @@ def path_string_to_spec(path_string):
                 element += char
         else:
             assert state == _State.ESCAPE
-            # TODO Check that the character is '\' or '/'. Reject other escape
-            # values.
+            if char not in ('\\', '/'):
+                raise storepass.exc.ModelException(
+                    f"Entry name '{path_string}' contains invalid escape "
+                    f"sequence '\\{char}'")
             element += char
             state = _State.NORMAL
     res.append(element)
 
     if state == _State.ESCAPE:
         raise storepass.exc.ModelException(
-            f"entry name '{path_string}' has an incomplete escape sequence at "
+            f"Entry name '{path_string}' has an incomplete escape sequence at "
             f"its end")
 
     return res
