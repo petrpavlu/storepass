@@ -81,15 +81,10 @@ class EntriesTreeStorePopulator(storepass.model.ModelVisitor):
             None,
             ["Password Database", _EntryGObject(root)])
 
-    def visit_folder(self, folder):
-        parent_iter = self.get_path_data(folder.parent)
+    def visit_entry(self, entry):
+        parent_iter = self.get_path_data(entry.parent)
         return self._tree_store.append(
-            parent_iter, [folder.name, _EntryGObject(folder)])
-
-    def visit_generic(self, generic):
-        parent_iter = self.get_path_data(generic.parent)
-        return self._tree_store.append(
-            parent_iter, [generic.name, _EntryGObject(generic)])
+            parent_iter, [entry.name, _EntryGObject(entry)])
 
 
 class EntriesTreeStore(Gtk.TreeStore, Gtk.TreeDragSource, Gtk.TreeDragDest):
