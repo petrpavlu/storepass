@@ -1199,7 +1199,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
 
 class _App(Gtk.Application):
-    def do_startup(self):
+    def do_startup(self, *args, **kwargs):
         """Set up the application when it first starts."""
 
         Gtk.Application.do_startup(self)
@@ -1218,7 +1218,7 @@ class _App(Gtk.Application):
         builder = Gtk.Builder.new_from_string(menu_xml, -1)
         self.set_menubar(builder.get_object('main_menu'))
 
-    def do_activate(self):
+    def do_activate(self, *args, **kwargs):
         """
         Handle a launch of the application by the desktop environment. Show its
         default first window.
