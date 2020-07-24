@@ -798,7 +798,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Destroy any current property widgets.
         for property_box in self._property_boxes:
             self._details_box.remove(property_box)
-        self._property_widgets = []
+        self._property_boxes = []
 
         # Create and insert property widgets for the selected type.
         if entry is not None and isinstance(entry, storepass.model.Entry):
