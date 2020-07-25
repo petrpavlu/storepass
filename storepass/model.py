@@ -35,9 +35,12 @@ object.
 """
 
 import enum
+import logging
 
 import storepass.exc
 import storepass.util
+
+_logger = logging.getLogger(__name__)
 
 
 def path_string_to_spec(path_string):
@@ -1343,6 +1346,8 @@ class Model:
         Add an entry as a child of a specified parent. Throws ModelException if
         an entry with the same name already exists.
         """
+        _logger.debug("Adding entry '%s' under '%s'", new_entry.name,
+                      parent.get_full_name())
         if not parent.add_child(new_entry):
             parent_path_spec = parent.get_path()
             path_string = path_spec_to_string(parent_path_spec +
@@ -1357,6 +1362,8 @@ class Model:
         Re-parent an entry under another container. Throws ModelException if an
         entry with the same name already exists.
         """
+        _logger.debug("Moving entry '%s' under '%s'", entry.get_full_name(),
+                      new_parent.get_full_name())
         if not new_parent.add_child(entry, is_move=True):
             parent_path_spec = new_parent.get_path()
             path_string = path_spec_to_string(parent_path_spec + [entry.name])
@@ -1370,6 +1377,7 @@ class Model:
         Detach a specified entry from its parent and remove it. Throws
         ModelException if the entry is a non-empty folder.
         """
+        _logger.debug("Removing entry '%s'", entry.get_full_name())
         if isinstance(entry, Container) and len(entry.children) > 0:
             raise storepass.exc.ModelException(
                 f"Entry '{entry.get_full_name()}' is not empty")
@@ -1392,6 +1400,8 @@ class Model:
         * The old entry is a non-empty Folder but the new entry is not
           a Folder.
         """
+        _logger.debug("Replacing entry '%s' with '%s'",
+                      old_entry.get_full_name(), new_entry.name)
         parent = old_entry.parent
         assert parent is not None
 
