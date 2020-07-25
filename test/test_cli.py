@@ -145,7 +145,7 @@ class TestCLI(util.StorePassTestCase):
                     |  --url VALUE           set the url property to the specified value
                     |  --username VALUE      set the username property to the specified value
                     |
-                    |option validity for entry types:
+                    |property validity for entry types:
                     |  folder:               --
                     |  credit-card:          card-type, card-number, expiry-date, ccv, pin
                     |  crypto-key:           hostname, certificate, keyfile, password
@@ -174,7 +174,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: failed to load password database \'missing.db\': [Errno 2] No such file or directory: \'missing.db\'
+                    Failed to load password database \'missing.db\': [Errno 2] No such file or directory: \'missing.db\'
                     """))
 
     def test_init(self):
@@ -231,7 +231,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertRegex(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: failed to save password database '.*': \\[Errno 17\\] File exists: '.*'
+                    Failed to save password database '.*': \\[Errno 17\\] File exists: '.*'
                     """))
 
     def test_add(self):
@@ -356,7 +356,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: Entry 'E1 name' (element #1 in 'E1 name') does not exist
+                    Entry 'E1 name' (element #1 in 'E1 name') does not exist
                     """))
 
     def test_add_present(self):
@@ -387,7 +387,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: Entry 'E1 name' already exists
+                    Entry 'E1 name' already exists
                     """))
 
     def test_add_empty(self):
@@ -406,7 +406,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: specified entry name is empty
+                    Specified entry name is empty
                     """))
 
     def test_add_folder(self):
@@ -472,24 +472,24 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'folder'
-                    storepass-cli: error: option --card-type is not valid for entry type 'folder'
-                    storepass-cli: error: option --ccv is not valid for entry type 'folder'
-                    storepass-cli: error: option --certificate is not valid for entry type 'folder'
-                    storepass-cli: error: option --code is not valid for entry type 'folder'
-                    storepass-cli: error: option --database is not valid for entry type 'folder'
-                    storepass-cli: error: option --domain is not valid for entry type 'folder'
-                    storepass-cli: error: option --email is not valid for entry type 'folder'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'folder'
-                    storepass-cli: error: option --hostname is not valid for entry type 'folder'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'folder'
-                    storepass-cli: error: option --location is not valid for entry type 'folder'
-                    storepass-cli: error: option --password is not valid for entry type 'folder'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'folder'
-                    storepass-cli: error: option --pin is not valid for entry type 'folder'
-                    storepass-cli: error: option --port is not valid for entry type 'folder'
-                    storepass-cli: error: option --url is not valid for entry type 'folder'
-                    storepass-cli: error: option --username is not valid for entry type 'folder'
+                    Property 'card-number' is not valid for entry type 'folder'
+                    Property 'card-type' is not valid for entry type 'folder'
+                    Property 'ccv' is not valid for entry type 'folder'
+                    Property 'certificate' is not valid for entry type 'folder'
+                    Property 'code' is not valid for entry type 'folder'
+                    Property 'database' is not valid for entry type 'folder'
+                    Property 'domain' is not valid for entry type 'folder'
+                    Property 'email' is not valid for entry type 'folder'
+                    Property 'expiry-date' is not valid for entry type 'folder'
+                    Property 'hostname' is not valid for entry type 'folder'
+                    Property 'keyfile' is not valid for entry type 'folder'
+                    Property 'location' is not valid for entry type 'folder'
+                    Property 'password' is not valid for entry type 'folder'
+                    Property 'phone-number' is not valid for entry type 'folder'
+                    Property 'pin' is not valid for entry type 'folder'
+                    Property 'port' is not valid for entry type 'folder'
+                    Property 'url' is not valid for entry type 'folder'
+                    Property 'username' is not valid for entry type 'folder'
                     """))
 
     def test_add_credit_card(self):
@@ -562,19 +562,19 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --certificate is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --code is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --database is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --domain is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --email is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --hostname is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --location is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --password is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --port is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --url is not valid for entry type 'credit-card'
-                    storepass-cli: error: option --username is not valid for entry type 'credit-card'
+                    Property 'certificate' is not valid for entry type 'credit-card'
+                    Property 'code' is not valid for entry type 'credit-card'
+                    Property 'database' is not valid for entry type 'credit-card'
+                    Property 'domain' is not valid for entry type 'credit-card'
+                    Property 'email' is not valid for entry type 'credit-card'
+                    Property 'hostname' is not valid for entry type 'credit-card'
+                    Property 'keyfile' is not valid for entry type 'credit-card'
+                    Property 'location' is not valid for entry type 'credit-card'
+                    Property 'password' is not valid for entry type 'credit-card'
+                    Property 'phone-number' is not valid for entry type 'credit-card'
+                    Property 'port' is not valid for entry type 'credit-card'
+                    Property 'url' is not valid for entry type 'credit-card'
+                    Property 'username' is not valid for entry type 'credit-card'
                     """))
 
     def test_add_crypto_key(self):
@@ -646,20 +646,20 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --card-type is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --ccv is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --code is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --database is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --domain is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --email is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --location is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --pin is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --port is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --url is not valid for entry type 'crypto-key'
-                    storepass-cli: error: option --username is not valid for entry type 'crypto-key'
+                    Property 'card-number' is not valid for entry type 'crypto-key'
+                    Property 'card-type' is not valid for entry type 'crypto-key'
+                    Property 'ccv' is not valid for entry type 'crypto-key'
+                    Property 'code' is not valid for entry type 'crypto-key'
+                    Property 'database' is not valid for entry type 'crypto-key'
+                    Property 'domain' is not valid for entry type 'crypto-key'
+                    Property 'email' is not valid for entry type 'crypto-key'
+                    Property 'expiry-date' is not valid for entry type 'crypto-key'
+                    Property 'location' is not valid for entry type 'crypto-key'
+                    Property 'phone-number' is not valid for entry type 'crypto-key'
+                    Property 'pin' is not valid for entry type 'crypto-key'
+                    Property 'port' is not valid for entry type 'crypto-key'
+                    Property 'url' is not valid for entry type 'crypto-key'
+                    Property 'username' is not valid for entry type 'crypto-key'
                     """))
 
     def test_add_database(self):
@@ -731,20 +731,20 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'database'
-                    storepass-cli: error: option --card-type is not valid for entry type 'database'
-                    storepass-cli: error: option --ccv is not valid for entry type 'database'
-                    storepass-cli: error: option --certificate is not valid for entry type 'database'
-                    storepass-cli: error: option --code is not valid for entry type 'database'
-                    storepass-cli: error: option --domain is not valid for entry type 'database'
-                    storepass-cli: error: option --email is not valid for entry type 'database'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'database'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'database'
-                    storepass-cli: error: option --location is not valid for entry type 'database'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'database'
-                    storepass-cli: error: option --pin is not valid for entry type 'database'
-                    storepass-cli: error: option --port is not valid for entry type 'database'
-                    storepass-cli: error: option --url is not valid for entry type 'database'
+                    Property 'card-number' is not valid for entry type 'database'
+                    Property 'card-type' is not valid for entry type 'database'
+                    Property 'ccv' is not valid for entry type 'database'
+                    Property 'certificate' is not valid for entry type 'database'
+                    Property 'code' is not valid for entry type 'database'
+                    Property 'domain' is not valid for entry type 'database'
+                    Property 'email' is not valid for entry type 'database'
+                    Property 'expiry-date' is not valid for entry type 'database'
+                    Property 'keyfile' is not valid for entry type 'database'
+                    Property 'location' is not valid for entry type 'database'
+                    Property 'phone-number' is not valid for entry type 'database'
+                    Property 'pin' is not valid for entry type 'database'
+                    Property 'port' is not valid for entry type 'database'
+                    Property 'url' is not valid for entry type 'database'
                     """))
 
     def test_add_door(self):
@@ -812,22 +812,22 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'door'
-                    storepass-cli: error: option --card-type is not valid for entry type 'door'
-                    storepass-cli: error: option --ccv is not valid for entry type 'door'
-                    storepass-cli: error: option --certificate is not valid for entry type 'door'
-                    storepass-cli: error: option --database is not valid for entry type 'door'
-                    storepass-cli: error: option --domain is not valid for entry type 'door'
-                    storepass-cli: error: option --email is not valid for entry type 'door'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'door'
-                    storepass-cli: error: option --hostname is not valid for entry type 'door'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'door'
-                    storepass-cli: error: option --password is not valid for entry type 'door'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'door'
-                    storepass-cli: error: option --pin is not valid for entry type 'door'
-                    storepass-cli: error: option --port is not valid for entry type 'door'
-                    storepass-cli: error: option --url is not valid for entry type 'door'
-                    storepass-cli: error: option --username is not valid for entry type 'door'
+                    Property 'card-number' is not valid for entry type 'door'
+                    Property 'card-type' is not valid for entry type 'door'
+                    Property 'ccv' is not valid for entry type 'door'
+                    Property 'certificate' is not valid for entry type 'door'
+                    Property 'database' is not valid for entry type 'door'
+                    Property 'domain' is not valid for entry type 'door'
+                    Property 'email' is not valid for entry type 'door'
+                    Property 'expiry-date' is not valid for entry type 'door'
+                    Property 'hostname' is not valid for entry type 'door'
+                    Property 'keyfile' is not valid for entry type 'door'
+                    Property 'password' is not valid for entry type 'door'
+                    Property 'phone-number' is not valid for entry type 'door'
+                    Property 'pin' is not valid for entry type 'door'
+                    Property 'port' is not valid for entry type 'door'
+                    Property 'url' is not valid for entry type 'door'
+                    Property 'username' is not valid for entry type 'door'
                     """))
 
     def test_add_email(self):
@@ -898,20 +898,20 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'email'
-                    storepass-cli: error: option --card-type is not valid for entry type 'email'
-                    storepass-cli: error: option --ccv is not valid for entry type 'email'
-                    storepass-cli: error: option --certificate is not valid for entry type 'email'
-                    storepass-cli: error: option --code is not valid for entry type 'email'
-                    storepass-cli: error: option --database is not valid for entry type 'email'
-                    storepass-cli: error: option --domain is not valid for entry type 'email'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'email'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'email'
-                    storepass-cli: error: option --location is not valid for entry type 'email'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'email'
-                    storepass-cli: error: option --pin is not valid for entry type 'email'
-                    storepass-cli: error: option --port is not valid for entry type 'email'
-                    storepass-cli: error: option --url is not valid for entry type 'email'
+                    Property 'card-number' is not valid for entry type 'email'
+                    Property 'card-type' is not valid for entry type 'email'
+                    Property 'ccv' is not valid for entry type 'email'
+                    Property 'certificate' is not valid for entry type 'email'
+                    Property 'code' is not valid for entry type 'email'
+                    Property 'database' is not valid for entry type 'email'
+                    Property 'domain' is not valid for entry type 'email'
+                    Property 'expiry-date' is not valid for entry type 'email'
+                    Property 'keyfile' is not valid for entry type 'email'
+                    Property 'location' is not valid for entry type 'email'
+                    Property 'phone-number' is not valid for entry type 'email'
+                    Property 'pin' is not valid for entry type 'email'
+                    Property 'port' is not valid for entry type 'email'
+                    Property 'url' is not valid for entry type 'email'
                     """))
 
     def test_add_ftp(self):
@@ -982,20 +982,20 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'ftp'
-                    storepass-cli: error: option --card-type is not valid for entry type 'ftp'
-                    storepass-cli: error: option --ccv is not valid for entry type 'ftp'
-                    storepass-cli: error: option --certificate is not valid for entry type 'ftp'
-                    storepass-cli: error: option --code is not valid for entry type 'ftp'
-                    storepass-cli: error: option --database is not valid for entry type 'ftp'
-                    storepass-cli: error: option --domain is not valid for entry type 'ftp'
-                    storepass-cli: error: option --email is not valid for entry type 'ftp'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'ftp'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'ftp'
-                    storepass-cli: error: option --location is not valid for entry type 'ftp'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'ftp'
-                    storepass-cli: error: option --pin is not valid for entry type 'ftp'
-                    storepass-cli: error: option --url is not valid for entry type 'ftp'
+                    Property 'card-number' is not valid for entry type 'ftp'
+                    Property 'card-type' is not valid for entry type 'ftp'
+                    Property 'ccv' is not valid for entry type 'ftp'
+                    Property 'certificate' is not valid for entry type 'ftp'
+                    Property 'code' is not valid for entry type 'ftp'
+                    Property 'database' is not valid for entry type 'ftp'
+                    Property 'domain' is not valid for entry type 'ftp'
+                    Property 'email' is not valid for entry type 'ftp'
+                    Property 'expiry-date' is not valid for entry type 'ftp'
+                    Property 'keyfile' is not valid for entry type 'ftp'
+                    Property 'location' is not valid for entry type 'ftp'
+                    Property 'phone-number' is not valid for entry type 'ftp'
+                    Property 'pin' is not valid for entry type 'ftp'
+                    Property 'url' is not valid for entry type 'ftp'
                     """))
 
     def test_add_generic(self):
@@ -1065,21 +1065,21 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'generic'
-                    storepass-cli: error: option --card-type is not valid for entry type 'generic'
-                    storepass-cli: error: option --ccv is not valid for entry type 'generic'
-                    storepass-cli: error: option --certificate is not valid for entry type 'generic'
-                    storepass-cli: error: option --code is not valid for entry type 'generic'
-                    storepass-cli: error: option --database is not valid for entry type 'generic'
-                    storepass-cli: error: option --domain is not valid for entry type 'generic'
-                    storepass-cli: error: option --email is not valid for entry type 'generic'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'generic'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'generic'
-                    storepass-cli: error: option --location is not valid for entry type 'generic'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'generic'
-                    storepass-cli: error: option --pin is not valid for entry type 'generic'
-                    storepass-cli: error: option --port is not valid for entry type 'generic'
-                    storepass-cli: error: option --url is not valid for entry type 'generic'
+                    Property 'card-number' is not valid for entry type 'generic'
+                    Property 'card-type' is not valid for entry type 'generic'
+                    Property 'ccv' is not valid for entry type 'generic'
+                    Property 'certificate' is not valid for entry type 'generic'
+                    Property 'code' is not valid for entry type 'generic'
+                    Property 'database' is not valid for entry type 'generic'
+                    Property 'domain' is not valid for entry type 'generic'
+                    Property 'email' is not valid for entry type 'generic'
+                    Property 'expiry-date' is not valid for entry type 'generic'
+                    Property 'keyfile' is not valid for entry type 'generic'
+                    Property 'location' is not valid for entry type 'generic'
+                    Property 'phone-number' is not valid for entry type 'generic'
+                    Property 'pin' is not valid for entry type 'generic'
+                    Property 'port' is not valid for entry type 'generic'
+                    Property 'url' is not valid for entry type 'generic'
                     """))
 
     def test_add_phone(self):
@@ -1148,22 +1148,22 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'phone'
-                    storepass-cli: error: option --card-type is not valid for entry type 'phone'
-                    storepass-cli: error: option --ccv is not valid for entry type 'phone'
-                    storepass-cli: error: option --certificate is not valid for entry type 'phone'
-                    storepass-cli: error: option --code is not valid for entry type 'phone'
-                    storepass-cli: error: option --database is not valid for entry type 'phone'
-                    storepass-cli: error: option --domain is not valid for entry type 'phone'
-                    storepass-cli: error: option --email is not valid for entry type 'phone'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'phone'
-                    storepass-cli: error: option --hostname is not valid for entry type 'phone'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'phone'
-                    storepass-cli: error: option --location is not valid for entry type 'phone'
-                    storepass-cli: error: option --password is not valid for entry type 'phone'
-                    storepass-cli: error: option --port is not valid for entry type 'phone'
-                    storepass-cli: error: option --url is not valid for entry type 'phone'
-                    storepass-cli: error: option --username is not valid for entry type 'phone'
+                    Property 'card-number' is not valid for entry type 'phone'
+                    Property 'card-type' is not valid for entry type 'phone'
+                    Property 'ccv' is not valid for entry type 'phone'
+                    Property 'certificate' is not valid for entry type 'phone'
+                    Property 'code' is not valid for entry type 'phone'
+                    Property 'database' is not valid for entry type 'phone'
+                    Property 'domain' is not valid for entry type 'phone'
+                    Property 'email' is not valid for entry type 'phone'
+                    Property 'expiry-date' is not valid for entry type 'phone'
+                    Property 'hostname' is not valid for entry type 'phone'
+                    Property 'keyfile' is not valid for entry type 'phone'
+                    Property 'location' is not valid for entry type 'phone'
+                    Property 'password' is not valid for entry type 'phone'
+                    Property 'port' is not valid for entry type 'phone'
+                    Property 'url' is not valid for entry type 'phone'
+                    Property 'username' is not valid for entry type 'phone'
                     """))
 
     def test_add_shell(self):
@@ -1234,20 +1234,20 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'shell'
-                    storepass-cli: error: option --card-type is not valid for entry type 'shell'
-                    storepass-cli: error: option --ccv is not valid for entry type 'shell'
-                    storepass-cli: error: option --certificate is not valid for entry type 'shell'
-                    storepass-cli: error: option --code is not valid for entry type 'shell'
-                    storepass-cli: error: option --database is not valid for entry type 'shell'
-                    storepass-cli: error: option --email is not valid for entry type 'shell'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'shell'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'shell'
-                    storepass-cli: error: option --location is not valid for entry type 'shell'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'shell'
-                    storepass-cli: error: option --pin is not valid for entry type 'shell'
-                    storepass-cli: error: option --port is not valid for entry type 'shell'
-                    storepass-cli: error: option --url is not valid for entry type 'shell'
+                    Property 'card-number' is not valid for entry type 'shell'
+                    Property 'card-type' is not valid for entry type 'shell'
+                    Property 'ccv' is not valid for entry type 'shell'
+                    Property 'certificate' is not valid for entry type 'shell'
+                    Property 'code' is not valid for entry type 'shell'
+                    Property 'database' is not valid for entry type 'shell'
+                    Property 'email' is not valid for entry type 'shell'
+                    Property 'expiry-date' is not valid for entry type 'shell'
+                    Property 'keyfile' is not valid for entry type 'shell'
+                    Property 'location' is not valid for entry type 'shell'
+                    Property 'phone-number' is not valid for entry type 'shell'
+                    Property 'pin' is not valid for entry type 'shell'
+                    Property 'port' is not valid for entry type 'shell'
+                    Property 'url' is not valid for entry type 'shell'
                     """))
 
     def test_add_remote_desktop(self):
@@ -1318,20 +1318,20 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --card-type is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --ccv is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --certificate is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --code is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --database is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --domain is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --email is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --location is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --pin is not valid for entry type 'remote-desktop'
-                    storepass-cli: error: option --url is not valid for entry type 'remote-desktop'
+                    Property 'card-number' is not valid for entry type 'remote-desktop'
+                    Property 'card-type' is not valid for entry type 'remote-desktop'
+                    Property 'ccv' is not valid for entry type 'remote-desktop'
+                    Property 'certificate' is not valid for entry type 'remote-desktop'
+                    Property 'code' is not valid for entry type 'remote-desktop'
+                    Property 'database' is not valid for entry type 'remote-desktop'
+                    Property 'domain' is not valid for entry type 'remote-desktop'
+                    Property 'email' is not valid for entry type 'remote-desktop'
+                    Property 'expiry-date' is not valid for entry type 'remote-desktop'
+                    Property 'keyfile' is not valid for entry type 'remote-desktop'
+                    Property 'location' is not valid for entry type 'remote-desktop'
+                    Property 'phone-number' is not valid for entry type 'remote-desktop'
+                    Property 'pin' is not valid for entry type 'remote-desktop'
+                    Property 'url' is not valid for entry type 'remote-desktop'
                     """))
 
     def test_add_vnc(self):
@@ -1402,20 +1402,20 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'vnc'
-                    storepass-cli: error: option --card-type is not valid for entry type 'vnc'
-                    storepass-cli: error: option --ccv is not valid for entry type 'vnc'
-                    storepass-cli: error: option --certificate is not valid for entry type 'vnc'
-                    storepass-cli: error: option --code is not valid for entry type 'vnc'
-                    storepass-cli: error: option --database is not valid for entry type 'vnc'
-                    storepass-cli: error: option --domain is not valid for entry type 'vnc'
-                    storepass-cli: error: option --email is not valid for entry type 'vnc'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'vnc'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'vnc'
-                    storepass-cli: error: option --location is not valid for entry type 'vnc'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'vnc'
-                    storepass-cli: error: option --pin is not valid for entry type 'vnc'
-                    storepass-cli: error: option --url is not valid for entry type 'vnc'
+                    Property 'card-number' is not valid for entry type 'vnc'
+                    Property 'card-type' is not valid for entry type 'vnc'
+                    Property 'ccv' is not valid for entry type 'vnc'
+                    Property 'certificate' is not valid for entry type 'vnc'
+                    Property 'code' is not valid for entry type 'vnc'
+                    Property 'database' is not valid for entry type 'vnc'
+                    Property 'domain' is not valid for entry type 'vnc'
+                    Property 'email' is not valid for entry type 'vnc'
+                    Property 'expiry-date' is not valid for entry type 'vnc'
+                    Property 'keyfile' is not valid for entry type 'vnc'
+                    Property 'location' is not valid for entry type 'vnc'
+                    Property 'phone-number' is not valid for entry type 'vnc'
+                    Property 'pin' is not valid for entry type 'vnc'
+                    Property 'url' is not valid for entry type 'vnc'
                     """))
 
     def test_add_website(self):
@@ -1486,20 +1486,20 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --card-number is not valid for entry type 'website'
-                    storepass-cli: error: option --card-type is not valid for entry type 'website'
-                    storepass-cli: error: option --ccv is not valid for entry type 'website'
-                    storepass-cli: error: option --certificate is not valid for entry type 'website'
-                    storepass-cli: error: option --code is not valid for entry type 'website'
-                    storepass-cli: error: option --database is not valid for entry type 'website'
-                    storepass-cli: error: option --domain is not valid for entry type 'website'
-                    storepass-cli: error: option --expiry-date is not valid for entry type 'website'
-                    storepass-cli: error: option --hostname is not valid for entry type 'website'
-                    storepass-cli: error: option --keyfile is not valid for entry type 'website'
-                    storepass-cli: error: option --location is not valid for entry type 'website'
-                    storepass-cli: error: option --phone-number is not valid for entry type 'website'
-                    storepass-cli: error: option --pin is not valid for entry type 'website'
-                    storepass-cli: error: option --port is not valid for entry type 'website'
+                    Property 'card-number' is not valid for entry type 'website'
+                    Property 'card-type' is not valid for entry type 'website'
+                    Property 'ccv' is not valid for entry type 'website'
+                    Property 'certificate' is not valid for entry type 'website'
+                    Property 'code' is not valid for entry type 'website'
+                    Property 'database' is not valid for entry type 'website'
+                    Property 'domain' is not valid for entry type 'website'
+                    Property 'expiry-date' is not valid for entry type 'website'
+                    Property 'hostname' is not valid for entry type 'website'
+                    Property 'keyfile' is not valid for entry type 'website'
+                    Property 'location' is not valid for entry type 'website'
+                    Property 'phone-number' is not valid for entry type 'website'
+                    Property 'pin' is not valid for entry type 'website'
+                    Property 'port' is not valid for entry type 'website'
                     """))
 
     def test_edit(self):
@@ -1566,7 +1566,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: Entry 'E1 name' (element #1 in 'E1 name/E2 name') does not exist
+                    Entry 'E1 name' (element #1 in 'E1 name/E2 name') does not exist
                     """))
 
     def test_edit_reset(self):
@@ -1699,7 +1699,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: option --password is not valid for entry type 'folder'
+                    Property 'password' is not valid for entry type 'folder'
                     """))
 
     def test_edit_type_empty_folder(self):
@@ -1777,7 +1777,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: Entry 'E1 name' is not empty and cannot be replaced by a non-folder type
+                    Entry 'E1 name' is not empty and cannot be replaced by a non-folder type
                     """))
 
     def test_edit_folder(self):
@@ -2646,7 +2646,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: Entry 'E1 name' (element #1 in 'E1 name/E2 name') does not exist
+                    Entry 'E1 name' (element #1 in 'E1 name/E2 name') does not exist
                     """))
 
     def test_delete_non_empty(self):
@@ -2677,7 +2677,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    storepass-cli: error: Entry 'E1 name' is not empty
+                    Entry 'E1 name' is not empty
                     """))
 
         # Read the database and dump its XML content.

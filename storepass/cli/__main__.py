@@ -128,7 +128,7 @@ def _check_entry_name(args):
     """Validate an entry name specified on the command line."""
     # Reject an empty entry name.
     if args.entry == '':
-        _logger.error("specified entry name is empty")
+        print("Specified entry name is empty", file=sys.stderr)
         return 1
     return 0
 
@@ -193,7 +193,7 @@ def _process_show_command(args, model):
         path_spec = storepass.model.path_string_to_spec(args.entry)
         entry = model.get_entry(path_spec)
     except storepass.exc.ModelException as e:
-        _logger.error("%s", e)
+        print(f"{e}", file=sys.stderr)
         return 1
 
     detail_view = view.DetailView()
@@ -209,7 +209,7 @@ def _process_add_command(args, model):
     try:
         path_spec = storepass.model.path_string_to_spec(args.entry)
     except storepass.exc.ModelException as e:
-        _logger.error("%s", e)
+        print(f"{e}", file=sys.stderr)
         return 1
 
     generator = _EntryGenerator(path_spec[-1])
@@ -221,7 +221,7 @@ def _process_add_command(args, model):
         parent_entry = model.get_entry(path_spec[:-1])
         model.add_entry(new_entry, parent_entry)
     except storepass.exc.ModelException as e:
-        _logger.error("%s", e)
+        print(f"{e}", file=sys.stderr)
         return 1
     return 0
 
@@ -235,7 +235,7 @@ def _process_edit_command(args, model):
         path_spec = storepass.model.path_string_to_spec(args.entry)
         old_entry = model.get_entry(path_spec)
     except storepass.exc.ModelException as e:
-        _logger.error("%s", e)
+        print(f"{e}", file=sys.stderr)
         return 1
 
     # If no new type is specified then validate that property arguments are
@@ -255,7 +255,7 @@ def _process_edit_command(args, model):
     try:
         model.replace_entry(old_entry, new_entry)
     except storepass.exc.ModelException as e:
-        _logger.error("%s", e)
+        print(f"{e}", file=sys.stderr)
         return 1
     return 0
 
@@ -270,7 +270,7 @@ def _process_delete_command(args, model):
         entry = model.get_entry(path_spec)
         model.remove_entry(entry)
     except storepass.exc.ModelException as e:
-        _logger.error("%s", e)
+        print(f"{e}", file=sys.stderr)
         return 1
 
     return 0
@@ -284,8 +284,7 @@ def _process_dump_command(args, storage):
     try:
         plain_data = storage.read_plain()
     except storepass.exc.StorageReadException as e:
-        _logger.error("failed to load password database '%s': %s", args.file,
-                      e)
+        print(f"Failed to load password database '{args.file}': {e}")
         return 1
 
     # Print the content.
@@ -316,10 +315,19 @@ def _check_property_arguments(args, type_):
     res = 0
     for field in storepass.model.ENTRY_FIELDS:
         if field in args.properties and field not in entry_cls.entry_fields:
-            _logger.error("option --%s is not valid for entry type '%s'",
-                          field.name, entry_cls.entry_type_name)
+            print(
+                f"Property '{field.name}' is not valid for entry type "
+                f"'{entry_cls.entry_type_name}'",
+                file=sys.stderr)
             res = 1
     return res
+
+
+class _ArgumentParser(argparse.ArgumentParser):
+    """Command-line argument parser."""
+    def error(self, message):
+        """Report a specified error message and exit the program."""
+        self.exit(2, f"Input error: {message}\n")
 
 
 class _PropertyAction(argparse.Action):
@@ -333,7 +341,7 @@ class _PropertyAction(argparse.Action):
 
 def _build_parser():
     """Create and initialize a command-line parser."""
-    parser = argparse.ArgumentParser()
+    parser = _ArgumentParser()
     parser.add_argument(
         '-f',
         '--file',
@@ -355,7 +363,7 @@ def _build_parser():
         'show', description="show a password entry and its details")
     argument_validity = [(name, [field.name for field in cls.entry_fields])
                          for name, cls in _NAME_TO_ENTRY_TYPE_MAP.items()]
-    add_edit_epilog = "option validity for entry types:\n" + "\n".join([
+    add_edit_epilog = "property validity for entry types:\n" + "\n".join([
         f"  {name + ':':22}{', '.join(args) if len(args) > 0 else '--'}"
         for name, args in argument_validity
     ])
@@ -460,7 +468,7 @@ def main():
 
     # Handle the specified command.
     if args.command is None:
-        parser.error("no command specified")
+        print("No command specified", file=sys.stderr)
         return 1
 
     _logger.debug("processing command '%s' on file '%s'", args.command,
@@ -491,8 +499,8 @@ def main():
         try:
             model.load(storage)
         except storepass.exc.StorageReadException as e:
-            _logger.error("failed to load password database '%s': %s",
-                          args.file, e)
+            print(f"Failed to load password database '{args.file}': {e}",
+                  file=sys.stderr)
             return 1
 
     # Handle individual commands.
@@ -520,8 +528,8 @@ def main():
             exclusive = args.command == 'init'
             model.save(storage, exclusive)
         except storepass.exc.StorageWriteException as e:
-            _logger.error("failed to save password database '%s': %s",
-                          args.file, e)
+            print(f"Failed to save password database '{args.file}': {e}",
+                  file=sys.stderr)
             return 1
 
     return 0
