@@ -307,7 +307,7 @@ class Container:
         self._children[index]._parent = None
         del self._children[index]
 
-    def _accept_children(self, visitor, parent_data):
+    def accept_children(self, visitor, parent_data):
         """Visit all child entries."""
         visitor.enter_container(self, parent_data)
         for child in self._children:
@@ -344,7 +344,7 @@ class Root(Container):
         """
         parent_data = visitor.visit_root(self)
         if not single:
-            self._accept_children(visitor, parent_data)
+            self.accept_children(visitor, parent_data)
 
 
 class Entry:
@@ -514,7 +514,7 @@ class Folder(Entry, Container):
         else:
             assert 0 and "Unimplemented visitor method!"
         if not single:
-            self._accept_children(visitor, parent_data)
+            self.accept_children(visitor, parent_data)
 
 
 class Account(Entry):
