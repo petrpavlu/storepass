@@ -1359,8 +1359,11 @@ class Model:
         """
         Move a previously added entry under a new parent.
 
-        Re-parent an entry under another container. Throws ModelException if an
-        entry with the same name already exists.
+        Re-parent an entry under another container.
+
+        Throws ModelException in the following cases:
+        * An entry with the same name already exists.
+        * The entry is moved under itself.
         """
         _logger.debug("Moving entry '%s' under '%s'", entry.get_full_name(),
                       new_parent.get_full_name())
