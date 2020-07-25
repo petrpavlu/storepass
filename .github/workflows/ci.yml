@@ -4,7 +4,7 @@ on: push
 
 jobs:
   check:
-    name: Unit tests
+    name: Tests and code checks
     runs-on: ubuntu-latest
     container: opensuse/tumbleweed
     steps:
@@ -13,6 +13,10 @@ jobs:
     - name: Check out the repository
       uses: actions/checkout@v2
     - name: Install dependencies for StorePass
-      run: zypper --non-interactive install make python3 python3-pycryptodome
+      run: >
+        zypper --non-interactive install make python3 python3-pycryptodome
+        python3-pylint python3-gobject-Gdk typelib-1_0-Gtk-3_0
     - name: Run unit tests
       run: make check
+    - name: Run pylint checks
+      run: make lint
