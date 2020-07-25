@@ -1196,6 +1196,7 @@ class _MainWindow(Gtk.ApplicationWindow):
 
 
 class _App(Gtk.Application):
+    """StorePass GTK application."""
     def do_startup(self, *args, **kwargs):
         """Set up the application when it first starts."""
         Gtk.Application.do_startup(self)
