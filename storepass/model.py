@@ -1370,7 +1370,7 @@ class Model:
             if ancestor == entry:
                 raise storepass.exc.ModelException(
                     f"Entry '{entry.get_full_name()}' cannot be moved under "
-                    f"'{new_parent.get_full_name()}' because it constitutes  "
+                    f"'{new_parent.get_full_name()}' because it constitutes "
                     f"a path to the latter")
             ancestor = ancestor.parent
 
