@@ -232,12 +232,16 @@ class _XMLToModelConvertor:
         }
 
         # Process all sub-elements.
+        field_i = 1
         for xml_subelem in list(xml_elem):
             xpath.push(f'/{xml_subelem.tag}')
 
             if xml_subelem.tag in ('name', 'description', 'updated', 'notes'):
                 self._parse_entry_property(xml_subelem, xpath, entry_props)
             elif xml_subelem.tag == 'field':
+                xpath.push(f'[{field_i}]')
+                field_i += 1
+
                 self._validate_element_attributes(xml_subelem, xpath, ('id'))
 
                 id_ = xml_subelem.get('id')
@@ -252,6 +256,8 @@ class _XMLToModelConvertor:
                     raise storepass.exc.StorageReadException(
                         f"Attribute '{xpath}/@id' has unrecognized value "
                         f"'{id_}', expected one of: {accepted}")
+
+                xpath.pop()
             else:
                 raise storepass.exc.StorageReadException(
                     f"Unrecognized account element '{xpath}'")

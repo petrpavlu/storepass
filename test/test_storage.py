@@ -1046,7 +1046,7 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Element '/revelationdata/entry[1]/field' has unrecognized "
+            "Element '/revelationdata/entry[1]/field[1]' has unrecognized "
             "attribute 'invalid-attribute'")
 
     def test_read_wrong_account_field_id(self):
@@ -1066,7 +1066,7 @@ class TestStorage(util.StorePassTestCase):
             _ = storage.read_tree()
         self.assertEqual(
             str(cm.exception),
-            "Attribute '/revelationdata/entry[1]/field/@id' has "
+            "Attribute '/revelationdata/entry[1]/field[1]/@id' has "
             "unrecognized value 'invalid-id', expected one of: "
             "'generic-hostname', 'generic-username', 'generic-password'")
 
