@@ -359,7 +359,7 @@ class TestCLI(util.StorePassTestCase):
                     Entry 'E1 name' (element #1 in 'E1 name') does not exist
                     """))
 
-    def test_add_present(self):
+    def test_add_duplicated(self):
         """Check rejection to add a new entry with a duplicate name."""
         # Create a new empty password database.
         self._init_database(self.dbname)
