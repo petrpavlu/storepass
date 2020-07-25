@@ -17,6 +17,7 @@ This module provides functionality to read and write a password database file:
 import datetime
 import hashlib
 import itertools
+import logging
 import os
 import xml.etree.ElementTree as ET
 import zlib
@@ -26,6 +27,8 @@ import Crypto.Cipher.AES
 import storepass.exc
 import storepass.model
 import storepass.util
+
+_logger = logging.getLogger(__name__)
 
 _STORAGE_ID_TO_ENTRY_TYPE_MAP = {
     cls.storage_id: cls
@@ -80,6 +83,8 @@ class _XMLToModelConvertor:
 
     def _parse_root(self, xml_elem, xpath):
         """Parse the root <revelationdata> element."""
+        _logger.debug("Parsing root element '%s'", xpath)
+
         if xml_elem.tag != 'revelationdata':
             raise storepass.exc.StorageReadException(
                 f"Invalid root element '{xpath}', expected 'revelationdata'")
@@ -187,6 +192,8 @@ class _XMLToModelConvertor:
         assert xml_elem.tag == 'entry'
         assert xml_elem.get('type') == storepass.model.Folder.storage_id
 
+        _logger.debug("Parsing folder entry '%s'", xpath)
+
         entry_props = self._EntryProperties()
         xml_subelem_iter = iter(list(xml_elem))
 
@@ -220,6 +227,8 @@ class _XMLToModelConvertor:
     def _parse_account(self, xml_elem, xpath):
         """Parse a <entry type='account-type'> element."""
         assert xml_elem.tag == 'entry'
+
+        _logger.debug("Parsing account entry '%s'", xpath)
 
         # Initialize entry and account-type property objects.
         entry_props = self._EntryProperties()
@@ -318,12 +327,16 @@ class _ModelToXMLConvertor(storepass.model.ModelVisitor):
 
     def visit_root(self, _root):
         """Create XML representation for the data root."""
+        _logger.debug("Converting the model root to XML")
+
         self._xml_root = ET.Element('revelationdata')
         self._xml_root.set('dataversion', '1')
         return self._xml_root
 
     def visit_entry(self, entry):
         """Create XML representation for an entry."""
+        _logger.debug("Converting entry '%s' to XML", entry.get_full_name())
+
         xml_parent = self.get_path_data(entry.parent)
         xml_entry = ET.SubElement(xml_parent, 'entry')
         xml_entry.set('type', entry.storage_id)
@@ -397,6 +410,9 @@ class Storage:
         plain XML content. If raw_bytes is True, a bytes object is returned,
         otherwise the data is decoded as UTF-8 and a Unicode string returned.
         """
+        _logger.debug("Reading password database from file '%s'",
+                      self.filename)
+
         try:
             with open(self.filename, 'rb') as fh:
                 raw_content = fh.read()
@@ -505,6 +521,8 @@ class Storage:
         exclusive is True then a check is made during opening of the file that
         it does not exist yet.
         """
+        _logger.debug("Writing password database to file '%s'", self.filename)
+
         # Encode the Unicode data as UTF-8.
         encoded_data = xml.encode('utf-8')
 
