@@ -1357,7 +1357,6 @@ class Model:
         Re-parent an entry under another container. Throws ModelException if an
         entry with the same name already exists.
         """
-        # TODO Assert is not ancestor. Report an error in such a case?
         if not new_parent.add_child(entry, is_move=True):
             parent_path_spec = new_parent.get_path()
             path_string = path_spec_to_string(parent_path_spec + [entry.name])
