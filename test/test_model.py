@@ -194,7 +194,8 @@ class TestModel(util.StorePassTestCase):
         # Try removing the folder.
         with self.assertRaises(storepass.exc.ModelException) as cm:
             model.remove_entry(folder)
-        self.assertEqual(str(cm.exception), "Entry 'E2 name' is not empty")
+        self.assertEqual(str(cm.exception),
+                         "Entry 'E2 name' is non-empty and cannot be removed")
         self.assertEqual(len(root.children), 1)
         self.assertEqual(root.children[0], folder)
         self.assertEqual(len(folder.children), 1)
@@ -272,7 +273,7 @@ class TestModel(util.StorePassTestCase):
             model.replace_entry(folder, generic_1)
         self.assertEqual(
             str(cm.exception),
-            "Entry 'E2 name' is not empty and cannot be replaced by "
+            "Entry 'E2 name' is non-empty and cannot be replaced by "
             "a non-folder type")
         self.assertEqual(len(root.children), 1)
         self.assertEqual(root.children[0], folder)

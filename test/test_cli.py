@@ -1777,7 +1777,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    Entry 'E1 name' is not empty and cannot be replaced by a non-folder type
+                    Entry 'E1 name' is non-empty and cannot be replaced by a non-folder type
                     """))
 
     def test_edit_folder(self):
@@ -2677,7 +2677,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
                 util.dedent("""\
-                    Entry 'E1 name' is not empty
+                    Entry 'E1 name' is non-empty and cannot be removed
                     """))
 
         # Read the database and dump its XML content.
