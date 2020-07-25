@@ -497,7 +497,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -568,7 +568,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -607,7 +607,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -645,7 +645,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -681,7 +681,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -717,7 +717,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -755,7 +755,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -792,7 +792,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -827,7 +827,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -863,7 +863,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -901,7 +901,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -939,7 +939,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
@@ -977,7 +977,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         root = storage.read_tree()
 
-        self.assertTrue(isinstance(root, storepass.model.Root))
+        self.assertIs(type(root), storepass.model.Root)
         self.assertEqual(len(root.children), 1)
 
         child_0 = root.children[0]
