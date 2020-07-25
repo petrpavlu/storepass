@@ -1364,6 +1364,16 @@ class Model:
         """
         _logger.debug("Moving entry '%s' under '%s'", entry.get_full_name(),
                       new_parent.get_full_name())
+
+        ancestor = new_parent
+        while not isinstance(ancestor, Root):
+            if ancestor == entry:
+                raise storepass.exc.ModelException(
+                    f"Entry '{entry.get_full_name()}' cannot be moved under "
+                    f"'{new_parent.get_full_name()}' because it constitutes  "
+                    f"a path to the latter")
+            ancestor = ancestor.parent
+
         if not new_parent.add_child(entry, is_move=True):
             parent_path_spec = new_parent.get_path()
             path_string = path_spec_to_string(parent_path_spec + [entry.name])
