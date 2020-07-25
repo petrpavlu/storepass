@@ -15,42 +15,7 @@ import storepass.storage
 import storepass.util
 from storepass.cli import view
 
-
-# Allow to specify application name in the log format.
-def _record_factory(*args, **kwargs):
-    record = _old_factory(*args, **kwargs)
-    record.app = os.path.basename(sys.argv[0])
-    return record
-
-
-_old_factory = logging.getLogRecordFactory()
-logging.setLogRecordFactory(_record_factory)
-
-# Make level names lowercase.
-logging.addLevelName(logging.CRITICAL, "critical")
-logging.addLevelName(logging.ERROR, "error")
-logging.addLevelName(logging.WARNING, "warning")
-logging.addLevelName(logging.INFO, "info")
-logging.addLevelName(logging.DEBUG, "debug")
-
-
-# Create a custom stderr logger. It is same as a handler that would be created
-# by the logging module by default, but references sys.stderr at the time when
-# a message is printed, which allows sys.stderr to be correctly overwritten in
-# unit tests.
-class _StderrHandler(logging.Handler):
-    def emit(self, record):
-        log_entry = self.format(record)
-        print(log_entry, file=sys.stderr)
-
-
-_log_handler = _StderrHandler()
-
-# Initialize logging.
-logging.basicConfig(format="%(app)s: %(levelname)s: %(message)s",
-                    handlers=[_log_handler])
 _logger = logging.getLogger(__name__)
-_logger.setLevel(logging.INFO)
 
 _NAME_TO_ENTRY_TYPE_MAP = {
     cls.entry_type_name: cls
@@ -463,15 +428,16 @@ def main():
     if args.verbose is not None:
         assert args.verbose > 0
         level = ('INFO', 'DEBUG')[min(args.verbose, 2) - 1]
-        _logger.setLevel(level)
-        _logger.info("log verbosity set to '%s'", level)
+        # Set the level for the root logger.
+        logging.getLogger().setLevel(level)
+        _logger.info("Log verbosity set to '%s'", level)
 
     # Handle the specified command.
     if args.command is None:
         print("No command specified", file=sys.stderr)
         return 1
 
-    _logger.debug("processing command '%s' on file '%s'", args.command,
+    _logger.debug("Processing command '%s' on file '%s'", args.command,
                   args.file)
 
     # Create a password proxy that asks the user for the database password only
