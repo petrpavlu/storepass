@@ -425,13 +425,14 @@ class _MainWindow(Gtk.ApplicationWindow):
             dest_iter = tree_store.iter_parent(dest_iter)
             assert dest_iter is not None
 
-        # Silently bail out if the entry is dropped at the same parent or is
-        # moved to its own child Container.
+        # Silently bail out if the entry is dropped at the same parent, or is
+        # moved under itself or to own child Container.
         source_parent_path = source_path.copy()
         res = source_parent_path.up()
         assert res is True
-        if source_parent_path == dest_path or dest_path.is_descendant(
-                source_path):
+        if (source_parent_path == dest_path or
+                dest_path.compare(source_path) == 0 or
+                dest_path.is_descendant(source_path)):
             return False
 
         # Move the entry. Note that a drag_data_received() handler should
