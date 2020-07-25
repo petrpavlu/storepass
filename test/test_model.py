@@ -87,6 +87,25 @@ class TestModel(util.StorePassTestCase):
         self.assertEqual(len(folder.children), 1)
         self.assertEqual(folder.children[0], generic_0)
 
+    def test_add_entry_non_container(self):
+        """Check Model.add_entry() rejects non-container targets."""
+        generic_0 = storepass.model.Generic("E1 name", None, None, None, None,
+                                            None, None)
+        root = storepass.model.Root([generic_0])
+        model = storepass.model.Model(root)
+
+        # Try adding an entry to the generic account.
+        generic_1 = storepass.model.Generic("E2 name", None, None, None, None,
+                                            None, None)
+        with self.assertRaises(storepass.exc.ModelException) as cm:
+            model.add_entry(generic_1, generic_0)
+        self.assertEqual(
+            str(cm.exception),
+            "Entry 'E1 name/E2 name' cannot be added because the target "
+            "parent is not a container")
+        self.assertEqual(len(root.children), 1)
+        self.assertEqual(root.children[0], generic_0)
+
     def test_move_entry(self):
         """Check Model.move_entry() moves entries correctly."""
         generic = storepass.model.Generic("E1 name", None, None, None, None,
@@ -135,6 +154,30 @@ class TestModel(util.StorePassTestCase):
         self.assertEqual(folder_0.children[0], generic_0)
         self.assertEqual(len(folder_1.children), 1)
         self.assertEqual(folder_1.children[0], generic_1)
+
+    def test_move_entry_non_container(self):
+        """Check Model.move_entry() rejects non-container targets."""
+        generic_0 = storepass.model.Generic("E1 name", None, None, None, None,
+                                            None, None)
+        generic_1 = storepass.model.Generic("E2 name", None, None, None, None,
+                                            None, None)
+        folder = storepass.model.Folder("E3 name", None, None, None,
+                                        [generic_0, generic_1])
+        root = storepass.model.Root([folder])
+        model = storepass.model.Model(root)
+
+        # Try moving the first generic account to the second one.
+        with self.assertRaises(storepass.exc.ModelException) as cm:
+            model.move_entry(generic_0, generic_1)
+        self.assertEqual(
+            str(cm.exception),
+            "Entry 'E3 name/E1 name' cannot be moved under 'E3 name/E2 name' "
+            "because the target is not a container")
+        self.assertEqual(len(root.children), 1)
+        self.assertEqual(root.children[0], folder)
+        self.assertEqual(len(folder.children), 2)
+        self.assertEqual(folder.children[0], generic_0)
+        self.assertEqual(folder.children[1], generic_1)
 
     def test_move_entry_under(self):
         """Check Model.move_entry() rejects moving an entry on itself."""

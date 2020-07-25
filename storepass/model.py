@@ -1343,11 +1343,23 @@ class Model:
         """
         Add a new entry under a specified parent.
 
-        Add an entry as a child of a specified parent. Throws ModelException if
-        an entry with the same name already exists.
+        Add an entry as a child of a specified parent.
+
+        Throws ModelException in the following cases:
+        * An entry with the same name already exists.
+        * The target parent entry is not a container.
         """
         _logger.debug("Adding entry '%s' under '%s'", new_entry.name,
                       parent.get_full_name())
+
+        if not isinstance(parent, Container):
+            parent_path_spec = parent.get_path()
+            path_string = path_spec_to_string(parent_path_spec +
+                                              [new_entry.name])
+            raise storepass.exc.ModelException(
+                f"Entry '{path_string}' cannot be added because the target "
+                f"parent is not a container")
+
         if not parent.add_child(new_entry):
             parent_path_spec = parent.get_path()
             path_string = path_spec_to_string(parent_path_spec +
@@ -1363,10 +1375,17 @@ class Model:
 
         Throws ModelException in the following cases:
         * An entry with the same name already exists.
+        * The target parent entry is not a container.
         * The entry is moved under itself.
         """
         _logger.debug("Moving entry '%s' under '%s'", entry.get_full_name(),
                       new_parent.get_full_name())
+
+        if not isinstance(new_parent, Container):
+            raise storepass.exc.ModelException(
+                f"Entry '{entry.get_full_name()}' cannot be moved under "
+                f"'{new_parent.get_full_name()}' because the target is not "
+                f"a container")
 
         ancestor = new_parent
         while not isinstance(ancestor, Root):
