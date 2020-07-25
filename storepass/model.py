@@ -1297,9 +1297,9 @@ ENTRY_TYPES = (
 
 class Model:
     """Database model."""
-    def __init__(self):
+    def __init__(self, root=Root([])):
         """Initialize a database model."""
-        self._root = Root([])
+        self._root = root
 
     def load(self, storage):
         """Initialize the model using a specified storage object."""
