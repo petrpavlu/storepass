@@ -1412,7 +1412,7 @@ class Model:
         _logger.debug("Removing entry '%s'", entry.get_full_name())
         if isinstance(entry, Container) and len(entry.children) > 0:
             raise storepass.exc.ModelException(
-                f"Entry '{entry.get_full_name()}' is non-empty and cannot be "
+                f"Entry '{entry.get_full_name()}' is not empty and cannot be "
                 f"removed")
 
         parent = entry.parent
@@ -1449,7 +1449,7 @@ class Model:
         if isinstance(old_entry, Folder) and len(old_entry.children) > 0:
             if not isinstance(new_entry, Folder):
                 raise storepass.exc.ModelException(
-                    f"Entry '{old_entry.get_full_name()}' is non-empty and "
+                    f"Entry '{old_entry.get_full_name()}' is not empty and "
                     f"cannot be replaced by a non-folder type")
             old_entry.move_children_to(new_entry)
         parent.remove_child(old_entry)
