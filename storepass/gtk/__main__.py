@@ -15,6 +15,7 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gio
 from gi.repository import Gdk
+from gi.repository import GdkPixbuf
 try:
     from gi.repository import GdkX11
     IS_GDK_X11_AVAILABLE = True
@@ -1202,6 +1203,15 @@ class _App(Gtk.Application):
         Gtk.Application.do_startup(self)
         GLib.set_prgname("StorePass")
 
+        # Set the default icon for all windows and for use in the about dialog.
+        icon_bytes = importlib.resources.read_binary('storepass.gtk.resources',
+                                                     'icon.svg')
+        icon_stream = Gio.MemoryInputStream.new_from_bytes(
+            GLib.Bytes.new(icon_bytes))
+        icon = GdkPixbuf.Pixbuf.new_from_stream(icon_stream, None)
+        Gtk.Window.set_default_icon(icon)
+
+        # Initialize main menu.
         quit_action = Gio.SimpleAction.new('quit', None)
         quit_action.connect('activate', self._on_quit)
         self.add_action(quit_action)

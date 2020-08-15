@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2020 Petr Pavlu <setup@dagobah.cz>
+SPDX-License-Identifier: MIT
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128">
+    <ellipse rx="57" ry="57" cx="64" cy="64" style="fill: none; stroke: #253040; stroke-width: 6;"/>
+    <rect x="34" y="64" width="60" height="19" style="fill: #253040;"/>
+    <path d="m 34,87 v 5 q 0,6 6,6 h 48 q 6,0 6,-6 v -5 z" style="fill: #253040;"/>
+    <path d="m 44,48 a 20,20 0 0 1 20,-20 20,20 0 0 1 20,20" style="fill: none; stroke:#253040; stroke-width: 10;"/>
+    <path d="m 44,48 v 12" style="stroke: #253040; stroke-width: 10;"/>
+    <path d="m 84,48 v 12" style="stroke: #253040; stroke-width: 10;"/>
+</svg>
