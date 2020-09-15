@@ -249,7 +249,8 @@ def _process_dump_command(args, storage):
     try:
         plain_data = storage.read_plain()
     except storepass.exc.StorageReadException as e:
-        print(f"Failed to load password database '{args.file}': {e}")
+        print(f"Failed to load password database '{args.file}': {e}",
+              file=sys.stderr)
         return 1
 
     # Print the content.
