@@ -25,6 +25,11 @@ setuptools.setup(
     # At least Python 3.8 is required because of use of
     # xml.etree.ElementTree.tostring(xml_declaration=True).
     python_requires='>=3.8',
+    # Require PyCryptodome for Crypto.Cipher.AES. GUI dependencies on PyGObject
+    # and GTK are not stated because they are not available through PyPI.
+    install_requires=[
+        'pycryptodome',
+    ],
     entry_points={
         'console_scripts': [
             'storepass-cli = storepass.cli.__main__:main',
