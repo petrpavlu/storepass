@@ -561,16 +561,17 @@ class Storage:
                        init_vector + encrypted_data)
 
         def open_for_writing(filename, exclusive):
+            flags = os.O_CREAT | os.O_TRUNC | os.O_WRONLY
             if exclusive:
-                fd = os.open(filename, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                try:
-                    return os.fdopen(fd, 'wb')
-                except:
-                    # In case os.fdopen() fails, make sure that the file
-                    # descriptor gets closed.
-                    os.close(fd)
-                    raise
-            return open(filename, 'wb')
+                flags |= os.O_EXCL
+            fd = os.open(filename, flags, 0o600)
+            try:
+                return os.fdopen(fd, 'wb')
+            except:
+                # In case os.fdopen() fails, make sure that the file descriptor
+                # gets closed.
+                os.close(fd)
+                raise
 
         try:
             with open_for_writing(self.filename, exclusive) as fh:

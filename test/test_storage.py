@@ -5,6 +5,7 @@
 
 import datetime
 import os
+import stat
 
 import storepass.exc
 import storepass.model
@@ -1077,6 +1078,24 @@ class TestStorage(util.StorePassTestCase):
 
         data = util.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
         self.assertEqual(data, 'RAW CONTENT')
+
+    def test_write_permissions(self):
+        """Check that a created file can be read/written only by its owner."""
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        storage.write_plain('RAW CONTENT')
+
+        file_stat = os.stat(self.dbname)
+        file_mode = file_stat.st_mode
+        self.assertTrue(stat.S_ISREG(file_mode))
+        self.assertNotEqual(file_mode & stat.S_IRUSR, 0)
+        self.assertNotEqual(file_mode & stat.S_IWUSR, 0)
+        self.assertEqual(file_mode & stat.S_IXUSR, 0)
+        self.assertEqual(file_mode & stat.S_IRGRP, 0)
+        self.assertEqual(file_mode & stat.S_IWGRP, 0)
+        self.assertEqual(file_mode & stat.S_IXGRP, 0)
+        self.assertEqual(file_mode & stat.S_IROTH, 0)
+        self.assertEqual(file_mode & stat.S_IWOTH, 0)
+        self.assertEqual(file_mode & stat.S_IXOTH, 0)
 
     def test_write_invalid_file(self):
         """Check that an unwritable file is sensibly rejected."""
