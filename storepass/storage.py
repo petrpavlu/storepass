@@ -9,6 +9,7 @@ This module provides functionality to read and write a password database file:
   parses its XML content and produces an internal data model representing the
   data. Exception storepass.exc.StorageReadException is raised if an error
   occurs.
+
 * The write operation takes an internal data model, prepares its XML
   representation and writes it encrypted into a file. Exception
   storepass.exc.StorageWriteException is raised if an error occurs.

@@ -29,9 +29,26 @@ Class diagram:
   | Generic | | Phone | | Shell | | RemoteDesktop | | VNC | | Website |
   '---------' '-------' '-------' '---------------' '-----' '---------'
 
-All Entry's must hold a valid name identifying the Folder/Account. The name is
-set when the entry is created and remains constant during a lifetime of the
-object.
+All Entry objects have a name that identifies the entry to the user. The name
+must be a non-empty string value. It is set when an entry is created and
+remains constant during a lifetime of the object.
+
+Entry objects have two interfaces to access their entry-specific properties:
+* Direct access using object variables.
+
+  Example:
+  print(f"Hostname: {generic_entry.hostname}")
+  print(f"Username: {generic_entry.username}")
+  print(f"Password: {generic_entry.password}")
+
+* Indirect access using field objects. This method allows to write a code that
+  handles all entry types in a generic way. The code can query which fields are
+  valid for a given object without checking what type it is and having own
+  built-in knowledge which properties it supports.
+
+  Example:
+  for field in entry.entry_fields:
+      print(f"{field.label}: {entry.properties[field]}")
 """
 
 import enum
