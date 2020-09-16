@@ -19,6 +19,12 @@ its storage format.
 * Compatibility with the Revelation password manager.
 * Written in Python 3, minimal dependencies, MIT license.
 
+## Screenshots
+
+| Main window | Edit dialog |
+| :---------: | :---------: |
+| ![Main window](https://user-images.githubusercontent.com/31453820/93376537-0c941d80-f85a-11ea-97ac-e8bb0b6d78b3.png) | ![Edit dialog](https://user-images.githubusercontent.com/31453820/93378202-64cc1f00-f85c-11ea-9d49-906d9aec4ce7.png) |
+
 ## Installation
 
 StorePass uses Setuptools for its packaging and distribution, as is standard for
