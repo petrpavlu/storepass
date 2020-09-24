@@ -327,7 +327,7 @@ def _build_parser():
     _list_parser = subparsers.add_parser('list',
                                          description="list password entries")
     show_parser = subparsers.add_parser(
-        'show', description="show a password entry and its details")
+        'show', description="display details of a password entry")
     argument_validity = [(name, [field.name for field in cls.entry_fields])
                          for name, cls in _NAME_TO_ENTRY_TYPE_MAP.items()]
     add_edit_epilog = "property validity for entry types:\n" + "\n".join([
