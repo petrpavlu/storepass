@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0 - Unreleased
+## 1.2.0 - 2020-09-24
 
 - All: Added support for more entry types.
 - All: Various bug fixes and clean ups.
