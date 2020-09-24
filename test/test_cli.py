@@ -1,7 +1,7 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-"""End-to-end command line tests."""
+"""End-to-end command-line tests."""
 
 import contextlib
 import io
@@ -52,7 +52,7 @@ def cli_context(args, timezone=None):
 
 
 class TestCLI(util.StorePassTestCase):
-    """End-to-end command line tests."""
+    """End-to-end command-line tests."""
     def _init_database(self, filename):
         """Create a new empty password database."""
         with cli_context(['storepass-cli', '-f', filename,
@@ -2064,7 +2064,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_edit_email(self):
-        """Check that a email entry can be edited in a database."""
+        """Check that an email entry can be edited in a database."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -2182,7 +2182,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
     def test_edit_generic(self):
-        """Check that a generic account entry can be edited in a database."""
+        """Check that a generic entry can be edited in a database."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
@@ -3259,7 +3259,7 @@ class TestCLI(util.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-        # Check the display with the GMT+1 timezone.
+        # Check the display with the GMT-1 timezone.
         with cli_context(
             ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
                 timezone='GMT-1') as cli_mock:

@@ -104,6 +104,7 @@ SPDX-License-Identifier: MIT
                                 </child>
                             </object>
                         </child>
+                        <!-- Insertion point for view_property_widgets.ui widgets. -->
                         <child>
                             <object class="GtkBox" id="entry_notes_box">
                                 <property name="halign">center</property>

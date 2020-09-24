@@ -547,7 +547,7 @@ class TestStorage(util.StorePassTestCase):
                          "Entry '/revelationdata/entry[1]' has no name")
 
     def test_read_credit_card_entry(self):
-        """Check parsing of a single credit card entry."""
+        """Check parsing of a single credit-card entry."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
@@ -587,7 +587,7 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(child_0.pin, "E1 PIN")
 
     def test_read_crypto_key_entry(self):
-        """Check parsing of a single crypto key entry."""
+        """Check parsing of a single crypto-key entry."""
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\

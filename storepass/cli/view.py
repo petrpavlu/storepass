@@ -54,7 +54,7 @@ class DetailView(storepass.model.ModelVisitor):
             if value is not None:
                 print(f"  - {field.label}: {value}")
 
-        # Process the entry's notes and updated value.
+        # Process the entry's notes and updated timestamp.
         if entry.notes is not None:
             print(f"  - Notes: {entry.notes}")
         if entry.updated is not None:

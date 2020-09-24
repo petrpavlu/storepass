@@ -1,7 +1,7 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-"""StorePass command line interface."""
+"""StorePass command-line interface."""
 
 import argparse
 import getpass
@@ -40,7 +40,7 @@ class _EntryGenerator:
         return storepass.util.normalize_empty_to_none(value)
 
     def _update_property(self, field, value):
-        """Update a value of a specified property."""
+        """Update the value of a specified property."""
         if value is not None:
             self.properties[field] = value
         elif field in self.properties:
@@ -57,7 +57,7 @@ class _EntryGenerator:
             self._update_property(field, entry.properties[field])
 
     def set_from_args(self, args):
-        """Update properties from command line arguments."""
+        """Update properties from command-line arguments."""
         if args.type is not None:
             self.type_cls = _NAME_TO_ENTRY_TYPE_MAP[args.type]
 
@@ -73,7 +73,7 @@ class _EntryGenerator:
                 value = getpass.getpass(f"Entry {field.name}: ")
             self._update_property(field, self._normalize_argument(value))
 
-        # Finally, set the updated value.
+        # Finally, set the updated timestamp.
         self.updated = storepass.util.get_current_datetime()
 
     def get_entry(self):
@@ -297,6 +297,7 @@ class _ArgumentParser(argparse.ArgumentParser):
 
 
 class _PropertyAction(argparse.Action):
+    """Command-line property action."""
     def __init__(self, option_strings, dest, field, **kwargs):
         super().__init__(option_strings, dest, **kwargs)
         self._field = field
@@ -398,7 +399,7 @@ def main():
     """
     Run the CLI interface.
 
-    Run the StorePass command line interface. Returns 0 if the execution was
+    Run the StorePass command-line interface. Returns 0 if the execution was
     successful and a non-zero value otherwise.
     """
     # Parse the command-line arguments.
@@ -408,7 +409,7 @@ def main():
     except SystemExit as e:
         return e.code
 
-    # Do further command-specific checks of the command line options.
+    # Do further command-specific checks of the command-line options.
     if args.command == 'show':
         res = _validate_show_command(args)
     elif args.command == 'add':
@@ -441,7 +442,7 @@ def main():
     _logger.debug("Processing command '%s' on file '%s'", args.command,
                   args.file)
 
-    # Create a password proxy that asks the user for the database password only
+    # Create a password proxy that asks the user for a database password only
     # once.
     db_password = None
 

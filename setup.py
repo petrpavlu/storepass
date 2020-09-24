@@ -25,8 +25,9 @@ setuptools.setup(
     # At least Python 3.8 is required because of use of
     # xml.etree.ElementTree.tostring(xml_declaration=True).
     python_requires='>=3.8',
-    # Require PyCryptodome for Crypto.Cipher.AES. GUI dependencies on PyGObject
-    # and GTK are not stated because they are not available through PyPI.
+    # PyCryptodome is required for Crypto.Cipher.AES. Extra GUI dependencies on
+    # GTK and PyGObject are not stated because they are not available through
+    # PyPI.
     install_requires=[
         'pycryptodome',
     ],

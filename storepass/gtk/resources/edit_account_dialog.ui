@@ -121,6 +121,7 @@ SPDX-License-Identifier: MIT
                                 <property name="width">2</property>
                             </packing>
                         </child>
+                        <!-- Insertion point for edit_property_widgets.ui widgets. -->
                         <child>
                             <object class="GtkLabel">
                                 <property name="visible">True</property>
