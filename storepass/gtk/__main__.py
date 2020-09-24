@@ -454,8 +454,9 @@ class _MainWindow(Gtk.ApplicationWindow):
         entry_iter = tree_store.append(
             dest_iter,
             [source_entry.name, _EntryGObject(source_entry)])
-        populator = EntriesTreeStorePopulator(tree_store)
-        source_entry.accept_children(populator, entry_iter)
+        if isinstance(source_entry, storepass.model.Folder):
+            populator = EntriesTreeStorePopulator(tree_store)
+            source_entry.accept_children(populator, entry_iter)
 
         # Select the newly added entry.
         self._entries_tree_view.expand_to_path(tree_store.get_path(entry_iter))
