@@ -39,6 +39,8 @@ setuptools.setup(
             'storepass-gtk = storepass.gtk.__main__:main',
         ],
     },
+    # Include all packages in the installation with the exception of tests
+    # which get only shipped in the distribution package (via MANIFEST.in).
     packages=setuptools.find_packages(exclude=['tests']),
     package_data={'storepass.gtk.resources': ['*.ui']},
 )
