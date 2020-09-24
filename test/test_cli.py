@@ -100,7 +100,7 @@ class TestCLI(util.StorePassTestCase):
                 cli_mock.stdout.getvalue(),
                 util.dedent2("""\
                     |usage: storepass-cli add [-h]
-                    |                         [--type {folder,credit-card,crypto-key,database,door,email,ftp,generic,phone,shell,remote-desktop,vnc,website}]
+                    |                         [--type {folder,credit-card,crypto-key,database,door,email,ftp,generic,phone,remote-desktop,shell,vnc,website}]
                     |                         [--description DESC] [--notes NOTES]
                     |                         [--card-number VALUE] [--card-type VALUE]
                     |                         [--ccv VALUE] [--certificate VALUE] [--code VALUE]
@@ -118,7 +118,7 @@ class TestCLI(util.StorePassTestCase):
                     |
                     |optional arguments:
                     |  -h, --help            show this help message and exit
-                    |  --type {folder,credit-card,crypto-key,database,door,email,ftp,generic,phone,shell,remote-desktop,vnc,website}
+                    |  --type {folder,credit-card,crypto-key,database,door,email,ftp,generic,phone,remote-desktop,shell,vnc,website}
                     |                        entry type (the default is generic)
                     |
                     |optional arguments valid for all entry types:
@@ -155,8 +155,8 @@ class TestCLI(util.StorePassTestCase):
                     |  ftp:                  hostname, port, username, password
                     |  generic:              hostname, username, password
                     |  phone:                phone-number, pin
-                    |  shell:                hostname, domain, username, password
                     |  remote-desktop:       hostname, port, username, password
+                    |  shell:                hostname, domain, username, password
                     |  vnc:                  hostname, port, username, password
                     |  website:              url, username, email, password
                     """))
@@ -1166,90 +1166,6 @@ class TestCLI(util.StorePassTestCase):
                     Property 'username' is not valid for entry type 'phone'
                     """))
 
-    def test_add_shell(self):
-        """Check that a shell entry can be added to a database."""
-        # Create a new empty password database.
-        self._init_database(self.dbname)
-
-        # Add a new shell entry.
-        with cli_context([
-                'storepass-cli', '-f', self.dbname, 'add', '--type', 'shell',
-                '--description', 'E1 description', '--notes', 'E1 notes',
-                '--hostname', 'E1 hostname', '--domain', 'E1 domain',
-                '--username', 'E1 username', '--password', 'E1 name'
-        ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            self.assertEqual(cli_mock.getpass.call_count, 2)
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
-        # Read the database and dump its XML content.
-        with cli_context(['storepass-cli', '-f', self.dbname,
-                          'dump']) as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertRegex(
-                cli_mock.stdout.getvalue(),
-                util.dedent("""\
-                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
-                    <revelationdata dataversion="1">
-                    \t<entry type="shell">
-                    \t\t<name>E1 name</name>
-                    \t\t<description>E1 description</description>
-                    \t\t<updated>[0-9]+</updated>
-                    \t\t<notes>E1 notes</notes>
-                    \t\t<field id="generic-hostname">E1 hostname</field>
-                    \t\t<field id="generic-domain">E1 domain</field>
-                    \t\t<field id="generic-username">E1 username</field>
-                    \t\t<field id="generic-password">E1 password</field>
-                    \t</entry>
-                    </revelationdata>
-                    $"""))
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
-    def test_add_shell_options(self):
-        """Check rejection of invalid options for the shell type."""
-        # Try to add a new shell entry with invalid options.
-        with cli_context([
-                'storepass-cli', '-f', self.dbname, 'add', '--type', 'shell',
-                '--card-number', 'E1 card number', '--card-type',
-                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
-                'E1 certificate', '--code', 'E1 code', '--database',
-                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
-                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
-                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
-                '--password', '--phone-number', 'E1 phone number', '--pin',
-                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
-                'E1 username', 'E1 name'
-        ]) as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 1)
-            cli_mock.getpass.assert_not_called()
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(
-                cli_mock.stderr.getvalue(),
-                util.dedent("""\
-                    Property 'card-number' is not valid for entry type 'shell'
-                    Property 'card-type' is not valid for entry type 'shell'
-                    Property 'ccv' is not valid for entry type 'shell'
-                    Property 'certificate' is not valid for entry type 'shell'
-                    Property 'code' is not valid for entry type 'shell'
-                    Property 'database' is not valid for entry type 'shell'
-                    Property 'email' is not valid for entry type 'shell'
-                    Property 'expiry-date' is not valid for entry type 'shell'
-                    Property 'keyfile' is not valid for entry type 'shell'
-                    Property 'location' is not valid for entry type 'shell'
-                    Property 'phone-number' is not valid for entry type 'shell'
-                    Property 'pin' is not valid for entry type 'shell'
-                    Property 'port' is not valid for entry type 'shell'
-                    Property 'url' is not valid for entry type 'shell'
-                    """))
-
     def test_add_remote_desktop(self):
         """Check that a remote-desktop entry can be added to a database."""
         # Create a new empty password database.
@@ -1332,6 +1248,90 @@ class TestCLI(util.StorePassTestCase):
                     Property 'phone-number' is not valid for entry type 'remote-desktop'
                     Property 'pin' is not valid for entry type 'remote-desktop'
                     Property 'url' is not valid for entry type 'remote-desktop'
+                    """))
+
+    def test_add_shell(self):
+        """Check that a shell entry can be added to a database."""
+        # Create a new empty password database.
+        self._init_database(self.dbname)
+
+        # Add a new shell entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'shell',
+                '--description', 'E1 description', '--notes', 'E1 notes',
+                '--hostname', 'E1 hostname', '--domain', 'E1 domain',
+                '--username', 'E1 username', '--password', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1 password']
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="shell">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1 description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1 notes</notes>
+                    \t\t<field id="generic-hostname">E1 hostname</field>
+                    \t\t<field id="generic-domain">E1 domain</field>
+                    \t\t<field id="generic-username">E1 username</field>
+                    \t\t<field id="generic-password">E1 password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_add_shell_options(self):
+        """Check rejection of invalid options for the shell type."""
+        # Try to add a new shell entry with invalid options.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'add', '--type', 'shell',
+                '--card-number', 'E1 card number', '--card-type',
+                'E1 card type', '--ccv', 'E1 CCV', '--certificate',
+                'E1 certificate', '--code', 'E1 code', '--database',
+                'E1 database', '--domain', 'E1 domain', '--email', 'E1 email',
+                '--expiry-date', 'E1 expiry date', '--hostname', 'E1 hostname',
+                '--keyfile', 'E1 keyfile', '--location', 'E1 location',
+                '--password', '--phone-number', 'E1 phone number', '--pin',
+                'E1 PIN', '--port', 'E1 port', '--url', 'E1 URL', '--username',
+                'E1 username', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 1)
+            cli_mock.getpass.assert_not_called()
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(
+                cli_mock.stderr.getvalue(),
+                util.dedent("""\
+                    Property 'card-number' is not valid for entry type 'shell'
+                    Property 'card-type' is not valid for entry type 'shell'
+                    Property 'ccv' is not valid for entry type 'shell'
+                    Property 'certificate' is not valid for entry type 'shell'
+                    Property 'code' is not valid for entry type 'shell'
+                    Property 'database' is not valid for entry type 'shell'
+                    Property 'email' is not valid for entry type 'shell'
+                    Property 'expiry-date' is not valid for entry type 'shell'
+                    Property 'keyfile' is not valid for entry type 'shell'
+                    Property 'location' is not valid for entry type 'shell'
+                    Property 'phone-number' is not valid for entry type 'shell'
+                    Property 'pin' is not valid for entry type 'shell'
+                    Property 'port' is not valid for entry type 'shell'
+                    Property 'url' is not valid for entry type 'shell'
                     """))
 
     def test_add_vnc(self):
@@ -2292,65 +2292,6 @@ class TestCLI(util.StorePassTestCase):
                     $"""))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-    def test_edit_shell(self):
-        """Check that a shell entry can be edited in a database."""
-        # Create a test database.
-        util.write_password_db(
-            self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
-                <revelationdata dataversion="1">
-                \t<entry type="shell">
-                \t\t<name>E1 name</name>
-                \t\t<description>E1 description</description>
-                \t\t<notes>E1 notes</notes>
-                \t\t<field id="generic-hostname">E1 hostname</field>
-                \t\t<field id="generic-domain">E1 domain</field>
-                \t\t<field id="generic-username">E1 username</field>
-                \t\t<field id="generic-password">E1 password</field>
-                \t</entry>
-                </revelationdata>
-                '''))
-
-        # Edit the entry.
-        with cli_context([
-                'storepass-cli', '-f', self.dbname, 'edit', '--description',
-                'E1-U description', '--notes', 'E1-U notes', '--hostname',
-                'E1-U hostname', '--domain', 'E1-U domain', '--username',
-                'E1-U username', '--password', 'E1 name'
-        ]) as cli_mock:
-            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            self.assertEqual(cli_mock.getpass.call_count, 2)
-            self.assertEqual(cli_mock.stdout.getvalue(), "")
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
-        # Read the database and dump its XML content.
-        with cli_context(['storepass-cli', '-f', self.dbname,
-                          'dump']) as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertRegex(
-                cli_mock.stdout.getvalue(),
-                util.dedent("""\
-                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
-                    <revelationdata dataversion="1">
-                    \t<entry type="shell">
-                    \t\t<name>E1 name</name>
-                    \t\t<description>E1-U description</description>
-                    \t\t<updated>[0-9]+</updated>
-                    \t\t<notes>E1-U notes</notes>
-                    \t\t<field id="generic-hostname">E1-U hostname</field>
-                    \t\t<field id="generic-domain">E1-U domain</field>
-                    \t\t<field id="generic-username">E1-U username</field>
-                    \t\t<field id="generic-password">E1-U password</field>
-                    \t</entry>
-                    </revelationdata>
-                    $"""))
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
     def test_edit_remote_desktop(self):
         """Check that a remote-desktop entry can be edited in a database."""
         # Create a test database.
@@ -2403,6 +2344,65 @@ class TestCLI(util.StorePassTestCase):
                     \t\t<notes>E1-U notes</notes>
                     \t\t<field id="generic-hostname">E1-U hostname</field>
                     \t\t<field id="generic-port">E1-U port</field>
+                    \t\t<field id="generic-username">E1-U username</field>
+                    \t\t<field id="generic-password">E1-U password</field>
+                    \t</entry>
+                    </revelationdata>
+                    $"""))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_edit_shell(self):
+        """Check that a shell entry can be edited in a database."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="shell">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-domain">E1 domain</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Edit the entry.
+        with cli_context([
+                'storepass-cli', '-f', self.dbname, 'edit', '--description',
+                'E1-U description', '--notes', 'E1-U notes', '--hostname',
+                'E1-U hostname', '--domain', 'E1-U domain', '--username',
+                'E1-U username', '--password', 'E1 name'
+        ]) as cli_mock:
+            cli_mock.getpass.side_effect = [DEFAULT_PASSWORD, 'E1-U password']
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            self.assertEqual(cli_mock.getpass.call_count, 2)
+            self.assertEqual(cli_mock.stdout.getvalue(), "")
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+        # Read the database and dump its XML content.
+        with cli_context(['storepass-cli', '-f', self.dbname,
+                          'dump']) as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertRegex(
+                cli_mock.stdout.getvalue(),
+                util.dedent("""\
+                    ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
+                    <revelationdata dataversion="1">
+                    \t<entry type="shell">
+                    \t\t<name>E1 name</name>
+                    \t\t<description>E1-U description</description>
+                    \t\t<updated>[0-9]+</updated>
+                    \t\t<notes>E1-U notes</notes>
+                    \t\t<field id="generic-hostname">E1-U hostname</field>
+                    \t\t<field id="generic-domain">E1-U domain</field>
                     \t\t<field id="generic-username">E1-U username</field>
                     \t\t<field id="generic-password">E1-U password</field>
                     \t</entry>
@@ -3065,20 +3065,20 @@ class TestCLI(util.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-    def test_list_shell(self):
-        """Check that a shell entry is listed correctly."""
+    def test_list_remote_desktop(self):
+        """Check that a remote-desktop entry is listed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
                 <revelationdata dataversion="1">
-                \t<entry type="shell">
+                \t<entry type="remotedesktop">
                 \t\t<name>E1 name</name>
                 \t\t<description>E1 description</description>
                 \t\t<updated>1546300800</updated>
                 \t\t<notes>E1 notes</notes>
                 \t\t<field id="generic-hostname">E1 hostname</field>
-                \t\t<field id="generic-domain">E1 domain</field>
+                \t\t<field id="generic-port">E1 port</field>
                 \t\t<field id="generic-username">E1 username</field>
                 \t\t<field id="generic-password">E1 password</field>
                 \t</entry>
@@ -3099,20 +3099,20 @@ class TestCLI(util.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-    def test_list_remote_desktop(self):
-        """Check that a remote-desktop entry is listed correctly."""
+    def test_list_shell(self):
+        """Check that a shell entry is listed correctly."""
         # Create a test database.
         util.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             util.dedent('''\
                 <revelationdata dataversion="1">
-                \t<entry type="remotedesktop">
+                \t<entry type="shell">
                 \t\t<name>E1 name</name>
                 \t\t<description>E1 description</description>
                 \t\t<updated>1546300800</updated>
                 \t\t<notes>E1 notes</notes>
                 \t\t<field id="generic-hostname">E1 hostname</field>
-                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-domain">E1 domain</field>
                 \t\t<field id="generic-username">E1 username</field>
                 \t\t<field id="generic-password">E1 password</field>
                 \t</entry>
@@ -3717,48 +3717,6 @@ class TestCLI(util.StorePassTestCase):
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
 
-    def test_show_shell(self):
-        """Check that details of a shell entry are shown correctly."""
-        # Create a test database.
-        util.write_password_db(
-            self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
-                <revelationdata dataversion="1">
-                \t<entry type="shell">
-                \t\t<name>E1 name</name>
-                \t\t<description>E1 description</description>
-                \t\t<updated>1546300800</updated>
-                \t\t<notes>E1 notes</notes>
-                \t\t<field id="generic-hostname">E1 hostname</field>
-                \t\t<field id="generic-domain">E1 domain</field>
-                \t\t<field id="generic-username">E1 username</field>
-                \t\t<field id="generic-password">E1 password</field>
-                \t</entry>
-                </revelationdata>
-                '''))
-
-        # Check that the entry is displayed as expected.
-        with cli_context(
-            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
-                timezone='GMT') as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(
-                cli_mock.stdout.getvalue(),
-                util.dedent2("""\
-                    |+ E1 name (Shell)
-                    |  - Description: E1 description
-                    |  - Hostname: E1 hostname
-                    |  - Domain: E1 domain
-                    |  - Username: E1 username
-                    |  - Password: E1 password
-                    |  - Notes: E1 notes
-                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
-                    """))
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
     def test_show_remote_desktop(self):
         """Check that details of a remote-desktop entry are shown correctly."""
         # Create a test database.
@@ -3794,6 +3752,48 @@ class TestCLI(util.StorePassTestCase):
                     |  - Description: E1 description
                     |  - Hostname: E1 hostname
                     |  - Port: E1 port
+                    |  - Username: E1 username
+                    |  - Password: E1 password
+                    |  - Notes: E1 notes
+                    |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
+                    """))
+            self.assertEqual(cli_mock.stderr.getvalue(), "")
+
+    def test_show_shell(self):
+        """Check that details of a shell entry are shown correctly."""
+        # Create a test database.
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="shell">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-domain">E1 domain</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        # Check that the entry is displayed as expected.
+        with cli_context(
+            ['storepass-cli', '-f', self.dbname, 'show', 'E1 name'],
+                timezone='GMT') as cli_mock:
+            cli_mock.getpass.return_value = DEFAULT_PASSWORD
+            res = storepass.cli.__main__.main()
+            self.assertEqual(res, 0)
+            cli_mock.getpass.assert_called_once()
+            self.assertEqual(
+                cli_mock.stdout.getvalue(),
+                util.dedent2("""\
+                    |+ E1 name (Shell)
+                    |  - Description: E1 description
+                    |  - Hostname: E1 hostname
+                    |  - Domain: E1 domain
                     |  - Username: E1 username
                     |  - Password: E1 password
                     |  - Notes: E1 notes

@@ -23,11 +23,11 @@ Class diagram:
   | CreditCard | | CryptoKey |  |  | Database | | Door | | Email | | FTP |
   '------------' '-----------'  |  '----------' '------' '-------' '-----'
                                 |
-       ,----------,---------,---'---------,------------,---------,
-       |          |         |             |            |         |
-  ,---------, ,-------, ,-------, ,---------------, ,-----, ,---------,
-  | Generic | | Phone | | Shell | | RemoteDesktop | | VNC | | Website |
-  '---------' '-------' '-------' '---------------' '-----' '---------'
+       ,----------,-------------+-------------,--------,---------,
+       |          |             |             |        |         |
+  ,---------, ,-------, ,---------------, ,-------, ,-----, ,---------,
+  | Generic | | Phone | | RemoteDesktop | | Shell | | VNC | | Website |
+  '---------' '-------' '---------------' '-------' '-----' '---------'
 
 All Entry objects have a name that identifies the entry to the user. The name
 must be a non-empty string value. It is set when an entry is created and
@@ -1038,70 +1038,6 @@ class Phone(Account):
             super().accept(visitor, single)
 
 
-class Shell(Account):
-    """Shell entry."""
-    _entry_type_name = 'shell'
-    _entry_label = "Shell"
-    _entry_fields = (HOSTNAME_FIELD, DOMAIN_FIELD, USERNAME_FIELD,
-                     PASSWORD_FIELD)
-    _storage_id = 'shell'
-
-    def __init__(self, name, description, updated, notes, hostname, domain,
-                 username, password):
-        """Initialize a shell entry."""
-        Account.__init__(self, name, description, updated, notes)
-        self.hostname = hostname
-        self.domain = domain
-        self.username = username
-        self.password = password
-
-    @classmethod
-    def from_proxy(cls, name, description, updated, notes, properties):
-        """Create a shell entry via the properties specification."""
-        res = Shell(name, description, updated, notes, None, None, None, None)
-        res.update_fields(properties)
-        return res
-
-    def _get_field(self, field):
-        """Get a value of a specified field."""
-        if field == HOSTNAME_FIELD:
-            return self.hostname
-        if field == DOMAIN_FIELD:
-            return self.domain
-        if field == USERNAME_FIELD:
-            return self.username
-        if field == PASSWORD_FIELD:
-            return self.password
-        assert 0 and "Invalid Shell field!"
-        return None
-
-    def _set_field(self, field, value):
-        """Set a new value of a specified field."""
-        if field == HOSTNAME_FIELD:
-            self.hostname = value
-        elif field == DOMAIN_FIELD:
-            self.domain = value
-        elif field == USERNAME_FIELD:
-            self.username = value
-        elif field == PASSWORD_FIELD:
-            self.password = value
-        else:
-            assert 0 and "Invalid Shell field!"
-
-    def __str__(self, indent=""):
-        parent = super().inline_str()
-        return (indent + f"Shell({parent}, hostname={self.hostname}, "
-                f"domain={self.domain}, username={self.username}, "
-                f"password={self.password})")
-
-    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
-        """Visit the shell entry."""
-        if hasattr(visitor, 'visit_shell'):
-            visitor.visit_shell(self)
-        else:
-            super().accept(visitor, single)
-
-
 class RemoteDesktop(Account):
     """Remote desktop entry."""
     _entry_type_name = 'remote-desktop'
@@ -1163,6 +1099,70 @@ class RemoteDesktop(Account):
         """Visit the remote desktop entry."""
         if hasattr(visitor, 'visit_remote_desktop'):
             visitor.visit_remote_desktop(self)
+        else:
+            super().accept(visitor, single)
+
+
+class Shell(Account):
+    """Shell entry."""
+    _entry_type_name = 'shell'
+    _entry_label = "Shell"
+    _entry_fields = (HOSTNAME_FIELD, DOMAIN_FIELD, USERNAME_FIELD,
+                     PASSWORD_FIELD)
+    _storage_id = 'shell'
+
+    def __init__(self, name, description, updated, notes, hostname, domain,
+                 username, password):
+        """Initialize a shell entry."""
+        Account.__init__(self, name, description, updated, notes)
+        self.hostname = hostname
+        self.domain = domain
+        self.username = username
+        self.password = password
+
+    @classmethod
+    def from_proxy(cls, name, description, updated, notes, properties):
+        """Create a shell entry via the properties specification."""
+        res = Shell(name, description, updated, notes, None, None, None, None)
+        res.update_fields(properties)
+        return res
+
+    def _get_field(self, field):
+        """Get a value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            return self.hostname
+        if field == DOMAIN_FIELD:
+            return self.domain
+        if field == USERNAME_FIELD:
+            return self.username
+        if field == PASSWORD_FIELD:
+            return self.password
+        assert 0 and "Invalid Shell field!"
+        return None
+
+    def _set_field(self, field, value):
+        """Set a new value of a specified field."""
+        if field == HOSTNAME_FIELD:
+            self.hostname = value
+        elif field == DOMAIN_FIELD:
+            self.domain = value
+        elif field == USERNAME_FIELD:
+            self.username = value
+        elif field == PASSWORD_FIELD:
+            self.password = value
+        else:
+            assert 0 and "Invalid Shell field!"
+
+    def __str__(self, indent=""):
+        parent = super().inline_str()
+        return (indent + f"Shell({parent}, hostname={self.hostname}, "
+                f"domain={self.domain}, username={self.username}, "
+                f"password={self.password})")
+
+    def accept(self, visitor, single=False):  # pylint: disable=unused-argument
+        """Visit the shell entry."""
+        if hasattr(visitor, 'visit_shell'):
+            visitor.visit_shell(self)
         else:
             super().accept(visitor, single)
 
@@ -1305,8 +1305,8 @@ ENTRY_TYPES = (
     FTP,
     Generic,
     Phone,
-    Shell,
     RemoteDesktop,
+    Shell,
     VNC,
     Website,
 )

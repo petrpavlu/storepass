@@ -359,7 +359,7 @@ class TestStorage(util.StorePassTestCase):
             "Attribute '/revelationdata/entry[1]/@type' has unrecognized "
             "value 'invalid-type', expected one of: 'folder', 'creditcard', "
             "'cryptokey', 'database', 'door', 'email', 'ftp', 'generic', "
-            "'phone', 'shell', 'remotedesktop', 'vnc', 'website'")
+            "'phone', 'remotedesktop', 'shell', 'vnc', 'website'")
 
     def test_read_wrong_name_attribute(self):
         """Check rejection of a wrong <name> attribute."""
@@ -842,6 +842,44 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(child_0.phone_number, "E1 phone number")
         self.assertEqual(child_0.pin, "E1 PIN")
 
+    def test_read_remote_desktop_entry(self):
+        """Check parsing of a single remote-desktop entry."""
+        util.write_password_db(
+            self.dbname, DEFAULT_PASSWORD,
+            util.dedent('''\
+                <revelationdata dataversion="1">
+                \t<entry type="remotedesktop">
+                \t\t<name>E1 name</name>
+                \t\t<description>E1 description</description>
+                \t\t<updated>1546300800</updated>
+                \t\t<notes>E1 notes</notes>
+                \t\t<field id="generic-hostname">E1 hostname</field>
+                \t\t<field id="generic-port">E1 port</field>
+                \t\t<field id="generic-username">E1 username</field>
+                \t\t<field id="generic-password">E1 password</field>
+                \t</entry>
+                </revelationdata>
+                '''))
+
+        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
+        root = storage.read_tree()
+
+        self.assertIs(type(root), storepass.model.Root)
+        self.assertEqual(len(root.children), 1)
+
+        child_0 = root.children[0]
+        self.assertIs(type(child_0), storepass.model.RemoteDesktop)
+        self.assertEqual(child_0.name, "E1 name")
+        self.assertEqual(child_0.description, "E1 description")
+        self.assertEqual(
+            child_0.updated,
+            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
+        self.assertEqual(child_0.notes, "E1 notes")
+        self.assertEqual(child_0.hostname, "E1 hostname")
+        self.assertEqual(child_0.port, "E1 port")
+        self.assertEqual(child_0.username, "E1 username")
+        self.assertEqual(child_0.password, "E1 password")
+
     def test_read_shell_entry(self):
         """Check parsing of a single shell entry."""
         util.write_password_db(
@@ -877,44 +915,6 @@ class TestStorage(util.StorePassTestCase):
         self.assertEqual(child_0.notes, "E1 notes")
         self.assertEqual(child_0.hostname, "E1 hostname")
         self.assertEqual(child_0.domain, "E1 domain")
-        self.assertEqual(child_0.username, "E1 username")
-        self.assertEqual(child_0.password, "E1 password")
-
-    def test_read_remote_desktop_entry(self):
-        """Check parsing of a single remote desktop entry."""
-        util.write_password_db(
-            self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
-                <revelationdata dataversion="1">
-                \t<entry type="remotedesktop">
-                \t\t<name>E1 name</name>
-                \t\t<description>E1 description</description>
-                \t\t<updated>1546300800</updated>
-                \t\t<notes>E1 notes</notes>
-                \t\t<field id="generic-hostname">E1 hostname</field>
-                \t\t<field id="generic-port">E1 port</field>
-                \t\t<field id="generic-username">E1 username</field>
-                \t\t<field id="generic-password">E1 password</field>
-                \t</entry>
-                </revelationdata>
-                '''))
-
-        storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
-        root = storage.read_tree()
-
-        self.assertIs(type(root), storepass.model.Root)
-        self.assertEqual(len(root.children), 1)
-
-        child_0 = root.children[0]
-        self.assertIs(type(child_0), storepass.model.RemoteDesktop)
-        self.assertEqual(child_0.name, "E1 name")
-        self.assertEqual(child_0.description, "E1 description")
-        self.assertEqual(
-            child_0.updated,
-            datetime.datetime.fromtimestamp(1546300800, datetime.timezone.utc))
-        self.assertEqual(child_0.notes, "E1 notes")
-        self.assertEqual(child_0.hostname, "E1 hostname")
-        self.assertEqual(child_0.port, "E1 port")
         self.assertEqual(child_0.username, "E1 username")
         self.assertEqual(child_0.password, "E1 password")
 
