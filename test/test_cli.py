@@ -2680,27 +2680,6 @@ class TestCLI(util.StorePassTestCase):
                     Entry 'E1 name' is not empty and cannot be removed
                     """))
 
-        # Read the database and dump its XML content.
-        with cli_context(['storepass-cli', '-f', self.dbname,
-                          'dump']) as cli_mock:
-            cli_mock.getpass.return_value = DEFAULT_PASSWORD
-            res = storepass.cli.__main__.main()
-            self.assertEqual(res, 0)
-            cli_mock.getpass.assert_called_once()
-            self.assertEqual(
-                cli_mock.stdout.getvalue(),
-                util.dedent("""\
-                    <revelationdata dataversion="1">
-                    \t<entry type="folder">
-                    \t\t<name>E1 name</name>
-                    \t\t<entry type="generic">
-                    \t\t\t<name>E2 name</name>
-                    \t\t</entry>
-                    \t</entry>
-                    </revelationdata>
-                    """))
-            self.assertEqual(cli_mock.stderr.getvalue(), "")
-
     def test_list(self):
         """Check that a single entry is listed correctly."""
         # Create a test database.
