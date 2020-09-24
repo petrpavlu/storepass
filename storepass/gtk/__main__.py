@@ -812,25 +812,26 @@ class _MainWindow(Gtk.ApplicationWindow):
 
             for field in entry.entry_fields:
                 value = entry.properties[field]
-                if value is not None:
-                    property_xml = importlib.resources.read_text(
-                        'storepass.gtk.resources', 'view_property_widgets.ui')
-                    builder = Gtk.Builder.new_from_string(property_xml, -1)
+                if value is None:
+                    continue
 
-                    property_box = builder.get_object('property_box')
-                    self._details_box.add(property_box)
-                    self._details_box.reorder_child(property_box, insert_at)
+                property_xml = importlib.resources.read_text(
+                    'storepass.gtk.resources', 'view_property_widgets.ui')
+                builder = Gtk.Builder.new_from_string(property_xml, -1)
 
-                    property_name_label = builder.get_object(
-                        'property_name_label')
-                    property_name_label.set_text(f"{field.label}: ")
+                property_box = builder.get_object('property_box')
+                self._details_box.add(property_box)
+                self._details_box.reorder_child(property_box, insert_at)
 
-                    property_value_label = builder.get_object(
-                        'property_value_label')
-                    property_value_label.set_text(value)
+                property_name_label = builder.get_object('property_name_label')
+                property_name_label.set_text(f"{field.label}: ")
 
-                    self._property_boxes.append(property_box)
-                    insert_at += 1
+                property_value_label = builder.get_object(
+                    'property_value_label')
+                property_value_label.set_text(value)
+
+                self._property_boxes.append(property_box)
+                insert_at += 1
 
         # Process the entry's notes.
         if entry is not None and isinstance(entry, storepass.model.Entry):
