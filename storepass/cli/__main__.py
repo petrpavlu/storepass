@@ -12,7 +12,7 @@ import sys
 import storepass.exc
 import storepass.model
 import storepass.storage
-import storepass.util
+import storepass.utils
 from storepass.cli import view
 
 _logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class _EntryGenerator:
 
     def _normalize_argument(self, value):
         """Normalize an argument value to None if it is an empty string."""
-        return storepass.util.normalize_empty_to_none(value)
+        return storepass.utils.normalize_empty_to_none(value)
 
     def _update_property(self, field, value):
         """Update the value of a specified property."""
@@ -74,7 +74,7 @@ class _EntryGenerator:
             self._update_property(field, self._normalize_argument(value))
 
         # Finally, set the updated timestamp.
-        self.updated = storepass.util.get_current_datetime()
+        self.updated = storepass.utils.get_current_datetime()
 
     def get_entry(self):
         """Obtain a new entry based on the set properties."""

@@ -28,7 +28,7 @@ def escape_bytes(bytes_):
 
     Convert bytes to an ASCII string. Non-printable characters and a single
     quote (') are escaped. This allows to format bytes in messages as
-    f"b'{util.escape_bytes(bytes)}'".
+    f"b'{utils.escape_bytes(bytes)}'".
     """
     res = ""
     for byte in bytes_:

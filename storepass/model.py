@@ -55,7 +55,7 @@ import enum
 import logging
 
 import storepass.exc
-import storepass.util
+import storepass.utils
 
 _logger = logging.getLogger(__name__)
 
@@ -372,22 +372,22 @@ class Entry:
     _entry_fields = ()
     _storage_id = 'entry'
 
-    @storepass.util.classproperty
+    @storepass.utils.classproperty
     def entry_type_name(cls):  # pylint: disable=no-self-argument
         """Obtain the entry type name."""
         return cls._entry_type_name
 
-    @storepass.util.classproperty
+    @storepass.utils.classproperty
     def entry_label(cls):  # pylint: disable=no-self-argument
         """Obtain the entry's label."""
         return cls._entry_label
 
-    @storepass.util.classproperty
+    @storepass.utils.classproperty
     def entry_fields(cls):  # pylint: disable=no-self-argument
         """Obtain fields that are valid for the entry."""
         return cls._entry_fields
 
-    @storepass.util.classproperty
+    @storepass.utils.classproperty
     def storage_id(cls):  # pylint: disable=no-self-argument
         """Obtain entry's storage ID."""
         return cls._storage_id

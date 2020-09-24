@@ -10,16 +10,16 @@ import stat
 import storepass.exc
 import storepass.model
 import storepass.storage
-from . import util
+from . import utils
 
 DEFAULT_PASSWORD = 'qwerty'
 
 
-class TestStorage(util.StorePassTestCase):
+class TestStorage(utils.StorePassTestCase):
     """Tests for the storage module."""
     def test_read_plain(self):
         """Check that the plain reader can output raw database content."""
-        util.write_password_db(self.dbname, DEFAULT_PASSWORD, 'RAW CONTENT')
+        utils.write_password_db(self.dbname, DEFAULT_PASSWORD, 'RAW CONTENT')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         data = storage.read_plain()
@@ -34,7 +34,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_header_size_min(self):
         """Check rejection of an incomplete header (minimum case)."""
-        util.write_file(self.dbname, b'')
+        utils.write_file(self.dbname, b'')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -45,8 +45,8 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_header_size_max(self):
         """Check rejection of an incomplete header (maximum case)."""
-        util.write_file(self.dbname,
-                        b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
+        utils.write_file(self.dbname,
+                         b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -57,8 +57,8 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_salt_size_min(self):
         """Check rejection of incomplete salt data (minimum case)."""
-        util.write_file(self.dbname,
-                        b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
+        utils.write_file(self.dbname,
+                         b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -69,7 +69,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_salt_size_max(self):
         """Check rejection of incomplete salt data (maximum case)."""
-        util.write_file(
+        utils.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12')
@@ -83,7 +83,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_init_size_min(self):
         """Check rejection of an incomplete init vector (minimum case)."""
-        util.write_file(
+        utils.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13')
@@ -98,7 +98,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_init_size_max(self):
         """Check rejection of an incomplete init vector (maximum case)."""
-        util.write_file(
+        utils.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -114,7 +114,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_encrypted_alignment(self):
         """Check rejection of misaligned encrypted data."""
-        util.write_file(
+        utils.write_file(
             self.dbname,
             b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -129,7 +129,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_header_magic(self):
         """Check rejection of an invalid magic number in a file header."""
-        util.write_file(
+        utils.write_file(
             self.dbname,
             b'\xff\xff\xff\xff\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -145,7 +145,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_header_version(self):
         """Check rejection of an unsupported verion number in a file header."""
-        util.write_file(
+        utils.write_file(
             self.dbname,
             b'rvl\x00\xff\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -161,7 +161,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_header_padding(self):
         """Check rejection of a wrong pad at bytes [5:6) in a file header."""
-        util.write_file(
+        utils.write_file(
             self.dbname,
             b'rvl\x00\x02\xff\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -176,7 +176,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_header_padding2(self):
         """Check rejection of a wrong pad at bytes [9:12) in a file header."""
-        util.write_file(
+        utils.write_file(
             self.dbname,
             b'rvl\x00\x02\x00\x06\x07\x08\xff\xff\xff\x0c\x0d\x0e\x0f'
             b'\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
@@ -192,7 +192,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_password(self):
         """Check rejection of a wrong database password."""
-        util.write_password_db(self.dbname, 'a', 'RAW CONTENT')
+        utils.write_password_db(self.dbname, 'a', 'RAW CONTENT')
 
         storage = storepass.storage.Storage(self.dbname, 'b')
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -201,10 +201,10 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_no_compressed_data(self):
         """Check rejection of compressed data with zero size."""
-        util.write_password_db(self.dbname,
-                               DEFAULT_PASSWORD,
-                               '',
-                               compress=False)
+        utils.write_password_db(self.dbname,
+                                DEFAULT_PASSWORD,
+                                '',
+                                compress=False)
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -213,7 +213,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_padding_length(self):
         """Check rejection of a wrong padding length for compressed data."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
             '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x11',
@@ -229,7 +229,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_padding_bytes(self):
         """Check rejection of a wrong padding content for compressed data."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
             '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x02',
@@ -245,7 +245,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_compression(self):
         """Check rejection of wrongly compressed data."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname,
             DEFAULT_PASSWORD,
             '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x01',
@@ -260,7 +260,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_utf8(self):
         """Check rejection of wrongly encoded data."""
-        util.write_password_db(self.dbname, DEFAULT_PASSWORD, b'\xff')
+        utils.write_password_db(self.dbname, DEFAULT_PASSWORD, b'\xff')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -272,7 +272,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_xml(self):
         """Check rejection of not well-formed XML."""
-        util.write_password_db(self.dbname, DEFAULT_PASSWORD, '</xml>')
+        utils.write_password_db(self.dbname, DEFAULT_PASSWORD, '</xml>')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -284,7 +284,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_root_element(self):
         """Check rejection of a wrong root element."""
-        util.write_password_db(self.dbname, DEFAULT_PASSWORD, '<data/>')
+        utils.write_password_db(self.dbname, DEFAULT_PASSWORD, '<data/>')
 
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         with self.assertRaises(storepass.exc.StorageReadException) as cm:
@@ -295,7 +295,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_root_attribute(self):
         """Check rejection of a wrong <revelationdata> attribute."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             '<revelationdata invalid-attr="invalid-value"></revelationdata>')
 
@@ -309,7 +309,7 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_root_dataversion(self):
         """Check rejection of an unexpected 'dataversion' attribute."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
             '<revelationdata dataversion="2"></revelationdata>')
 
@@ -323,9 +323,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_entry_attribute(self):
         """Check rejection of a wrong <entry> attribute."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry invalid-attr="invalid-value">
                 \t</entry>
@@ -342,9 +342,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_entry_type(self):
         """Check rejection of a wrong <entry> type."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="invalid-type">
                 \t</entry>
@@ -363,9 +363,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_name_attribute(self):
         """Check rejection of a wrong <name> attribute."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name invalid-attribute="invalid-value">E1</name>
@@ -383,9 +383,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_name_value(self):
         """Check rejection of an empty <name> value."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name></name>
@@ -404,9 +404,9 @@ class TestStorage(util.StorePassTestCase):
     def test_read_wrong_updated_value(self):
         """Check rejection of invalid <updated> values."""
         # Empty value is rejected.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<updated></updated>
@@ -423,9 +423,9 @@ class TestStorage(util.StorePassTestCase):
             "string is empty")
 
         # Non-digit value is rejected.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<updated>invalid-value</updated>
@@ -442,9 +442,9 @@ class TestStorage(util.StorePassTestCase):
             "'invalid-value': string contains a non-digit character")
 
         # Negative value is rejected.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<updated>-1</updated>
@@ -461,9 +461,9 @@ class TestStorage(util.StorePassTestCase):
             "'-1': string contains a non-digit character")
 
         # Overflow value is rejected.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<updated>100020003000400050006000700090000000</updated>
@@ -482,9 +482,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_folder_entry(self):
         """Check parsing of a single folder entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -512,9 +512,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_folder_entry_property(self):
         """Check rejection of a wrong property element for a folder entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<invalid-property>invalid-value</invalid-property>
@@ -531,9 +531,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_folder_no_name(self):
         """Check rejection of a folder entry with no name."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t</entry>
@@ -548,9 +548,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_credit_card_entry(self):
         """Check parsing of a single credit-card entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="creditcard">
                 \t\t<name>E1 name</name>
@@ -588,9 +588,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_crypto_key_entry(self):
         """Check parsing of a single crypto-key entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="cryptokey">
                 \t\t<name>E1 name</name>
@@ -626,9 +626,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_database_entry(self):
         """Check parsing of a single database entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="database">
                 \t\t<name>E1 name</name>
@@ -664,9 +664,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_door_entry(self):
         """Check parsing of a single door entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="door">
                 \t\t<name>E1 name</name>
@@ -698,9 +698,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_email_entry(self):
         """Check parsing of a single email entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="email">
                 \t\t<name>E1 name</name>
@@ -736,9 +736,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_ftp_entry(self):
         """Check parsing of a single FTP entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="ftp">
                 \t\t<name>E1 name</name>
@@ -774,9 +774,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_generic_entry(self):
         """Check parsing of a single generic entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -810,9 +810,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_phone_entry(self):
         """Check parsing of a single phone entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="phone">
                 \t\t<name>E1 name</name>
@@ -844,9 +844,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_remote_desktop_entry(self):
         """Check parsing of a single remote-desktop entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="remotedesktop">
                 \t\t<name>E1 name</name>
@@ -882,9 +882,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_shell_entry(self):
         """Check parsing of a single shell entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="shell">
                 \t\t<name>E1 name</name>
@@ -920,9 +920,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_vnc_entry(self):
         """Check parsing of a single VNC entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="vnc">
                 \t\t<name>E1 name</name>
@@ -958,9 +958,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_website_entry(self):
         """Check parsing of a single website entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="website">
                 \t\t<name>E1 name</name>
@@ -996,9 +996,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_account_entry_property(self):
         """Check rejection of a wrong property element for an account entry."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<invalid-property>invalid-value</invalid-property>
@@ -1015,9 +1015,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_account_no_name(self):
         """Check rejection of an account entry with no name."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t</entry>
@@ -1032,9 +1032,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_account_field_attribute(self):
         """Check rejection of a wrong account-entry <field> attribute."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<field invalid-attribute="invalid-value">E1 field</field>
@@ -1052,9 +1052,9 @@ class TestStorage(util.StorePassTestCase):
 
     def test_read_wrong_account_field_id(self):
         """Check rejection of a wrong account-entry <field> id attribute."""
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<field id="invalid-id">E1 field</field>
@@ -1076,7 +1076,7 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         storage.write_plain('RAW CONTENT')
 
-        data = util.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
+        data = utils.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
         self.assertEqual(data, 'RAW CONTENT')
 
     def test_write_permissions(self):
@@ -1115,10 +1115,10 @@ class TestStorage(util.StorePassTestCase):
         storage = storepass.storage.Storage(self.dbname, DEFAULT_PASSWORD)
         storage.write_tree(root)
 
-        data = util.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
+        data = utils.read_password_db(self.dbname, DEFAULT_PASSWORD, self)
         self.assertEqual(
             data,
-            util.dedent('''\
+            utils.dedent('''\
                 <?xml version='1.0' encoding='UTF-8'?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">

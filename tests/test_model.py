@@ -4,10 +4,10 @@
 """Tests for the model module."""
 
 import storepass.model
-from . import util
+from . import utils
 
 
-class TestModel(util.StorePassTestCase):
+class TestModel(utils.StorePassTestCase):
     """Tests for the model module."""
     def test_path_string_to_spec(self):
         """Check the behaviour of path_string_to_spec()."""

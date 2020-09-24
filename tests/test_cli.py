@@ -10,7 +10,7 @@ import time
 import unittest.mock
 
 import storepass.cli.__main__
-from . import util
+from . import utils
 
 DEFAULT_PASSWORD = 'qwerty'
 
@@ -51,7 +51,7 @@ def cli_context(args, timezone=None):
             time.tzset()
 
 
-class TestCLI(util.StorePassTestCase):
+class TestCLI(utils.StorePassTestCase):
     """End-to-end command-line tests."""
     def _init_database(self, filename):
         """Create a new empty password database."""
@@ -73,7 +73,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_not_called()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |usage: storepass-cli [-h] [-f PASSDB] [-v]
                     |                     {init,list,show,add,edit,delete,dump} ...
                     |
@@ -98,7 +98,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_not_called()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |usage: storepass-cli add [-h]
                     |                         [--type {folder,credit-card,crypto-key,database,door,email,ftp,generic,phone,remote-desktop,shell,vnc,website}]
                     |                         [--description DESC] [--notes NOTES]
@@ -173,7 +173,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Failed to load password database \'missing.db\': [Errno 2] No such file or directory: \'missing.db\'
                     """))
 
@@ -198,7 +198,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     <?xml version='1.0' encoding='UTF-8'?>
                     <revelationdata dataversion="1" />
                     """))
@@ -217,7 +217,7 @@ class TestCLI(util.StorePassTestCase):
     def test_init_overwrite(self):
         """Check that the init command does not overwrite an existing file."""
         # Write an empty password database.
-        util.write_file(self.dbname, b'')
+        utils.write_file(self.dbname, b'')
 
         # Check that trying to create a password database with the same name is
         # sensibly rejected.
@@ -230,7 +230,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertRegex(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Failed to save password database '.*': \\[Errno 17\\] File exists: '.*'
                     """))
 
@@ -259,7 +259,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
@@ -320,7 +320,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
@@ -355,7 +355,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Entry 'E1 name' (element #1 in 'E1 name') does not exist
                     """))
 
@@ -386,7 +386,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Entry 'E1 name' already exists
                     """))
 
@@ -405,7 +405,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Specified entry name is empty
                     """))
 
@@ -436,7 +436,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
@@ -471,7 +471,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'folder'
                     Property 'card-type' is not valid for entry type 'folder'
                     Property 'ccv' is not valid for entry type 'folder'
@@ -521,7 +521,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="creditcard">
@@ -561,7 +561,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'certificate' is not valid for entry type 'credit-card'
                     Property 'code' is not valid for entry type 'credit-card'
                     Property 'database' is not valid for entry type 'credit-card'
@@ -606,7 +606,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="cryptokey">
@@ -645,7 +645,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'crypto-key'
                     Property 'card-type' is not valid for entry type 'crypto-key'
                     Property 'ccv' is not valid for entry type 'crypto-key'
@@ -691,7 +691,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="database">
@@ -730,7 +730,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'database'
                     Property 'card-type' is not valid for entry type 'database'
                     Property 'ccv' is not valid for entry type 'database'
@@ -774,7 +774,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="door">
@@ -811,7 +811,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'door'
                     Property 'card-type' is not valid for entry type 'door'
                     Property 'ccv' is not valid for entry type 'door'
@@ -858,7 +858,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="email">
@@ -897,7 +897,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'email'
                     Property 'card-type' is not valid for entry type 'email'
                     Property 'ccv' is not valid for entry type 'email'
@@ -942,7 +942,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="ftp">
@@ -981,7 +981,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'ftp'
                     Property 'card-type' is not valid for entry type 'ftp'
                     Property 'ccv' is not valid for entry type 'ftp'
@@ -1026,7 +1026,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
@@ -1064,7 +1064,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'generic'
                     Property 'card-type' is not valid for entry type 'generic'
                     Property 'ccv' is not valid for entry type 'generic'
@@ -1110,7 +1110,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="phone">
@@ -1147,7 +1147,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'phone'
                     Property 'card-type' is not valid for entry type 'phone'
                     Property 'ccv' is not valid for entry type 'phone'
@@ -1194,7 +1194,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="remotedesktop">
@@ -1233,7 +1233,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'remote-desktop'
                     Property 'card-type' is not valid for entry type 'remote-desktop'
                     Property 'ccv' is not valid for entry type 'remote-desktop'
@@ -1278,7 +1278,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="shell">
@@ -1317,7 +1317,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'shell'
                     Property 'card-type' is not valid for entry type 'shell'
                     Property 'ccv' is not valid for entry type 'shell'
@@ -1362,7 +1362,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="vnc">
@@ -1401,7 +1401,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'vnc'
                     Property 'card-type' is not valid for entry type 'vnc'
                     Property 'ccv' is not valid for entry type 'vnc'
@@ -1446,7 +1446,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="website">
@@ -1485,7 +1485,7 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'card-number' is not valid for entry type 'website'
                     Property 'card-type' is not valid for entry type 'website'
                     Property 'ccv' is not valid for entry type 'website'
@@ -1505,9 +1505,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit(self):
         """Check that a single entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -1537,7 +1537,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
@@ -1565,16 +1565,16 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Entry 'E1 name' (element #1 in 'E1 name/E2 name') does not exist
                     """))
 
     def test_edit_reset(self):
         """Check that an entry property can be fully cleaned in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -1608,7 +1608,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
@@ -1623,9 +1623,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_type(self):
         """Check that a type of an entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -1666,7 +1666,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="website">
@@ -1698,16 +1698,16 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Property 'password' is not valid for entry type 'folder'
                     """))
 
     def test_edit_type_empty_folder(self):
         """Check that an empty folder can be changed to a different type."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -1736,7 +1736,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
@@ -1751,9 +1751,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_type_non_empty_folder(self):
         """Check rejection of changing a non-empty folder to another type."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -1776,16 +1776,16 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Entry 'E1 name' is not empty and cannot be replaced by a non-folder type
                     """))
 
     def test_edit_folder(self):
         """Check that a folder entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -1816,7 +1816,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
@@ -1832,9 +1832,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_credit_card(self):
         """Check that a credit-card entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="creditcard">
                 \t\t<name>E1 name</name>
@@ -1873,7 +1873,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="creditcard">
@@ -1894,9 +1894,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_crypto_key(self):
         """Check that a crypto-key entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="cryptokey">
                 \t\t<name>E1 name</name>
@@ -1933,7 +1933,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="cryptokey">
@@ -1953,9 +1953,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_database(self):
         """Check that a database entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="database">
                 \t\t<name>E1 name</name>
@@ -1992,7 +1992,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="database">
@@ -2012,9 +2012,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_door(self):
         """Check that a door entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="door">
                 \t\t<name>E1 name</name>
@@ -2048,7 +2048,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="door">
@@ -2066,9 +2066,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_email(self):
         """Check that an email entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="email">
                 \t\t<name>E1 name</name>
@@ -2105,7 +2105,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="email">
@@ -2125,9 +2125,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_ftp(self):
         """Check that an FTP entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="ftp">
                 \t\t<name>E1 name</name>
@@ -2164,7 +2164,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="ftp">
@@ -2184,9 +2184,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_generic(self):
         """Check that a generic entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -2222,7 +2222,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="generic">
@@ -2241,9 +2241,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_phone(self):
         """Check that a phone entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="phone">
                 \t\t<name>E1 name</name>
@@ -2277,7 +2277,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="phone">
@@ -2295,9 +2295,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_remote_desktop(self):
         """Check that a remote-desktop entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="remotedesktop">
                 \t\t<name>E1 name</name>
@@ -2334,7 +2334,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="remotedesktop">
@@ -2354,9 +2354,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_shell(self):
         """Check that a shell entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="shell">
                 \t\t<name>E1 name</name>
@@ -2393,7 +2393,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="shell">
@@ -2413,9 +2413,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_vnc(self):
         """Check that a VNC entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="vnc">
                 \t\t<name>E1 name</name>
@@ -2452,7 +2452,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="vnc">
@@ -2472,9 +2472,9 @@ class TestCLI(util.StorePassTestCase):
     def test_edit_website(self):
         """Check that a website entry can be edited in a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="website">
                 \t\t<name>E1 name</name>
@@ -2511,7 +2511,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertRegex(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     ^<\\?xml version='1\\.0' encoding='UTF-8'\\?>
                     <revelationdata dataversion="1">
                     \t<entry type="website">
@@ -2531,9 +2531,9 @@ class TestCLI(util.StorePassTestCase):
     def test_delete(self):
         """Check that an entry can be deleted from a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <?xml version='1.0' encoding='UTF-8'?>
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
@@ -2562,7 +2562,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     <?xml version='1.0' encoding='UTF-8'?>
                     <revelationdata dataversion="1" />
                     """))
@@ -2571,9 +2571,9 @@ class TestCLI(util.StorePassTestCase):
     def test_delete_nested(self):
         """Check that nested entries can be deleted from a database."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -2619,7 +2619,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     <?xml version='1.0' encoding='UTF-8'?>
                     <revelationdata dataversion="1">
                     \t<entry type="folder">
@@ -2645,16 +2645,16 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Entry 'E1 name' (element #1 in 'E1 name/E2 name') does not exist
                     """))
 
     def test_delete_non_empty(self):
         """Check rejection to delete a non-empty folder."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -2676,16 +2676,16 @@ class TestCLI(util.StorePassTestCase):
             self.assertEqual(cli_mock.stdout.getvalue(), "")
             self.assertEqual(
                 cli_mock.stderr.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     Entry 'E1 name' is not empty and cannot be removed
                     """))
 
     def test_list(self):
         """Check that a single entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -2702,7 +2702,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -2710,9 +2710,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_nested(self):
         """Check that nested entries are listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -2738,7 +2738,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name
                     |  + E2 name
                     |    - E3 name
@@ -2749,9 +2749,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_folder(self):
         """Check that a folder entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -2771,7 +2771,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     + E1 name: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -2779,9 +2779,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_credit_card(self):
         """Check that a credit-card entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="creditcard">
                 \t\t<name>E1 name</name>
@@ -2806,7 +2806,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -2814,9 +2814,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_crypto_key(self):
         """Check that a crypto-key entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="cryptokey">
                 \t\t<name>E1 name</name>
@@ -2840,7 +2840,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name [E1 hostname]: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -2848,9 +2848,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_database(self):
         """Check that a database entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="database">
                 \t\t<name>E1 name</name>
@@ -2874,7 +2874,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name [E1 hostname]: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -2882,9 +2882,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_door(self):
         """Check that a door entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="door">
                 \t\t<name>E1 name</name>
@@ -2906,7 +2906,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -2914,9 +2914,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_email(self):
         """Check that an email entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="email">
                 \t\t<name>E1 name</name>
@@ -2940,7 +2940,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name [E1 hostname]: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -2948,9 +2948,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_ftp(self):
         """Check that an FTP entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="ftp">
                 \t\t<name>E1 name</name>
@@ -2974,7 +2974,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name [E1 hostname]: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -2982,9 +2982,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_generic(self):
         """Check that a generic entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -3007,7 +3007,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name [E1 hostname]: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3015,9 +3015,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_phone(self):
         """Check that a phone entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="phone">
                 \t\t<name>E1 name</name>
@@ -3039,7 +3039,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3047,9 +3047,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_remote_desktop(self):
         """Check that a remote-desktop entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="remotedesktop">
                 \t\t<name>E1 name</name>
@@ -3073,7 +3073,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name [E1 hostname]: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3081,9 +3081,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_shell(self):
         """Check that a shell entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="shell">
                 \t\t<name>E1 name</name>
@@ -3107,7 +3107,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name [E1 hostname]: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3115,9 +3115,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_vnc(self):
         """Check that a VNC entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="vnc">
                 \t\t<name>E1 name</name>
@@ -3141,7 +3141,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name [E1 hostname]: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3149,9 +3149,9 @@ class TestCLI(util.StorePassTestCase):
     def test_list_website(self):
         """Check that a website entry is listed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="website">
                 \t\t<name>E1 name</name>
@@ -3175,7 +3175,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     - E1 name [E1 URL]: E1 description
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3183,9 +3183,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show(self):
         """Check that details of a single entry are displayed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -3203,7 +3203,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     + E1 name (Generic)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3211,9 +3211,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_timezone(self):
         """Check that a date of the last change uses a configured timezone."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -3232,7 +3232,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Generic)
                     |  - Last modified: Tue Jan  1 00:00:00 2019 GMT
                     """))
@@ -3248,7 +3248,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Generic)
                     |  - Last modified: Tue Jan  1 01:00:00 2019 GMT
                     """))
@@ -3257,9 +3257,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_nested(self):
         """Check that nested entries are displayed correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -3286,7 +3286,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     + E1 name (Folder)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3300,7 +3300,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     + E1 name/E2 name (Folder)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3315,7 +3315,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     + E1 name/E2 name/E3 name (Generic)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3329,7 +3329,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent("""\
+                utils.dedent("""\
                     + E4 name (Folder)
                     """))
             self.assertEqual(cli_mock.stderr.getvalue(), "")
@@ -3337,9 +3337,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_folder(self):
         """Check that details of a folder entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="folder">
                 \t\t<name>E1 name</name>
@@ -3360,7 +3360,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Folder)
                     |  - Description: E1 description
                     |  - Notes: E1 notes
@@ -3371,9 +3371,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_credit_card(self):
         """Check that details of a credit-card entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="creditcard">
                 \t\t<name>E1 name</name>
@@ -3399,7 +3399,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Credit card)
                     |  - Description: E1 description
                     |  - Card type: E1 card type
@@ -3415,9 +3415,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_crypto_key(self):
         """Check that details of a crypto-key entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="cryptokey">
                 \t\t<name>E1 name</name>
@@ -3442,7 +3442,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Crypto key)
                     |  - Description: E1 description
                     |  - Hostname: E1 hostname
@@ -3457,9 +3457,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_database(self):
         """Check that details of a database entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="database">
                 \t\t<name>E1 name</name>
@@ -3484,7 +3484,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Database)
                     |  - Description: E1 description
                     |  - Hostname: E1 hostname
@@ -3499,9 +3499,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_door(self):
         """Check that details of a door entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="door">
                 \t\t<name>E1 name</name>
@@ -3524,7 +3524,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Door)
                     |  - Description: E1 description
                     |  - Location: E1 location
@@ -3537,9 +3537,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_email(self):
         """Check that details of an email entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="email">
                 \t\t<name>E1 name</name>
@@ -3564,7 +3564,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Email)
                     |  - Description: E1 description
                     |  - Email: E1 email
@@ -3579,9 +3579,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_ftp(self):
         """Check that details of an FTP entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="ftp">
                 \t\t<name>E1 name</name>
@@ -3606,7 +3606,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (FTP)
                     |  - Description: E1 description
                     |  - Hostname: E1 hostname
@@ -3621,9 +3621,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_generic(self):
         """Check that details of a generic entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="generic">
                 \t\t<name>E1 name</name>
@@ -3647,7 +3647,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Generic)
                     |  - Description: E1 description
                     |  - Hostname: E1 hostname
@@ -3661,9 +3661,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_phone(self):
         """Check that details of a phone entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="phone">
                 \t\t<name>E1 name</name>
@@ -3686,7 +3686,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Phone)
                     |  - Description: E1 description
                     |  - Phone number: E1 phone number
@@ -3699,9 +3699,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_remote_desktop(self):
         """Check that details of a remote-desktop entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="remotedesktop">
                 \t\t<name>E1 name</name>
@@ -3726,7 +3726,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Remote desktop)
                     |  - Description: E1 description
                     |  - Hostname: E1 hostname
@@ -3741,9 +3741,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_shell(self):
         """Check that details of a shell entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="shell">
                 \t\t<name>E1 name</name>
@@ -3768,7 +3768,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Shell)
                     |  - Description: E1 description
                     |  - Hostname: E1 hostname
@@ -3783,9 +3783,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_vnc(self):
         """Check that details of a VNC entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="vnc">
                 \t\t<name>E1 name</name>
@@ -3810,7 +3810,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (VNC)
                     |  - Description: E1 description
                     |  - Hostname: E1 hostname
@@ -3825,9 +3825,9 @@ class TestCLI(util.StorePassTestCase):
     def test_show_website(self):
         """Check that details of a website entry are shown correctly."""
         # Create a test database.
-        util.write_password_db(
+        utils.write_password_db(
             self.dbname, DEFAULT_PASSWORD,
-            util.dedent('''\
+            utils.dedent('''\
                 <revelationdata dataversion="1">
                 \t<entry type="website">
                 \t\t<name>E1 name</name>
@@ -3852,7 +3852,7 @@ class TestCLI(util.StorePassTestCase):
             cli_mock.getpass.assert_called_once()
             self.assertEqual(
                 cli_mock.stdout.getvalue(),
-                util.dedent2("""\
+                utils.dedent2("""\
                     |+ E1 name (Website)
                     |  - Description: E1 description
                     |  - URL: E1 URL

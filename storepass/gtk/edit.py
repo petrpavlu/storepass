@@ -12,8 +12,8 @@ from gi.repository import GObject
 from gi.repository import Gtk
 
 import storepass.model
-import storepass.util
-from storepass.gtk import util
+import storepass.utils
+from storepass.gtk import utils
 
 
 @Gtk.Template.from_string(
@@ -31,11 +31,11 @@ class EditDatabaseDialog(Gtk.Dialog):
         super().__init__(parent=parent_window)
 
         # Hint correct types to pylint.
-        self._password_entry = util.Hint.GtkEntry(self._password_entry)
+        self._password_entry = utils.Hint.GtkEntry(self._password_entry)
 
         # Initialize the dialog.
         self._password_entry.set_text(
-            storepass.util.normalize_none_to_empty(password))
+            storepass.utils.normalize_none_to_empty(password))
 
         self.connect('response', self._on_response)
 
@@ -51,8 +51,8 @@ class EditDatabaseDialog(Gtk.Dialog):
         # signal.
         self.stop_emission_by_name('response')
         self._password_entry.grab_focus()
-        util.show_error_dialog(self, "Invalid password",
-                               "Password cannot be empty.")
+        utils.show_error_dialog(self, "Invalid password",
+                                "Password cannot be empty.")
 
     def get_password(self):
         """Return a password input by the user."""
@@ -84,12 +84,12 @@ class EditFolderDialog(Gtk.Dialog):
         super().__init__(parent=parent_window)
 
         # Hint correct types to pylint.
-        self._modify_folder_label = util.Hint.GtkLabel(
+        self._modify_folder_label = utils.Hint.GtkLabel(
             self._modify_folder_label)
-        self._name_entry = util.Hint.GtkEntry(self._name_entry)
-        self._description_entry = util.Hint.GtkEntry(self._description_entry)
-        self._notes_text_view = util.Hint.GtkTextView(self._notes_text_view)
-        self._apply_button = util.Hint.GtkButton(self._apply_button)
+        self._name_entry = utils.Hint.GtkEntry(self._name_entry)
+        self._description_entry = utils.Hint.GtkEntry(self._description_entry)
+        self._notes_text_view = utils.Hint.GtkTextView(self._notes_text_view)
+        self._apply_button = utils.Hint.GtkButton(self._apply_button)
 
         # Initialize the dialog.
         if folder is not None:
@@ -99,9 +99,9 @@ class EditFolderDialog(Gtk.Dialog):
 
             self._name_entry.set_text(folder.name)
             self._description_entry.set_text(
-                storepass.util.normalize_none_to_empty(folder.description))
+                storepass.utils.normalize_none_to_empty(folder.description))
             self._notes_text_view.get_buffer().set_text(
-                storepass.util.normalize_none_to_empty(folder.notes))
+                storepass.utils.normalize_none_to_empty(folder.notes))
         else:
             self.set_title("Add Folder")
             self._modify_folder_label.set_text("Add Folder")
@@ -120,23 +120,23 @@ class EditFolderDialog(Gtk.Dialog):
         # Report an error about the empty name and stop the response signal.
         self.stop_emission_by_name('response')
         self._name_entry.grab_focus()
-        util.show_error_dialog(self, "Invalid folder name",
-                               "Name cannot be empty.")
+        utils.show_error_dialog(self, "Invalid folder name",
+                                "Name cannot be empty.")
 
     def get_entry(self):
         """Create a new folder based on the information input by the user."""
-        name = storepass.util.normalize_empty_to_none(
+        name = storepass.utils.normalize_empty_to_none(
             self._name_entry.get_text())
         assert name is not None
-        description = storepass.util.normalize_empty_to_none(
+        description = storepass.utils.normalize_empty_to_none(
             self._description_entry.get_text())
         text_buffer = self._notes_text_view.get_buffer()
         text = text_buffer.get_text(text_buffer.get_start_iter(),
                                     text_buffer.get_end_iter(), True)
-        notes = storepass.util.normalize_empty_to_none(text)
+        notes = storepass.utils.normalize_empty_to_none(text)
 
         return storepass.model.Folder(name, description,
-                                      storepass.util.get_current_datetime(),
+                                      storepass.utils.get_current_datetime(),
                                       notes, [])
 
 
@@ -188,15 +188,16 @@ class EditAccountDialog(Gtk.Dialog):
         super().__init__(parent=parent_window)
 
         # Hint correct types to pylint.
-        self._edit_grid = util.Hint.GtkGrid(self._edit_grid)
-        self._modify_account_label = util.Hint.GtkLabel(
+        self._edit_grid = utils.Hint.GtkGrid(self._edit_grid)
+        self._modify_account_label = utils.Hint.GtkLabel(
             self._modify_account_label)
-        self._name_entry = util.Hint.GtkEntry(self._name_entry)
-        self._description_entry = util.Hint.GtkEntry(self._description_entry)
-        self._notes_text_view = util.Hint.GtkTextView(self._notes_text_view)
-        self._type_combo_box = util.Hint.GtkComboBox(self._type_combo_box)
-        self._account_data_label = util.Hint.GtkLabel(self._account_data_label)
-        self._apply_button = util.Hint.GtkButton(self._apply_button)
+        self._name_entry = utils.Hint.GtkEntry(self._name_entry)
+        self._description_entry = utils.Hint.GtkEntry(self._description_entry)
+        self._notes_text_view = utils.Hint.GtkTextView(self._notes_text_view)
+        self._type_combo_box = utils.Hint.GtkComboBox(self._type_combo_box)
+        self._account_data_label = utils.Hint.GtkLabel(
+            self._account_data_label)
+        self._apply_button = utils.Hint.GtkButton(self._apply_button)
 
         # Initialize the property value and widget recorders.
         self._properties = {}
@@ -220,9 +221,9 @@ class EditAccountDialog(Gtk.Dialog):
 
             self._name_entry.set_text(account.name)
             self._description_entry.set_text(
-                storepass.util.normalize_none_to_empty(account.description))
+                storepass.utils.normalize_none_to_empty(account.description))
             self._notes_text_view.get_buffer().set_text(
-                storepass.util.normalize_none_to_empty(account.notes))
+                storepass.utils.normalize_none_to_empty(account.notes))
             self._set_properties_from_entry(account)
 
             self._set_selected_type(type(account))
@@ -266,7 +267,7 @@ class EditAccountDialog(Gtk.Dialog):
     def _set_properties_from_widgets(self):
         """Update properties from currently displayed property widgets."""
         for property_widget in self._property_widgets:
-            value = storepass.util.normalize_empty_to_none(
+            value = storepass.utils.normalize_empty_to_none(
                 property_widget.value_entry.get_text())
             self._update_property(property_widget.field, value)
 
@@ -311,7 +312,7 @@ class EditAccountDialog(Gtk.Dialog):
                 value_entry.set_input_purpose(Gtk.InputPurpose.PASSWORD)
             if field in self._properties:
                 value_entry.set_text(
-                    storepass.util.normalize_none_to_empty(
+                    storepass.utils.normalize_none_to_empty(
                         self._properties[field]))
             self._edit_grid.attach(value_entry, 1, insert_at, 1, 1)
 
@@ -330,22 +331,22 @@ class EditAccountDialog(Gtk.Dialog):
         # Report an error about the empty name and stop the response signal.
         self.stop_emission_by_name('response')
         self._name_entry.grab_focus()
-        util.show_error_dialog(self, "Invalid account name",
-                               "Name cannot be empty.")
+        utils.show_error_dialog(self, "Invalid account name",
+                                "Name cannot be empty.")
 
     def get_entry(self):
         """Create a new account based on the information input by the user."""
         # Get common properties.
-        name = storepass.util.normalize_empty_to_none(
+        name = storepass.utils.normalize_empty_to_none(
             self._name_entry.get_text())
         assert name is not None
-        description = storepass.util.normalize_empty_to_none(
+        description = storepass.utils.normalize_empty_to_none(
             self._description_entry.get_text())
-        updated = storepass.util.get_current_datetime()
+        updated = storepass.utils.get_current_datetime()
         text_buffer = self._notes_text_view.get_buffer()
         text = text_buffer.get_text(text_buffer.get_start_iter(),
                                     text_buffer.get_end_iter(), True)
-        notes = storepass.util.normalize_empty_to_none(text)
+        notes = storepass.utils.normalize_empty_to_none(text)
 
         # Save properties from the current property entries.
         self._set_properties_from_widgets()

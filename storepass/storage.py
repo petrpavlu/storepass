@@ -27,7 +27,7 @@ import Crypto.Cipher.AES
 
 import storepass.exc
 import storepass.model
-import storepass.util
+import storepass.utils
 
 _logger = logging.getLogger(__name__)
 
@@ -388,20 +388,20 @@ class Storage:
         if header[:4] != b'rvl\x00':
             raise storepass.exc.StorageReadException(
                 f"Invalid magic number, expected b'rvl\\x00' but found "
-                f"b'{storepass.util.escape_bytes(header[0:4])}'")
+                f"b'{storepass.utils.escape_bytes(header[0:4])}'")
         if header[4:5] != b'\x02':
             raise storepass.exc.StorageReadException(
                 f"Unsupported envelope data version, expected b'2' but found "
-                f"b'{storepass.util.escape_bytes(header[4:5])}'")
+                f"b'{storepass.utils.escape_bytes(header[4:5])}'")
         if header[5:6] != b'\x00':
             raise storepass.exc.StorageReadException(
                 f"Non-zero header padding at bytes [5:6), found "
-                f"b'{storepass.util.escape_bytes(header[5:6])}'")
+                f"b'{storepass.utils.escape_bytes(header[5:6])}'")
         # Ignore app version at header[6:9].
         if header[9:] != b'\x00\x00\x00':
             raise storepass.exc.StorageReadException(
                 f"Non-zero header padding at bytes [9:12), found "
-                f"b'{storepass.util.escape_bytes(header[9:])}'")
+                f"b'{storepass.utils.escape_bytes(header[9:])}'")
 
     def read_plain(self, raw_bytes=False):
         """

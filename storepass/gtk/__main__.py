@@ -27,7 +27,7 @@ import storepass.exc
 import storepass.model
 import storepass.storage
 from storepass.gtk import edit
-from storepass.gtk import util
+from storepass.gtk import utils
 
 
 @Gtk.Template.from_string(
@@ -45,7 +45,7 @@ class _PasswordDialog(Gtk.Dialog):
         super().__init__(parent=parent_window)
 
         # Hint correct types to pylint.
-        self._password_entry = util.Hint.GtkEntry(self._password_entry)
+        self._password_entry = utils.Hint.GtkEntry(self._password_entry)
 
     def get_password(self):
         """Return a password input by the user."""
@@ -163,27 +163,28 @@ class _MainWindow(Gtk.ApplicationWindow):
         super().__init__(application=application)
 
         # Hint correct types to pylint.
-        self._entries_tree_view = util.Hint.GtkTreeView(
+        self._entries_tree_view = utils.Hint.GtkTreeView(
             self._entries_tree_view)
-        self._entries_tree_view_column = util.Hint.GtkTreeViewColumn(
+        self._entries_tree_view_column = utils.Hint.GtkTreeViewColumn(
             self._entries_tree_view_column)
         self._entries_tree_view_icon_renderer = \
-            util.Hint.GtkCellRendererPixbuf(
+            utils.Hint.GtkCellRendererPixbuf(
                 self._entries_tree_view_icon_renderer)
-        self._details_box = util.Hint.GtkBox(self._details_box)
-        self._db_filename_box = util.Hint.GtkBox(self._db_filename_box)
-        self._db_filename_label = util.Hint.GtkLabel(self._db_filename_label)
-        self._entry_name_type_box = util.Hint.GtkBox(self._entry_name_type_box)
-        self._entry_name_type_label = util.Hint.GtkLabel(
+        self._details_box = utils.Hint.GtkBox(self._details_box)
+        self._db_filename_box = utils.Hint.GtkBox(self._db_filename_box)
+        self._db_filename_label = utils.Hint.GtkLabel(self._db_filename_label)
+        self._entry_name_type_box = utils.Hint.GtkBox(
+            self._entry_name_type_box)
+        self._entry_name_type_label = utils.Hint.GtkLabel(
             self._entry_name_type_label)
-        self._entry_description_box = util.Hint.GtkBox(
+        self._entry_description_box = utils.Hint.GtkBox(
             self._entry_description_box)
-        self._entry_description_label = util.Hint.GtkLabel(
+        self._entry_description_label = utils.Hint.GtkLabel(
             self._entry_description_label)
-        self._entry_notes_box = util.Hint.GtkBox(self._entry_notes_box)
-        self._entry_notes_label = util.Hint.GtkLabel(self._entry_notes_label)
-        self._entry_updated_box = util.Hint.GtkBox(self._entry_updated_box)
-        self._entry_updated_label = util.Hint.GtkLabel(
+        self._entry_notes_box = utils.Hint.GtkBox(self._entry_notes_box)
+        self._entry_notes_label = utils.Hint.GtkLabel(self._entry_notes_label)
+        self._entry_updated_box = utils.Hint.GtkBox(self._entry_updated_box)
+        self._entry_updated_label = utils.Hint.GtkLabel(
             self._entry_updated_label)
 
         # Initialize a list to record dynamically created property widgets.
@@ -446,7 +447,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         try:
             self._model.move_entry(source_entry, dest_entry)
         except storepass.exc.ModelException as e:
-            util.show_error_dialog(self, "Error moving entry", f"{e}.")
+            utils.show_error_dialog(self, "Error moving entry", f"{e}.")
             return False
 
         # Update the GTK model.
@@ -624,7 +625,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         try:
             model.load(storage)
         except storepass.exc.StorageReadException as e:
-            util.show_error_dialog(
+            utils.show_error_dialog(
                 self, "Error loading password database",
                 f"Failed to load password database '{filename}': {e}.")
             return
@@ -643,7 +644,7 @@ class _MainWindow(Gtk.ApplicationWindow):
             self._model.save(self._storage)
         except storepass.exc.StorageWriteException as e:
             filename = self._storage.filename
-            util.show_error_dialog(
+            utils.show_error_dialog(
                 self, "Error saving password database",
                 f"Failed to save password database '{filename}': {e}.")
             return
@@ -737,7 +738,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         try:
             self._model.save(storage)
         except storepass.exc.StorageWriteException as e:
-            util.show_error_dialog(
+            utils.show_error_dialog(
                 self, "Error saving password database",
                 f"Failed to save password database '{filename}': {e}.")
             return
@@ -957,7 +958,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         try:
             self._model.replace_entry(old_entry, new_entry)
         except storepass.exc.ModelException as e:
-            util.show_error_dialog(self, "Error updating entry", f"{e}.")
+            utils.show_error_dialog(self, "Error updating entry", f"{e}.")
             return False
 
         # Update the GTK model.
@@ -1090,14 +1091,14 @@ class _MainWindow(Gtk.ApplicationWindow):
         # Remove the entry. However, if it is a Container that is not empty
         # then first prompt the user for a confirmation of the removal.
         if isinstance(entry, storepass.model.Root) and len(entry.children) > 0:
-            util.show_confirmation_dialog(
+            utils.show_confirmation_dialog(
                 self, "Remove all entries",
                 "Operation will remove all entries from the database.",
                 "Remove", self._on_remove_confirmation_dialog_response,
                 tree_row_ref)
         elif (isinstance(entry, storepass.model.Folder) and
               len(entry.children) > 0):
-            util.show_confirmation_dialog(
+            utils.show_confirmation_dialog(
                 self, "Remove a non-empty folder",
                 f"Folder '{entry.name}' is not empty.", "Remove",
                 self._on_remove_confirmation_dialog_response, tree_row_ref)
@@ -1123,7 +1124,7 @@ class _MainWindow(Gtk.ApplicationWindow):
         try:
             self._model.add_entry(new_entry, parent_entry)
         except storepass.exc.ModelException as e:
-            util.show_error_dialog(self, "Error adding entry", f"{e}.")
+            utils.show_error_dialog(self, "Error adding entry", f"{e}.")
             return False
 
         # Update the GTK model.
