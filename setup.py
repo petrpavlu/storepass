@@ -39,6 +39,6 @@ setuptools.setup(
             'storepass-gtk = storepass.gtk.__main__:main',
         ],
     },
-    packages=setuptools.find_packages(exclude=['test']),
+    packages=setuptools.find_packages(exclude=['tests']),
     package_data={'storepass.gtk.resources': ['*.ui']},
 )

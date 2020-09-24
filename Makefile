@@ -1,7 +1,7 @@
 # Copyright (C) 2019-2020 Petr Pavlu <setup@dagobah.cz>
 # SPDX-License-Identifier: MIT
 
-PYTHON_FILES = storepass-cli.py storepass-gtk.py storepass test setup.py
+PYTHON_FILES = storepass-cli.py storepass-gtk.py storepass tests setup.py
 
 .PHONY: error
 error:
@@ -10,7 +10,7 @@ error:
 	@exit 1
 
 UNITTEST_ARGS = -m unittest discover \
-                 --top-level-directory . --start-directory test
+                 --top-level-directory . --start-directory tests
 
 .PHONY: check
 check:
@@ -22,7 +22,7 @@ codestyle:
 
 .PHONY: coverage
 coverage:
-	coverage3 run --source storepass,test $(UNITTEST_ARGS)
+	coverage3 run --source storepass,tests $(UNITTEST_ARGS)
 	coverage3 html
 	xdg-open htmlcov/index.html
 
